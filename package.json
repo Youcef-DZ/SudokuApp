@@ -1,0 +1,21 @@
+{
+  "name": "sudoku-framer",
+  "version": "1.0.0",
+  "description": "Sudoku game compatible with Framer and local development",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "framer-motion": "^10.16.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.37",
+    "@types/react-dom": "^18.2.15",
+    "@vitejs/plugin-react": "^4.2.0",
+    "vite": "^7.2.1"
+  }
+}

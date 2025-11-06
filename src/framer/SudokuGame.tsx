@@ -1,20 +1,13 @@
-/**
- * FRAMER CODE COMPONENT: SudokuGame.tsx
- * Main game component - imports logic from separate files
- * 
- * In Framer: Create as Code Component
- * Make sure to create types.ts and sudokuLogic.ts as Code Files first!
- */
-
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { addPropertyControls, ControlType } from 'framer';
-import type { Board, CellPosition, Difficulty } from './types';
+import type { Board, CellPosition, Difficulty } from './types.ts';
 import {
   generatePuzzle,
   checkSolution,
   isValidMove,
   copyBoard
-} from './sudokuLogic';
+} from './sudokuLogic.ts';
+import NumberPad from './NumberPad.tsx';
 
 export default function SudokuGame(props) {
   const {
@@ -178,50 +171,13 @@ export default function SudokuGame(props) {
       </div>
 
       {/* Number Pad */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(5, 1fr)',
-        gap: '8px',
-        width: boardSize,
-      }}>
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-          <button
-            key={num}
-            onClick={() => handleNumberInput(num)}
-            disabled={!selectedCell}
-            style={{
-              padding: '12px',
-              fontSize: '18px',
-              fontWeight: '600',
-              backgroundColor: selectedCell ? primaryColor : '#e5e7eb',
-              color: selectedCell ? 'white' : '#9ca3af',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: selectedCell ? 'pointer' : 'not-allowed',
-              transition: 'all 0.2s'
-            }}
-          >
-            {num}
-          </button>
-        ))}
-        <button
-          onClick={() => handleNumberInput(0)}
-          disabled={!selectedCell}
-          style={{
-            padding: '12px',
-            fontSize: '14px',
-            fontWeight: '600',
-            backgroundColor: selectedCell ? errorColor : '#e5e7eb',
-            color: selectedCell ? 'white' : '#9ca3af',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: selectedCell ? 'pointer' : 'not-allowed',
-            transition: 'all 0.2s'
-          }}
-        >
-          Clear
-        </button>
-      </div>
+      <NumberPad
+        selectedCell={selectedCell}
+        onNumberInput={handleNumberInput}
+        primaryColor={primaryColor}
+        errorColor={errorColor}
+        boardSize={boardSize}
+      />
 
       {/* Win Message */}
       {gameWon && (

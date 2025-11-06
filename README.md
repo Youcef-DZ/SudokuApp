@@ -13,14 +13,15 @@ Opens at http://localhost:3000
 
 ### Copy to Framer
 
-**Option 1: Modular (Recommended)**
-Copy 3 files from `src/framer/`:
+Copy 4 files from `src/framer/`:
 1. **Code File**: `types.ts`
-2. **Code File**: `sudokuLogic.ts`  
-3. **Component**: `SudokuGame.tsx`
+2. **Code File**: `sudokuLogic.ts`
+3. **Code Component**: `NumberPad.tsx`
+4. **Code Component**: `SudokuGame.tsx`
 
-**Option 2: Single File**
-Copy `src/FramerComponent.tsx` to a Code Component
+**Important**: Use `.ts` extension in imports (e.g., `'./types.ts'`)
+
+**Alternative**: Copy `SudokuGame-SingleFile.tsx` as a single component (no imports needed)
 
 ## ✨ Features
 - Three difficulty levels (Easy, Medium, Hard)
@@ -30,9 +31,8 @@ Copy `src/FramerComponent.tsx` to a Code Component
 - Customizable colors and size
 - Responsive design
 
-## � File Structure
+## 📁 File Structure
 
-### Current (Modular)
 ```
 src/
 ├── types.ts                    # Type definitions
@@ -43,16 +43,14 @@ src/
 │   ├── SudokuBoard.tsx
 │   ├── NumberPad.tsx
 │   └── WinMessage.tsx
-├── SudokuGameModular.tsx      # Main component
+├── SudokuGameModular.tsx      # Main component (local)
 └── framer/                    # Framer-ready versions
-    ├── types.ts
-    ├── sudokuLogic.ts
-    └── SudokuGame.tsx
+    ├── types.ts               # Copy as Code File
+    ├── sudokuLogic.ts         # Copy as Code File
+    ├── NumberPad.tsx          # Copy as Code Component
+    ├── SudokuGame.tsx         # Copy as Code Component
+    └── SudokuGame-SingleFile.tsx  # Alternative: all-in-one
 ```
-
-### Legacy (Single-file)
-- `src/SudokuGame.jsx` - Original local component
-- `src/FramerComponent.tsx` - Single-file Framer component
 
 ## 🛠️ Adding Features
 
@@ -64,10 +62,7 @@ src/
 | Undo/Redo | `hooks/useSudokuGame.ts` |
 | Themes | `types.ts` + components |
 
-## � More Details
-See [MODULAR_GUIDE.md](./MODULAR_GUIDE.md) for full modular architecture documentation.
-
-## � Tech Stack
+## 🔧 Tech Stack
 - React 18 + TypeScript
 - Vite (dev server with hot reload)
 - Framer Motion (optional)

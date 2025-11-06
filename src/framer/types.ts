@@ -1,10 +1,3 @@
-/**
- * FRAMER CODE FILE: types.ts
- * Type definitions for Sudoku game
- * 
- * In Framer: Create as Code File (not Component)
- */
-
 export type Board = number[][];
 
 export type Difficulty = 'easy' | 'medium' | 'hard';

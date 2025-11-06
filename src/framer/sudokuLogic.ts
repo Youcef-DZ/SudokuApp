@@ -1,11 +1,4 @@
-/**
- * FRAMER CODE FILE: sudokuLogic.ts
- * Core game logic - no UI dependencies
- * 
- * In Framer: Create as Code File (not Component)
- */
-
-import type { Board, Difficulty, PuzzleResult } from './types';
+import type { Board, Difficulty, PuzzleResult } from './types.ts';
 
 export const createEmptyBoard = (): Board => {
   return Array(9).fill(null).map(() => Array(9).fill(0));

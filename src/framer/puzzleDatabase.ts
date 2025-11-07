@@ -54,13 +54,3 @@ export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): P
   const randomIndex = Math.floor(Math.random() * filtered.length);
   return filtered[randomIndex];
 };
-
-export const getPuzzlesByDifficulty = async (difficulty: 'easy' | 'medium' | 'hard'): Promise<PuzzleData[]> => {
-  const puzzles = await fetchPuzzlesFromNotion();
-  return puzzles.filter(p => p.difficulty === difficulty);
-};
-
-export const getPuzzleById = async (id: number): Promise<PuzzleData | null> => {
-  const puzzles = await fetchPuzzlesFromNotion();
-  return puzzles.find(p => p.id === id) || null;
-};

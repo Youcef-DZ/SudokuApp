@@ -20,7 +20,6 @@ export default function SudokuGame(props: SudokuGameProps) {
     cellSize = 50
   } = props;
 
-  const [, setPuzzle] = useState<Board>([]);
   const [solution, setSolution] = useState<Board>([]);
   const [currentBoard, setCurrentBoard] = useState<Board>([]);
   const [initialBoard, setInitialBoard] = useState<Board>([]);
@@ -30,7 +29,6 @@ export default function SudokuGame(props: SudokuGameProps) {
 
   const startNewGame = useCallback(async () => {
     const { puzzle: newPuzzle, solution: newSolution } = await generatePuzzle(difficulty as Difficulty);
-    setPuzzle(newPuzzle);
     setSolution(newSolution);
     setCurrentBoard(copyBoard(newPuzzle));
     setInitialBoard(copyBoard(newPuzzle));

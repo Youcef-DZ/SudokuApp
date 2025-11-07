@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import SudokuGameModular from './SudokuGameModular';
+import SudokuGame from './framer/SudokuGame';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -13,7 +13,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       backgroundColor: '#f3f4f6',
       padding: '20px'
     }}>
-      <SudokuGameModular 
+      <SudokuGame 
         difficulty="medium"
         primaryColor="#3b82f6"
         backgroundColor="#ffffff"

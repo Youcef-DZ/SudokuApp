@@ -1,4 +1,5 @@
 import type { Board, Difficulty, PuzzleResult } from './types.ts';
+import { getRandomPuzzle } from './puzzleDatabase.ts';
 
 export const createEmptyBoard = (): Board => {
   return Array(9).fill(null).map(() => Array(9).fill(0));
@@ -62,7 +63,18 @@ export const generateFilledBoard = (): Board => {
   return board;
 };
 
-export const generatePuzzle = (difficulty: Difficulty = 'medium'): PuzzleResult => {
+export const generatePuzzle = async (difficulty: Difficulty = 'medium', useDatabase: boolean = true): Promise<PuzzleResult> => {
+
+  if (useDatabase) {
+    const puzzleData = await getRandomPuzzle(difficulty);
+    if (puzzleData) {
+      return {
+        puzzle: puzzleData.puzzle.map((row: number[]) => [...row]),
+        solution: puzzleData.solution.map((row: number[]) => [...row])
+      };
+    }
+  }
+
   const board = generateFilledBoard();
   const solution: Board = board.map((row: number[]) => [...row]);
   const difficultyMap: Record<Difficulty, number> = {

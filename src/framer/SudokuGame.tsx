@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { addPropertyControls, ControlType } from 'framer';
 import type { Board, CellPosition, Difficulty } from './types.ts';
+import type { SudokuGameProps } from './types.ts';
 import {
   generatePuzzle,
   checkSolution,
@@ -9,7 +9,7 @@ import {
 } from './sudokuLogic.ts';
 import NumberPad from './NumberPad.tsx';
 
-export default function SudokuGame(props) {
+export default function SudokuGame(props: SudokuGameProps) {
   const {
     difficulty = 'medium',
     primaryColor = '#3b82f6',
@@ -28,8 +28,8 @@ export default function SudokuGame(props) {
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [gameWon, setGameWon] = useState(false);
 
-  const startNewGame = useCallback(() => {
-    const { puzzle: newPuzzle, solution: newSolution } = generatePuzzle(difficulty as Difficulty);
+  const startNewGame = useCallback(async () => {
+    const { puzzle: newPuzzle, solution: newSolution } = await generatePuzzle(difficulty as Difficulty);
     setPuzzle(newPuzzle);
     setSolution(newSolution);
     setCurrentBoard(copyBoard(newPuzzle));
@@ -100,7 +100,7 @@ export default function SudokuGame(props) {
       borderRadius: '12px',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
-      {/* Header */}
+
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -125,7 +125,6 @@ export default function SudokuGame(props) {
         </button>
       </div>
 
-      {/* Game Board */}
       <div style={{
         display: 'grid',
         gridTemplateColumns: `repeat(9, ${cellSize}px)`,
@@ -170,7 +169,6 @@ export default function SudokuGame(props) {
         )}
       </div>
 
-      {/* Number Pad */}
       <NumberPad
         selectedCell={selectedCell}
         onNumberInput={handleNumberInput}
@@ -179,7 +177,6 @@ export default function SudokuGame(props) {
         boardSize={boardSize}
       />
 
-      {/* Win Message */}
       {gameWon && (
         <div style={{
           padding: '16px 24px',
@@ -189,11 +186,10 @@ export default function SudokuGame(props) {
           fontSize: '18px',
           fontWeight: '600'
         }}>
-          🎉 Congratulations! You solved it!
+          Congratulations! You solved it!
         </div>
       )}
 
-      {/* Instructions */}
       <div style={{
         width: boardSize,
         fontSize: '12px',
@@ -205,6 +201,9 @@ export default function SudokuGame(props) {
     </div>
   );
 }
+
+/* Framer property controls - uncomment when uploading to Framer
+import { addPropertyControls, ControlType } from 'framer';
 
 addPropertyControls(SudokuGame, {
   difficulty: {
@@ -247,3 +246,4 @@ addPropertyControls(SudokuGame, {
     defaultValue: 50
   }
 });
+*/

@@ -8,6 +8,7 @@ import {
   copyBoard
 } from './sudokuLogic.ts';
 import NumberPad from './NumberPad.tsx';
+import Header from './Header.tsx';
 
 export default function SudokuGame(props: SudokuGameProps) {
   const {
@@ -26,6 +27,24 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [gameWon, setGameWon] = useState(false);
+
+  // Responsive cell size based on screen width
+  const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
+
+  useEffect(() => {
+    const updateCellSize = () => {
+      const maxWidth = window.innerWidth - 40; // 20px padding each side
+      const maxHeight = window.innerHeight - 300; // Leave room for header, numberpad, etc
+      const maxBoardSize = Math.min(maxWidth, maxHeight);
+      const calculatedCellSize = Math.floor(maxBoardSize / 9);
+      const finalCellSize = Math.min(calculatedCellSize, cellSize); // Don't exceed prop cellSize
+      setResponsiveCellSize(Math.max(30, finalCellSize)); // Minimum 30px
+    };
+
+    updateCellSize();
+    window.addEventListener('resize', updateCellSize);
+    return () => window.removeEventListener('resize', updateCellSize);
+  }, [cellSize]);
 
   const startNewGame = useCallback(async () => {
     const { puzzle: newPuzzle, solution: newSolution } = await generatePuzzle(difficulty as Difficulty);
@@ -85,7 +104,7 @@ export default function SudokuGame(props: SudokuGameProps) {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [handleKeyPress]);
 
-  const boardSize = cellSize * 9;
+  const boardSize = responsiveCellSize * 9;
 
   return (
     <div style={{
@@ -96,36 +115,21 @@ export default function SudokuGame(props: SudokuGameProps) {
       padding: '20px',
       backgroundColor: backgroundColor,
       borderRadius: '12px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      maxWidth: '100vw',
+      boxSizing: 'border-box'
     }}>
 
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: boardSize,
-      }}>
-        <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '600' }}>Sudoku</h2>
-        <button
-          onClick={startNewGame}
-          style={{
-            padding: '8px 16px',
-            backgroundColor: primaryColor,
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}
-        >
-          New Game
-        </button>
-      </div>
+      <Header 
+        onNewGame={startNewGame}
+        primaryColor={primaryColor}
+        responsiveCellSize={responsiveCellSize}
+        boardSize={boardSize}
+      />
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(9, ${cellSize}px)`,
+        gridTemplateColumns: `repeat(9, ${responsiveCellSize}px)`,
         gap: '0',
         border: `2px solid ${gridColor}`,
         borderRadius: '8px',
@@ -144,12 +148,12 @@ export default function SudokuGame(props: SudokuGameProps) {
                 key={`${rowIndex}-${colIndex}`}
                 onClick={() => handleCellClick(rowIndex, colIndex)}
                 style={{
-                  width: cellSize,
-                  height: cellSize,
+                  width: responsiveCellSize,
+                  height: responsiveCellSize,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '20px',
+                  fontSize: `${Math.max(14, responsiveCellSize * 0.4)}px`,
                   fontWeight: isInitial ? '700' : '400',
                   backgroundColor: isSelected ? '#dbeafe' : hasError ? '#fee2e2' : 'white',
                   color: isInitial ? '#1f2937' : hasError ? errorColor : primaryColor,
@@ -172,27 +176,30 @@ export default function SudokuGame(props: SudokuGameProps) {
         onNumberInput={handleNumberInput}
         primaryColor={primaryColor}
         errorColor={errorColor}
-        boardSize={boardSize}
+        boardSize={responsiveCellSize * 9}
       />
 
       {gameWon && (
         <div style={{
-          padding: '16px 24px',
+          padding: `${Math.max(12, responsiveCellSize * 0.32)}px ${Math.max(18, responsiveCellSize * 0.48)}px`,
           backgroundColor: successColor,
           color: 'white',
           borderRadius: '8px',
-          fontSize: '18px',
-          fontWeight: '600'
+          fontSize: `${Math.max(14, responsiveCellSize * 0.36)}px`,
+          fontWeight: '600',
+          textAlign: 'center'
         }}>
-          Congratulations! You solved it!
+          🎉 Congratulations! You solved it!
         </div>
       )}
 
       <div style={{
-        width: boardSize,
-        fontSize: '12px',
+        width: '100%',
+        maxWidth: boardSize,
+        fontSize: `${Math.max(10, responsiveCellSize * 0.24)}px`,
         color: '#6b7280',
-        textAlign: 'center'
+        textAlign: 'center',
+        padding: '0 10px'
       }}>
         Click a cell and use keyboard (1-9) or number pad to fill.
       </div>

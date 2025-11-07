@@ -20,7 +20,7 @@ export default function SudokuGame(props: SudokuGameProps) {
     cellSize = 50
   } = props;
 
-  const [puzzle, setPuzzle] = useState<Board>([]);
+  const [, setPuzzle] = useState<Board>([]);
   const [solution, setSolution] = useState<Board>([]);
   const [currentBoard, setCurrentBoard] = useState<Board>([]);
   const [initialBoard, setInitialBoard] = useState<Board>([]);

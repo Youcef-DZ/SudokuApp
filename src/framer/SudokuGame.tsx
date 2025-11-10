@@ -189,7 +189,7 @@ export default function SudokuGame(props: SudokuGameProps) {
           fontWeight: '600',
           textAlign: 'center'
         }}>
-          🎉 Congratulations! You solved it!
+          Congratulations! You solved it!
         </div>
       )}
 

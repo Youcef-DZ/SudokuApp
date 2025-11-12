@@ -20,4 +20,10 @@ export interface SudokuGameProps {
   errorColor?: string;
   successColor?: string;
   cellSize?: number;
+  onLogin?: () => void;
+  onLogout?: () => void;
+  isAuthenticated?: boolean;
+  userName?: string;
+  darkMode?: boolean;
+  onToggleTheme?: () => void;
 }

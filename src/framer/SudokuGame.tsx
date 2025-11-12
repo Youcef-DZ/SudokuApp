@@ -14,12 +14,27 @@ export default function SudokuGame(props: SudokuGameProps) {
   const {
     difficulty = 'medium',
     primaryColor = '#3b82f6',
-    backgroundColor = '#ffffff',
-    gridColor = '#e5e7eb',
+    backgroundColor: bgColorProp,
+    gridColor: gridColorProp,
     errorColor = '#ef4444',
     successColor = '#10b981',
-    cellSize = 50
+    cellSize = 50,
+    onLogin,
+    onLogout,
+    isAuthenticated = false,
+    userName,
+    darkMode = false,
+    onToggleTheme
   } = props;
+
+  // Dark mode colors
+  const backgroundColor = bgColorProp || (darkMode ? '#1f2937' : '#ffffff');
+  const gridColor = gridColorProp || (darkMode ? '#4b5563' : '#e5e7eb');
+  const cellBg = darkMode ? '#374151' : 'white';
+  const cellBgSelected = darkMode ? '#1e3a5f' : '#dbeafe';
+  const cellBgError = darkMode ? '#7f1d1d' : '#fee2e2';
+  const textColor = darkMode ? '#f9fafb' : '#1f2937';
+  const textColorLight = darkMode ? '#9ca3af' : '#6b7280';
 
   const [solution, setSolution] = useState<Board>([]);
   const [currentBoard, setCurrentBoard] = useState<Board>([]);
@@ -27,6 +42,8 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [gameWon, setGameWon] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0); // in seconds
+  const [startTime, setStartTime] = useState<number>(Date.now());
 
   // Responsive cell size based on screen width
   const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
@@ -54,11 +71,24 @@ export default function SudokuGame(props: SudokuGameProps) {
     setSelectedCell(null);
     setErrors(new Set());
     setGameWon(false);
+    setElapsedTime(0);
+    setStartTime(Date.now());
   }, [difficulty]);
 
   useEffect(() => {
     startNewGame();
   }, [startNewGame]);
+
+  // Timer effect - updates every second
+  useEffect(() => {
+    if (gameWon) return; // Stop timer when game is won
+
+    const timer = setInterval(() => {
+      setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [startTime, gameWon]);
 
   const handleCellClick = useCallback((row: number, col: number) => {
     if (initialBoard[row]?.[col] !== 0) return;
@@ -122,9 +152,16 @@ export default function SudokuGame(props: SudokuGameProps) {
 
       <Header 
         onNewGame={startNewGame}
+        onLogin={onLogin}
+        onLogout={onLogout}
         primaryColor={primaryColor}
         responsiveCellSize={responsiveCellSize}
         boardSize={boardSize}
+        isAuthenticated={isAuthenticated}
+        userName={userName}
+        elapsedTime={elapsedTime}
+        darkMode={darkMode}
+        onToggleTheme={onToggleTheme}
       />
 
       <div style={{
@@ -155,8 +192,8 @@ export default function SudokuGame(props: SudokuGameProps) {
                   justifyContent: 'center',
                   fontSize: `${Math.max(14, responsiveCellSize * 0.4)}px`,
                   fontWeight: isInitial ? '700' : '400',
-                  backgroundColor: isSelected ? '#dbeafe' : hasError ? '#fee2e2' : 'white',
-                  color: isInitial ? '#1f2937' : hasError ? errorColor : primaryColor,
+                  backgroundColor: isSelected ? cellBgSelected : hasError ? cellBgError : cellBg,
+                  color: isInitial ? textColor : hasError ? errorColor : primaryColor,
                   cursor: isInitial ? 'default' : 'pointer',
                   borderRight: isThickRight ? `2px solid ${gridColor}` : `1px solid #f3f4f6`,
                   borderBottom: isThickBottom ? `2px solid ${gridColor}` : `1px solid #f3f4f6`,
@@ -189,7 +226,7 @@ export default function SudokuGame(props: SudokuGameProps) {
           fontWeight: '600',
           textAlign: 'center'
         }}>
-          Congratulations! You solved it!
+          🎉 Congratulations! You solved it in {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}!
         </div>
       )}
 
@@ -197,7 +234,7 @@ export default function SudokuGame(props: SudokuGameProps) {
         width: '100%',
         maxWidth: boardSize,
         fontSize: `${Math.max(10, responsiveCellSize * 0.24)}px`,
-        color: '#6b7280',
+        color: textColorLight,
         textAlign: 'center',
         padding: '0 10px'
       }}>

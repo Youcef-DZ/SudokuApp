@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { AuthProvider, useDescope, useSession, useUser } from '@descope/react-sdk';
 import SudokuGame from './SudokuGame.tsx';
 import DifficultySelect from './DifficultySelect.tsx';
+import LoginPage from './LoginPage.tsx';
 import type { SudokuGameProps, Difficulty } from './types.ts';
 
 const projectId = "P35AlPWcTE6gN9hXrEFjboLuqX8T";
@@ -25,11 +26,35 @@ function GameWithAuth(props: GameWrapperProps) {
   
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(startWithDifficulty || null);
   const [showGame, setShowGame] = useState(!!startWithDifficulty);
+  const [showLogin, setShowLogin] = useState(false);
   const [darkMode, setDarkMode] = useState(darkModeProp);
 
   const toggleTheme = useCallback(() => {
     setDarkMode(prev => !prev);
   }, []);
+
+  const handleLogin = useCallback(() => {
+    if (onLoginOverride) {
+      onLoginOverride();
+    } else {
+      setShowLogin(true);
+    }
+  }, [onLoginOverride]);
+
+  const handleLoginSuccess = useCallback(() => {
+    setShowLogin(false);
+  }, []);
+
+  // Show login page
+  if (showLogin) {
+    return (
+      <LoginPage
+        darkMode={darkMode}
+        onSuccess={handleLoginSuccess}
+        onBack={() => setShowLogin(false)}
+      />
+    );
+  }
 
   // Show difficulty selection first
   if (!showGame) {
@@ -39,11 +64,7 @@ function GameWithAuth(props: GameWrapperProps) {
           setSelectedDifficulty(difficulty);
           setShowGame(true);
         }}
-        onLogin={onLoginOverride || (() => {
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
-          }
-        })}
+        onLogin={handleLogin}
         isAuthenticated={isAuthenticated}
         userName={user?.name || user?.email}
         darkMode={darkMode}
@@ -61,11 +82,7 @@ function GameWithAuth(props: GameWrapperProps) {
       userName={user?.name || user?.email}
       darkMode={darkMode}
       onToggleTheme={toggleTheme}
-      onLogin={onLoginOverride || (() => {
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login';
-        }
-      })}
+      onLogin={handleLogin}
       onLogout={onLogoutOverride || (() => {
         logout();
         // Optionally go back to difficulty selection

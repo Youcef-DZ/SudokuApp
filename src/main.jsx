@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import GameWrapper from './framer/GameWrapper';
-import LoginPage from './login';
+import LoginPage from './framer/LoginPage';
 import DifficultySelect from './framer/DifficultySelect';
 import { AuthProvider, useSession, useUser } from '@descope/react-sdk';
 import { unprotectedComponent } from './framer/DescopeAuth';

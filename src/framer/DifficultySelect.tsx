@@ -62,12 +62,11 @@ export default function DifficultySelect({
       alignItems: 'center',
       gap: '20px',
       padding: '20px',
-      backgroundColor: colors.bg,
-      borderRadius: '12px',
+      backgroundColor: 'transparent',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      maxWidth: '100vw',
-      boxSizing: 'border-box',
-      minHeight: '100vh'
+      width: '100%',
+      height: '100%',
+      boxSizing: 'border-box'
     }}>
 
       <Header

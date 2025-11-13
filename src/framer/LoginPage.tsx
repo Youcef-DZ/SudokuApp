@@ -25,10 +25,12 @@ export default function LoginPage({
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      minHeight: '100vh',
-      backgroundColor: colors.bg,
+      width: '100%',
+      height: '100%',
+      backgroundColor: 'transparent',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      padding: '20px'
+      padding: '20px',
+      boxSizing: 'border-box'
     }}>
       <div style={{
         maxWidth: '450px',

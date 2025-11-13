@@ -14,7 +14,6 @@ export default function SudokuGame(props: SudokuGameProps) {
   const {
     difficulty = 'medium',
     primaryColor = '#3b82f6',
-    backgroundColor: bgColorProp,
     gridColor: gridColorProp,
     errorColor = '#ef4444',
     successColor = '#10b981',
@@ -28,7 +27,6 @@ export default function SudokuGame(props: SudokuGameProps) {
   } = props;
 
   // Dark mode colors
-  const backgroundColor = bgColorProp || (darkMode ? '#1f2937' : '#ffffff');
   const gridColor = gridColorProp || (darkMode ? '#4b5563' : '#e5e7eb');
   const cellBg = darkMode ? '#374151' : 'white';
   const cellBgSelected = darkMode ? '#1e3a5f' : '#dbeafe';
@@ -143,10 +141,10 @@ export default function SudokuGame(props: SudokuGameProps) {
       alignItems: 'center',
       gap: '20px',
       padding: '20px',
-      backgroundColor: backgroundColor,
-      borderRadius: '12px',
+      backgroundColor: 'transparent',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      maxWidth: '100vw',
+      width: '100%',
+      height: '100%',
       boxSizing: 'border-box'
     }}>
 

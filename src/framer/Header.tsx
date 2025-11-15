@@ -13,6 +13,7 @@ interface GameHeaderProps {
   title?: string;
   showTimer?: boolean;
   showNewGameButton?: boolean;
+  showDivider?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -41,13 +42,15 @@ export default function GameHeader({
   title,
   showTimer = true,
   showNewGameButton = true
+  , showDivider = true
 }: GameHeaderProps) {
+  const headerBorder = darkMode ? '#374151' : '#e5e7eb';
   // Simple layout for pages without game controls (like difficulty select)
   if (!showTimer && !showNewGameButton && title) {
     return (
-      <div style={{
+      <>
+        <div style={{
         backgroundColor: darkMode ? '#111827' : 'white',
-        borderBottom: darkMode ? '1px solid #374151' : '1px solid #e5e7eb',
         padding: '12px 20px',
         display: 'flex',
         justifyContent: 'space-between',
@@ -146,12 +149,21 @@ export default function GameHeader({
           )}
         </div>
       </div>
+      {showDivider && (
+        <div style={{
+          height: '1px',
+          background: headerBorder,
+          width: '100%'
+        }} />
+      )}
+      </>
     );
   }
 
   // Full game layout with timer and controls
   return (
-    <div style={{
+    <>
+      <div style={{
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
@@ -298,5 +310,15 @@ export default function GameHeader({
       )}
       </div>
     </div>
+    {showDivider && (
+      <div style={{
+        height: '1px',
+        background: headerBorder,
+        width: '100%',
+        maxWidth: boardSize,
+        margin: '0 auto'
+      }} />
+    )}
+    </>
   );
 }

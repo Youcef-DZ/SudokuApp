@@ -4,7 +4,6 @@ interface GameHeaderProps {
   onLogout?: () => void;
   primaryColor?: string;
   responsiveCellSize?: number;
-  boardSize?: number;
   isAuthenticated?: boolean;
   userName?: string;
   elapsedTime?: number; // in seconds
@@ -32,8 +31,7 @@ export default function GameHeader({
   onLogin,
   onLogout,
   primaryColor = '#3b82f6', 
-  responsiveCellSize = 50, 
-  boardSize,
+  responsiveCellSize = 50,
   isAuthenticated = false,
   userName,
   elapsedTime = 0,
@@ -168,7 +166,6 @@ export default function GameHeader({
       justifyContent: 'space-between',
       alignItems: 'center',
       width: '100%',
-      maxWidth: boardSize,
       gap: '12px',
       flexWrap: 'wrap'
     }}>
@@ -314,9 +311,7 @@ export default function GameHeader({
       <div style={{
         height: '1px',
         background: headerBorder,
-        width: '100%',
-        maxWidth: boardSize,
-        margin: '0 auto'
+        width: '100%'
       }} />
     )}
     </>

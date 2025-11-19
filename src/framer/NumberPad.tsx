@@ -4,6 +4,7 @@ interface NumberPadProps {
   primaryColor: string;
   errorColor: string;
   boardSize: number;
+  darkMode?: boolean;
 }
 
 export default function NumberPad({
@@ -11,8 +12,16 @@ export default function NumberPad({
   onNumberInput,
   primaryColor,
   errorColor,
-  boardSize
+  boardSize,
+  darkMode = false
 }: NumberPadProps) {
+  const disabledBg = darkMode ? '#4b5563' : '#e5e7eb';
+  const disabledText = darkMode ? '#6b7280' : '#9ca3af';
+  
+  // Use softer colors in dark mode
+  const activePrimaryBg = darkMode ? '#79a1f8ff' : primaryColor; // Softer blue in dark mode
+  const activeErrorBg = darkMode ? '#be7a7aff' : errorColor; // Softer red in dark mode
+  
   return (
     <div style={{
       display: 'grid',
@@ -29,8 +38,8 @@ export default function NumberPad({
             padding: '12px',
             fontSize: '18px',
             fontWeight: '600',
-            backgroundColor: selectedCell ? primaryColor : '#e5e7eb',
-            color: selectedCell ? 'white' : '#9ca3af',
+            backgroundColor: selectedCell ? activePrimaryBg : disabledBg,
+            color: selectedCell ? 'white' : disabledText,
             border: 'none',
             borderRadius: '6px',
             cursor: selectedCell ? 'pointer' : 'not-allowed',
@@ -47,8 +56,8 @@ export default function NumberPad({
           padding: '12px',
           fontSize: '14px',
           fontWeight: '600',
-          backgroundColor: selectedCell ? errorColor : '#e5e7eb',
-          color: selectedCell ? 'white' : '#9ca3af',
+          backgroundColor: selectedCell ? activeErrorBg : disabledBg,
+          color: selectedCell ? 'white' : disabledText,
           border: 'none',
           borderRadius: '6px',
           cursor: selectedCell ? 'pointer' : 'not-allowed',

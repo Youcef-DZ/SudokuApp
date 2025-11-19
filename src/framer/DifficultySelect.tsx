@@ -62,10 +62,10 @@ export default function DifficultySelect({
       alignItems: 'center',
       gap: '20px',
       padding: '20px',
-      backgroundColor: 'transparent',
+      backgroundColor: darkMode ? '#111827' : '#f3f4f6',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       width: '100%',
-      height: '100%',
+      minHeight: '100%',
       boxSizing: 'border-box'
     }}>
 
@@ -82,7 +82,6 @@ export default function DifficultySelect({
 
       {/* Main Content */}
       <div style={{
-        flex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

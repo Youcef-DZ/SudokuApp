@@ -27,7 +27,8 @@ export const generatePuzzle = async (difficulty: Difficulty = 'medium'): Promise
   
   return {
     puzzle: puzzleData.puzzle.map((row: number[]) => [...row]),
-    solution: puzzleData.solution.map((row: number[]) => [...row])
+    solution: puzzleData.solution.map((row: number[]) => [...row]),
+    id: puzzleData.id
   };
 };
 

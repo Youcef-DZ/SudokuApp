@@ -46,6 +46,7 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [gameWon, setGameWon] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0); // in seconds
   const [startTime, setStartTime] = useState<number>(Date.now());
+  const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
 
   // Responsive cell size based on screen width
   const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
@@ -66,10 +67,11 @@ export default function SudokuGame(props: SudokuGameProps) {
   }, [cellSize]);
 
   const startNewGame = useCallback(async () => {
-    const { puzzle: newPuzzle, solution: newSolution } = await generatePuzzle(difficulty as Difficulty);
+    const { puzzle: newPuzzle, solution: newSolution, id } = await generatePuzzle(difficulty as Difficulty);
     setSolution(newSolution);
     setCurrentBoard(copyBoard(newPuzzle));
     setInitialBoard(copyBoard(newPuzzle));
+    setPuzzleId(id);
     setSelectedCell(null);
     setErrors(new Set());
     setGameWon(false);
@@ -163,6 +165,8 @@ export default function SudokuGame(props: SudokuGameProps) {
         elapsedTime={elapsedTime}
         darkMode={darkMode}
         onToggleTheme={onToggleTheme}
+        puzzleId={puzzleId}
+        difficulty={difficulty}
       />
 
       <div style={{

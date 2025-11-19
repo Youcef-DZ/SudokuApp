@@ -10,6 +10,7 @@ export interface CellPosition {
 export interface PuzzleResult {
   puzzle: Board;
   solution: Board;
+  id?: number;
 }
 
 export interface SudokuGameProps {

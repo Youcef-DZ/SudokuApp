@@ -13,6 +13,8 @@ interface GameHeaderProps {
   showTimer?: boolean;
   showNewGameButton?: boolean;
   showDivider?: boolean;
+  puzzleId?: number;
+  difficulty?: string;
 }
 
 function formatTime(seconds: number): string {
@@ -39,8 +41,10 @@ export default function GameHeader({
   onToggleTheme,
   title,
   showTimer = true,
-  showNewGameButton = true
-  , showDivider = true
+  showNewGameButton = true,
+  showDivider = true,
+  puzzleId,
+  difficulty
 }: GameHeaderProps) {
   const headerBorder = darkMode ? '#374151' : '#e5e7eb';
   // Simple layout for pages without game controls (like difficulty select)
@@ -197,16 +201,36 @@ export default function GameHeader({
         )}
       </div>
 
-      {/* Center: Timer */}
-      {showTimer && (
-        <div style={{
-          fontSize: `${Math.max(16, responsiveCellSize * 0.4)}px`,
-          color: darkMode ? '#d1d5db' : '#374151',
-          fontWeight: '600'
-        }}>
-          {formatTime(elapsedTime)}
-        </div>
-      )}
+      {/* Center: Puzzle Info and Timer */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px'
+      }}>
+        {/* Puzzle Info */}
+        {(difficulty || puzzleId) && (
+          <div style={{
+            fontSize: `${Math.max(16, responsiveCellSize * 0.4)}px`,
+            color: darkMode ? '#9ca3af' : '#6b7280',
+            fontWeight: '500'
+          }}>
+            {difficulty && <span style={{ textTransform: 'capitalize' }}>{difficulty}</span>}
+            {difficulty && puzzleId && <span> • </span>}
+            {puzzleId && <span>#{puzzleId}</span>}
+          </div>
+        )}
+        {/* Timer */}
+        {showTimer && (
+          <div style={{
+            fontSize: `${Math.max(16, responsiveCellSize * 0.4)}px`,
+            color: darkMode ? '#d1d5db' : '#374151',
+            fontWeight: '600'
+          }}>
+            {<span>⏱︎ </span>}
+            {formatTime(elapsedTime)}
+          </div>
+        )}
+      </div>
 
       {/* Right Side: User Settings */}
       <div style={{

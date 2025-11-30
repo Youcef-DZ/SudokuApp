@@ -52,24 +52,42 @@ export default function SudokuGame(props: SudokuGameProps) {
     return () => window.removeEventListener('resize', updateCellSize);
   }, [cellSize]);
 
-  const startNewGame = useCallback(async () => {
-    setLoading(true);
-    const { puzzle: newPuzzle, solution: newSolution, id } = await generatePuzzle(difficulty as Difficulty);
-    setSolution(newSolution);
-    setCurrentBoard(copyBoard(newPuzzle));
-    setInitialBoard(copyBoard(newPuzzle));
-    setPuzzleId(id);
+  const handleGameInit = useCallback((result: { puzzle: Board; solution: Board; id?: number }) => {
+    setSolution(result.solution);
+    setCurrentBoard(copyBoard(result.puzzle));
+    setInitialBoard(copyBoard(result.puzzle));
+    setPuzzleId(result.id);
     setSelectedCell(null);
     setErrors(new Set());
     setGameWon(false);
     setElapsedTime(0);
     setStartTime(Date.now());
     setLoading(false);
-  }, [difficulty]);
+  }, []);
+
+  const startNewGame = useCallback(async () => {
+    setLoading(true);
+    const result = await generatePuzzle(difficulty as Difficulty);
+    handleGameInit(result);
+  }, [difficulty, handleGameInit]);
 
   useEffect(() => {
-    startNewGame();
-  }, [startNewGame]);
+    let mounted = true;
+
+    const init = async () => {
+      setLoading(true);
+      const result = await generatePuzzle(difficulty as Difficulty);
+      if (mounted) {
+        handleGameInit(result);
+      }
+    };
+
+    init();
+
+    return () => {
+      mounted = false;
+    };
+  }, [difficulty, handleGameInit]);
 
   // Timer effect - updates every second
   useEffect(() => {

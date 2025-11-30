@@ -7,8 +7,10 @@ import {
   isValidMove,
   copyBoard
 } from './sudokuLogic.ts';
+import { saveScoreToNotion } from './Database.ts';
 import NumberPad from './NumberPad.tsx';
 import Header from './Header.tsx';
+import Leaderboard from './Leaderboard.tsx';
 
 export default function SudokuGame(props: SudokuGameProps) {
   const {
@@ -33,6 +35,7 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(true);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   // Responsive cell size based on screen width
   const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
@@ -88,6 +91,24 @@ export default function SudokuGame(props: SudokuGameProps) {
       mounted = false;
     };
   }, [difficulty, handleGameInit]);
+
+  // Save score when game is won
+  useEffect(() => {
+    if (gameWon) {
+      const saveScore = async () => {
+        const score = {
+          userName: userName || 'Anonymous',
+          time: elapsedTime,
+          difficulty: difficulty,
+          date: new Date().toISOString()
+        };
+
+        await saveScoreToNotion(score);
+      };
+
+      saveScore();
+    }
+  }, [gameWon, elapsedTime, userName, difficulty]);
 
   // Timer effect - updates every second
   useEffect(() => {
@@ -235,6 +256,7 @@ export default function SudokuGame(props: SudokuGameProps) {
             onToggleTheme={onToggleTheme}
             puzzleId={puzzleId}
             difficulty={difficulty}
+            onShowLeaderboard={() => setShowLeaderboard(true)}
           />
         </div>
 
@@ -370,23 +392,105 @@ export default function SudokuGame(props: SudokuGameProps) {
 
         {gameWon && (
           <div style={{
-            padding: `${Math.max(16, responsiveCellSize * 0.4)}px ${Math.max(24, responsiveCellSize * 0.6)}px`,
-            background: darkMode
-              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(45, 212, 191, 0.9) 100%)'
-              : 'linear-gradient(135deg, #10b981 0%, #2dd4bf 100%)',
-            color: 'white',
-            borderRadius: '12px',
-            fontSize: `${Math.max(16, responsiveCellSize * 0.4)}px`,
-            fontWeight: '700',
-            textAlign: 'center',
-            boxShadow: '0 8px 24px rgba(16, 185, 129, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-            animation: 'celebrate 0.6s ease-in-out',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: darkMode ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
             backdropFilter: 'blur(8px)',
             WebkitBackdropFilter: 'blur(8px)',
-            border: '2px solid rgba(255, 255, 255, 0.2)'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100
           }}>
-            🎉 Congratulations! You solved it in {Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}! 🎉
+            <div style={{
+              background: darkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+              padding: '40px',
+              borderRadius: '24px',
+              textAlign: 'center',
+              boxShadow: '0 20px 50px rgba(0,0,0,0.2)',
+              border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)',
+              backdropFilter: 'blur(10px)',
+              maxWidth: '90%',
+              width: '400px'
+            }}>
+              <h2 style={{
+                fontSize: '32px',
+                marginBottom: '16px',
+                background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontWeight: '800'
+              }}>
+                🎉 Puzzle Solved!
+              </h2>
+              <p style={{
+                fontSize: '18px',
+                color: darkMode ? '#cbd5e1' : '#475569',
+                marginBottom: '8px'
+              }}>
+                Time: <span style={{ fontWeight: '700', color: darkMode ? '#fff' : '#0f172a' }}>{Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}</span>
+              </p>
+              <p style={{
+                fontSize: '16px',
+                color: darkMode ? '#94a3b8' : '#64748b',
+                marginBottom: '32px'
+              }}>
+                Difficulty: <span style={{ textTransform: 'capitalize' }}>{difficulty}</span>
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <button
+                  onClick={startNewGame}
+                  style={{
+                    padding: '16px 32px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)',
+                    transition: 'transform 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  Play Again
+                </button>
+
+                <button
+                  onClick={() => setShowLeaderboard(true)}
+                  style={{
+                    padding: '16px 32px',
+                    fontSize: '18px',
+                    fontWeight: '600',
+                    background: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(241, 245, 249, 0.8)',
+                    color: darkMode ? '#e2e8f0' : '#1e293b',
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    transition: 'transform 0.2s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  View Leaderboard 🏆
+                </button>
+              </div>
+            </div>
           </div>
+        )}
+
+        {showLeaderboard && (
+          <Leaderboard
+            darkMode={darkMode}
+            onClose={() => setShowLeaderboard(false)}
+            initialDifficulty={difficulty as 'easy' | 'medium' | 'hard'}
+          />
         )}
 
         <div style={{

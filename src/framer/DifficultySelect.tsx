@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Header from './Header.tsx';
+import Leaderboard from './Leaderboard.tsx';
 
 interface DifficultySelectProps {
   onSelectDifficulty: (difficulty: 'easy' | 'medium' | 'hard') => void;
@@ -19,6 +20,7 @@ export default function DifficultySelect({
   onToggleTheme
 }: DifficultySelectProps) {
   const [hoveredDifficulty, setHoveredDifficulty] = useState<string | null>(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   const difficulties = [
     {
@@ -151,6 +153,35 @@ export default function DifficultySelect({
                 {title}
               </button>
             ))}
+
+            <button
+              onClick={() => setShowLeaderboard(true)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                fontSize: '16px',
+                fontWeight: '600',
+                color: darkMode ? '#94a3b8' : '#64748b',
+                cursor: 'pointer',
+                marginTop: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 16px',
+                borderRadius: '8px',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+                e.currentTarget.style.transform = 'scale(1.05)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              🏆 View Leaderboard
+            </button>
           </div>
 
           {!isAuthenticated && (
@@ -164,6 +195,13 @@ export default function DifficultySelect({
           )}
         </div>
       </div>
+
+      {showLeaderboard && (
+        <Leaderboard
+          darkMode={darkMode}
+          onClose={() => setShowLeaderboard(false)}
+        />
+      )}
     </div>
   );
 }

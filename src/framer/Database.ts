@@ -1,10 +1,22 @@
-const NOTION_API_URL = 'https://notion-dgmd-cc.vercel.app/api/query?d=2a34ffe6f70c809fa74dca478af13756&r=true&n=a';
+const SCORES_DB_ID = '2bb4ffe6f70c80dfb0b8d0f4f06ce125';
+const PUZZLES_DB_ID = '2a34ffe6f70c809fa74dca478af13756';
+const NOTION_API_KEY = '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';
+const NOTION_API_URL = `https://notion-dgmd-cc.vercel.app/api/query?d=${PUZZLES_DB_ID}&r=true&n=a`;
+const SCORES_API_URL = `https://notion-dgmd-cc.vercel.app/api/query?d=${SCORES_DB_ID}&r=true&n=a`;
 
 export interface PuzzleData {
   id: number;
   difficulty: 'easy' | 'medium' | 'hard';
   puzzle: number[][];
   solution: number[][];
+}
+
+export interface ScoreData {
+  id: string;
+  userName: string;
+  time: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  date: string;
 }
 
 const stringToBoard = (str: string): number[][] => {
@@ -24,11 +36,11 @@ let puzzleCache: PuzzleData[] | null = null;
 
 export const fetchPuzzlesFromNotion = async (): Promise<PuzzleData[]> => {
   if (puzzleCache) return puzzleCache;
-  
+
   try {
     const response = await fetch(NOTION_API_URL);
     const data = await response.json();
-    
+
     if (data.QUERY_RESPONSE_KEY_SUCCESS) {
       const blocks = data.QUERY_RESPONSE_KEY_RESULT.PRIMARY_DATABASE.BLOCKS;
       const fetchedPuzzles = blocks.map((block: any) => ({
@@ -43,7 +55,7 @@ export const fetchPuzzlesFromNotion = async (): Promise<PuzzleData[]> => {
   } catch (error) {
     console.error('Failed to fetch puzzles from Notion:', error);
   }
-  
+
   return [];
 };
 
@@ -53,4 +65,78 @@ export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): P
   if (filtered.length === 0) return null;
   const randomIndex = Math.floor(Math.random() * filtered.length);
   return filtered[randomIndex];
+};
+
+export const fetchScoresFromNotion = async (): Promise<ScoreData[]> => {
+  try {
+    const response = await fetch(SCORES_API_URL);
+    const data = await response.json();
+
+    if (data.QUERY_RESPONSE_KEY_SUCCESS) {
+      const blocks = data.QUERY_RESPONSE_KEY_RESULT.PRIMARY_DATABASE.BLOCKS;
+      return blocks.map((block: any) => ({
+        id: block.ID,
+        userName: block.PROPERTIES.Name.VALUE,
+        time: block.PROPERTIES.Time.VALUE,
+        difficulty: block.PROPERTIES.Difficulty.VALUE.toLowerCase(),
+        date: block.PROPERTIES.Date.VALUE
+      }));
+    }
+  } catch (error) {
+    console.error('Failed to fetch scores from Notion:', error);
+  }
+
+  return [];
+};
+
+export const saveScoreToNotion = async (score: Omit<ScoreData, 'id'>): Promise<boolean> => {
+  try {
+    // Note: Using corsproxy.io to bypass CORS restrictions for client-side calls.
+    // In production, a dedicated backend is recommended for security.
+    const response = await fetch('https://corsproxy.io/?https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NOTION_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Notion-Version': '2022-06-28'
+      },
+      body: JSON.stringify({
+        parent: { database_id: SCORES_DB_ID },
+        properties: {
+          'Name': {
+            title: [
+              {
+                text: {
+                  content: score.userName
+                }
+              }
+            ]
+          },
+          'Time': {
+            number: score.time
+          },
+          'Difficulty': {
+            select: {
+              name: score.difficulty.charAt(0).toUpperCase() + score.difficulty.slice(1)
+            }
+          },
+          'Date': {
+            date: {
+              start: score.date
+            }
+          }
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Failed to save score');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error saving score to Notion:', error);
+    return false;
+  }
 };

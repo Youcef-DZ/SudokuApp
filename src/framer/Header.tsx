@@ -15,6 +15,7 @@ interface GameHeaderProps {
   showDivider?: boolean;
   puzzleId?: number;
   difficulty?: string;
+  onShowLeaderboard?: () => void;
 }
 
 function formatTime(seconds: number): string {
@@ -41,7 +42,8 @@ export default function GameHeader({
   showTimer = true,
   showNewGameButton = true,
   puzzleId,
-  difficulty
+  difficulty,
+  onShowLeaderboard
 }: GameHeaderProps) {
   // Simple layout for pages without game controls (like difficulty select)
   if (!showTimer && !showNewGameButton && title) {
@@ -318,6 +320,48 @@ export default function GameHeader({
           alignItems: 'center',
           gap: '12px'
         }}>
+          {/* Leaderboard Button */}
+          {onShowLeaderboard && (
+            <button
+              onClick={onShowLeaderboard}
+              style={{
+                padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
+                borderRadius: '10px',
+                border: darkMode
+                  ? '1px solid rgba(251, 191, 36, 0.4)'
+                  : '1px solid rgba(124, 58, 237, 0.3)',
+                background: darkMode
+                  ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)'
+                  : 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(67, 56, 202, 0.1) 100%)',
+                color: darkMode ? '#fcd34d' : '#7c3aed',
+                cursor: 'pointer',
+                fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`,
+                fontWeight: '600',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: darkMode
+                  ? '0 2px 8px rgba(251, 191, 36, 0.2)'
+                  : '0 2px 8px rgba(124, 58, 237, 0.15)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                e.currentTarget.style.boxShadow = darkMode
+                  ? '0 4px 16px rgba(251, 191, 36, 0.4)'
+                  : '0 4px 16px rgba(124, 58, 237, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = darkMode
+                  ? '0 2px 8px rgba(251, 191, 36, 0.2)'
+                  : '0 2px 8px rgba(124, 58, 237, 0.15)';
+              }}
+              title="Leaderboard"
+            >
+              🏆
+            </button>
+          )}
+
           {/* Theme Toggle Button */}
           {onToggleTheme && (
             <button

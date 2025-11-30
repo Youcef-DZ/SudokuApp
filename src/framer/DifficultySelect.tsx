@@ -10,8 +10,8 @@ interface DifficultySelectProps {
   onToggleTheme?: () => void;
 }
 
-export default function DifficultySelect({ 
-  onSelectDifficulty, 
+export default function DifficultySelect({
+  onSelectDifficulty,
   onLogin,
   isAuthenticated,
   userName,
@@ -21,21 +21,21 @@ export default function DifficultySelect({
   const [hoveredDifficulty, setHoveredDifficulty] = useState<string | null>(null);
 
   const difficulties = [
-    { 
-      level: 'easy' as const, 
-      title: 'Easy', 
+    {
+      level: 'easy' as const,
+      title: 'Easy',
       description: 'Perfect for beginners',
       color: '#10b981'
     },
-    { 
-      level: 'medium' as const, 
-      title: 'Medium', 
+    {
+      level: 'medium' as const,
+      title: 'Medium',
       description: 'A balanced challenge',
       color: '#3b82f6'
     },
-    { 
-      level: 'hard' as const, 
-      title: 'Hard', 
+    {
+      level: 'hard' as const,
+      title: 'Hard',
       description: 'For experienced players',
       color: '#ef4444'
     }
@@ -62,8 +62,10 @@ export default function DifficultySelect({
       alignItems: 'center',
       gap: '20px',
       padding: '20px',
-      backgroundColor: darkMode ? '#111827' : '#f3f4f6',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      background: darkMode
+        ? 'linear-gradient(135deg, #1a0b2e 0%, #16213e 30%, #0f3443 60%, #0d3b3f 100%)'
+        : 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 30%, #e0f7fa 60%, #e0f2f1 100%)',
+      fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       width: '100%',
       minHeight: '100%',
       boxSizing: 'border-box'
@@ -94,8 +96,9 @@ export default function DifficultySelect({
         }}>
           <p style={{
             fontSize: 'clamp(16px, 4vw, 18px)',
-            color: colors.textSecondary,
-            marginBottom: 'clamp(24px, 5vh, 48px)'
+            color: darkMode ? '#94a3b8' : '#64748b',
+            marginBottom: 'clamp(32px, 6vh, 48px)',
+            fontWeight: '500'
           }}>
             Select a difficulty level to start playing
           </p>
@@ -114,20 +117,35 @@ export default function DifficultySelect({
                 onMouseEnter={() => setHoveredDifficulty(level)}
                 onMouseLeave={() => setHoveredDifficulty(null)}
                 style={{
-                  backgroundColor: colors.buttonBg,
-                  border: `2px solid ${hoveredDifficulty === level ? colors.buttonHoverBorder : colors.buttonBorder}`,
-                  borderRadius: '8px',
-                  padding: 'clamp(12px, 2.5vh, 16px) clamp(24px, 5vw, 32px)',
+                  background: darkMode
+                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
+                    : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  border: hoveredDifficulty === level
+                    ? (darkMode
+                      ? '2px solid rgba(99, 102, 241, 0.5)'
+                      : '2px solid rgba(59, 130, 246, 0.4)')
+                    : (darkMode
+                      ? '2px solid rgba(99, 102, 241, 0.25)'
+                      : '2px solid rgba(59, 130, 246, 0.25)'),
+                  borderRadius: '12px',
+                  padding: 'clamp(16px, 3vh, 20px) clamp(24px, 5vw, 32px)',
                   cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  fontSize: 'clamp(16px, 3.5vw, 18px)',
-                  fontWeight: '500',
-                  color: colors.buttonText,
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  fontSize: 'clamp(18px, 4vw, 20px)',
+                  fontWeight: '600',
+                  color: darkMode ? '#a5b4fc' : '#2563eb',
                   width: '100%',
-                  maxWidth: 'min(300px, 80vw)',
-                  boxShadow: hoveredDifficulty === level 
-                    ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' 
-                    : '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+                  maxWidth: 'min(320px, 80vw)',
+                  boxShadow: hoveredDifficulty === level
+                    ? (darkMode
+                      ? '0 8px 20px rgba(99, 102, 241, 0.4)'
+                      : '0 8px 20px rgba(59, 130, 246, 0.35)')
+                    : (darkMode
+                      ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                      : '0 2px 8px rgba(59, 130, 246, 0.15)'),
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  transform: hoveredDifficulty === level ? 'translateY(-2px) scale(1.02)' : 'translateY(0) scale(1)'
                 }}
               >
                 {title}

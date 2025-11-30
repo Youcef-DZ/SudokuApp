@@ -80,9 +80,8 @@ export default function SudokuGame(props: SudokuGameProps) {
   }, [startTime, gameWon]);
 
   const handleCellClick = useCallback((row: number, col: number) => {
-    if (initialBoard[row]?.[col] !== 0) return;
     setSelectedCell({ row, col });
-  }, [initialBoard]);
+  }, []);
 
   const handleNumberInput = useCallback((num: number) => {
     if (!selectedCell) return;
@@ -192,6 +191,8 @@ export default function SudokuGame(props: SudokuGameProps) {
         }}>
           {currentBoard.map((row, rowIndex) =>
             row.map((cell, colIndex) => {
+              const selectedValue = selectedCell ? currentBoard[selectedCell.row][selectedCell.col] : 0;
+              const isSameNumber = selectedValue !== 0 && cell === selectedValue;
               const isInitial = initialBoard[rowIndex]?.[colIndex] !== 0;
               const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
               const hasError = errors.has(`${rowIndex}-${colIndex}`);
@@ -217,7 +218,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: `${Math.max(14, responsiveCellSize * 0.4)}px`,
-                    fontWeight: isInitial ? '700' : isSelected ? '600' : '500',
+                    fontWeight: isSameNumber ? '800' : (isInitial ? '700' : (isSelected ? '600' : '500')),
                     background: isSelected
                       ? (darkMode
                         ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.35) 0%, rgba(56, 189, 248, 0.35) 100%)'
@@ -230,12 +231,17 @@ export default function SudokuGame(props: SudokuGameProps) {
                           ? (darkMode ? 'rgba(99, 102, 241, 0.1)' : 'rgba(59, 130, 246, 0.07)')
                           : (darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(255, 255, 255, 0.8)')
                     ,
-                    color: isInitial
-                      ? (darkMode ? '#f1f5f9' : '#0f172a')
-                      : hasError
-                        ? (darkMode ? '#fca5a5' : '#dc2626')
-                        : (darkMode ? '#a5b4fc' : '#2563eb'),
-                    cursor: isInitial ? 'default' : 'pointer',
+                    color: isSameNumber
+                      ? (darkMode ? '#38bdf8' : '#0284c7')
+                      : isInitial
+                        ? (darkMode ? '#f1f5f9' : '#0f172a')
+                        : hasError
+                          ? (darkMode ? '#fca5a5' : '#dc2626')
+                          : (darkMode ? '#a5b4fc' : '#2563eb'),
+                    textShadow: isSameNumber
+                      ? (darkMode ? '0 0 8px rgba(56, 189, 248, 0.5)' : '0 0 8px rgba(2, 132, 199, 0.3)')
+                      : 'none',
+                    cursor: 'pointer',
                     borderRight: isThickRight
                       ? (darkMode
                         ? '2px solid rgba(99, 102, 241, 0.5)'

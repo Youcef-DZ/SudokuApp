@@ -32,6 +32,7 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [elapsedTime, setElapsedTime] = useState(0); // in seconds
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
 
   // Responsive cell size based on screen width
   const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
@@ -52,6 +53,7 @@ export default function SudokuGame(props: SudokuGameProps) {
   }, [cellSize]);
 
   const startNewGame = useCallback(async () => {
+    setLoading(true);
     const { puzzle: newPuzzle, solution: newSolution, id } = await generatePuzzle(difficulty as Difficulty);
     setSolution(newSolution);
     setCurrentBoard(copyBoard(newPuzzle));
@@ -62,6 +64,7 @@ export default function SudokuGame(props: SudokuGameProps) {
     setGameWon(false);
     setElapsedTime(0);
     setStartTime(Date.now());
+    setLoading(false);
   }, [difficulty]);
 
   useEffect(() => {
@@ -123,6 +126,53 @@ export default function SudokuGame(props: SudokuGameProps) {
   }, [handleKeyPress]);
 
   const boardSize = responsiveCellSize * 9;
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        width: '100%',
+        background: darkMode
+          ? 'linear-gradient(135deg, #1a0b2e 0%, #16213e 30%, #0f3443 60%, #0d3b3f 100%)'
+          : 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 30%, #e0f7fa 60%, #e0f2f1 100%)',
+        color: darkMode ? '#e2e8f0' : '#1e293b',
+        fontFamily: '"Inter", sans-serif'
+      }}>
+        <div style={{
+          fontSize: '24px',
+          fontWeight: '600',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px'
+        }}>
+          Loading
+          <style>
+            {`
+              @keyframes ellipsis {
+                0% { content: ''; }
+                25% { content: '.'; }
+                50% { content: '..'; }
+                75% { content: '...'; }
+                100% { content: ''; }
+              }
+              .loading-dots::after {
+                content: '';
+                animation: ellipsis 1.5s infinite;
+                display: inline-block;
+                width: 24px;
+                text-align: left;
+              }
+            `}
+          </style>
+          <span className="loading-dots"></span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{

@@ -10,7 +10,7 @@ import {
 import NumberPad from './NumberPad.tsx';
 import Header from './Header.tsx';
 import Leaderboard from './Leaderboard.tsx';
-import ScoresDb, { useScoresStore } from './ScoresDb.tsx';
+import ScoresDb, { useScoresStore } from './Database.tsx';
 import { getNotionDataPrimaryDbId } from './NotionHook.tsx';
 
 export default function SudokuGame(props: SudokuGameProps) {

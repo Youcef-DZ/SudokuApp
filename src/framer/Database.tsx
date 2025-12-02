@@ -87,3 +87,31 @@ export const fetchScoresFromNotion = async (): Promise<ScoreData[]> => {
 
   return [];
 };
+
+import { createStore } from "./store.ts"
+import { useNotionData } from "./NotionHook.tsx"
+import { useEffect } from "react"
+
+// Store for scores database (only need this for writing)
+export interface ScoresStoreState {
+  handleCreate?: any;
+  notionData?: any;
+}
+
+export const useScoresStore = createStore({} as ScoresStoreState)
+
+export default function ScoresDb() {
+  const [, setStore] = useScoresStore()
+
+  // Scores database hook
+  const scoresHook = useNotionData(SCORES_API_URL)
+
+  useEffect(() => {
+    setStore({
+      handleCreate: scoresHook.handleCreate,
+      notionData: scoresHook.notionData,
+    })
+  }, [scoresHook.handleCreate, scoresHook.notionData])
+
+  return <div style={{ display: 'none' }}></div>
+}

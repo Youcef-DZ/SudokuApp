@@ -1,5 +1,5 @@
 import type { Board, Difficulty, PuzzleResult } from './types.ts';
-import { getRandomPuzzle } from './Database.ts';
+import { getRandomPuzzle } from './Database.tsx';
 
 export const isValid = (board: Board, row: number, col: number, num: number): boolean => {
   for (let x = 0; x < 9; x++) {

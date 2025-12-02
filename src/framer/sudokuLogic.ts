@@ -20,11 +20,11 @@ export const isValid = (board: Board, row: number, col: number, num: number): bo
 
 export const generatePuzzle = async (difficulty: Difficulty = 'medium'): Promise<PuzzleResult> => {
   const puzzleData = await getRandomPuzzle(difficulty);
-  
+
   if (!puzzleData) {
     throw new Error(`No puzzle found for difficulty: ${difficulty}`);
   }
-  
+
   return {
     puzzle: puzzleData.puzzle.map((row: number[]) => [...row]),
     solution: puzzleData.solution.map((row: number[]) => [...row]),

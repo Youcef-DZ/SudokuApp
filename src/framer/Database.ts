@@ -1,6 +1,5 @@
 const SCORES_DB_ID = '2bb4ffe6f70c80dfb0b8d0f4f06ce125';
 const PUZZLES_DB_ID = '2a34ffe6f70c809fa74dca478af13756';
-const NOTION_API_KEY = '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';
 const NOTION_API_URL = `https://notion-dgmd-cc.vercel.app/api/query?d=${PUZZLES_DB_ID}&r=true&n=a`;
 const SCORES_API_URL = `https://notion-dgmd-cc.vercel.app/api/query?d=${SCORES_DB_ID}&r=true&n=a`;
 
@@ -87,56 +86,4 @@ export const fetchScoresFromNotion = async (): Promise<ScoreData[]> => {
   }
 
   return [];
-};
-
-export const saveScoreToNotion = async (score: Omit<ScoreData, 'id'>): Promise<boolean> => {
-  try {
-    // Note: Using corsproxy.io to bypass CORS restrictions for client-side calls.
-    // In production, a dedicated backend is recommended for security.
-    const response = await fetch('https://corsproxy.io/?https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${NOTION_API_KEY}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28'
-      },
-      body: JSON.stringify({
-        parent: { database_id: SCORES_DB_ID },
-        properties: {
-          'Name': {
-            title: [
-              {
-                text: {
-                  content: score.userName
-                }
-              }
-            ]
-          },
-          'Time': {
-            number: score.time
-          },
-          'Difficulty': {
-            select: {
-              name: score.difficulty.charAt(0).toUpperCase() + score.difficulty.slice(1)
-            }
-          },
-          'Date': {
-            date: {
-              start: score.date
-            }
-          }
-        }
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to save score');
-    }
-
-    return true;
-  } catch (error) {
-    console.error('Error saving score to Notion:', error);
-    return false;
-  }
 };

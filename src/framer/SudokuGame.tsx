@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Board, CellPosition, Difficulty } from './types.ts';
 import type { SudokuGameProps } from './types.ts';
 import {
@@ -7,10 +7,11 @@ import {
   isValidMove,
   copyBoard
 } from './sudokuLogic.ts';
-import { saveScoreToNotion } from './Database.ts';
 import NumberPad from './NumberPad.tsx';
 import Header from './Header.tsx';
 import Leaderboard from './Leaderboard.tsx';
+import ScoresDb, { useScoresStore } from './ScoresDb.tsx';
+import { getNotionDataPrimaryDbId } from './NotionHook.tsx';
 
 export default function SudokuGame(props: SudokuGameProps) {
   const {
@@ -36,6 +37,14 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+
+  // Get handleCreate from ScoresDb hook for saving scores
+  const [scoresStore] = useScoresStore();
+  const handleCreate = scoresStore?.handleCreate;
+  const notionData = scoresStore?.notionData;
+
+  // Track if we've already saved the score for this game
+  const scoreSavedRef = useRef(false);
 
   // Responsive cell size based on screen width
   const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
@@ -66,6 +75,7 @@ export default function SudokuGame(props: SudokuGameProps) {
     setElapsedTime(0);
     setStartTime(Date.now());
     setLoading(false);
+    scoreSavedRef.current = false; // Reset for new game
   }, []);
 
   const startNewGame = useCallback(async () => {
@@ -92,23 +102,39 @@ export default function SudokuGame(props: SudokuGameProps) {
     };
   }, [difficulty, handleGameInit]);
 
-  // Save score when game is won
+  // Save score when game is won (only once)
   useEffect(() => {
-    if (gameWon) {
-      const saveScore = async () => {
-        const score = {
-          userName: userName || 'Anonymous',
-          time: elapsedTime,
-          difficulty: difficulty,
-          date: new Date().toISOString()
-        };
+    if (gameWon && handleCreate && notionData && !scoreSavedRef.current) {
+      const dbId = getNotionDataPrimaryDbId(notionData);
+      if (!dbId) return;
 
-        await saveScoreToNotion(score);
+      const scoreData = {
+        DATABASE_ID: dbId,
+        PROPERTIES: {
+          Name: {
+            TYPE: 'title',
+            VALUE: userName || 'Anonymous'
+          },
+          Time: {
+            TYPE: 'number',
+            VALUE: elapsedTime
+          },
+          Difficulty: {
+            TYPE: 'select',
+            VALUE: difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+          },
+          Date: {
+            TYPE: 'rich_text',
+            VALUE: new Date().toISOString().split('T')[0]
+          }
+        }
       };
 
-      saveScore();
+      handleCreate(scoreData);
+      scoreSavedRef.current = true; // Mark as saved
+      console.log('Score saved to Notion!');
     }
-  }, [gameWon, elapsedTime, userName, difficulty]);
+  }, [gameWon, handleCreate, notionData, elapsedTime, userName, difficulty]);
 
   // Timer effect - updates every second
   useEffect(() => {
@@ -228,6 +254,8 @@ export default function SudokuGame(props: SudokuGameProps) {
       minHeight: '100vh',
       boxSizing: 'border-box'
     }}>
+      {/* Initialize ScoresDb hook for saving scores */}
+      <ScoresDb />
 
       {/* Container for header and game - constrained to game width */}
       <div style={{

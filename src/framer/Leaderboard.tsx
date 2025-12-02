@@ -190,7 +190,7 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                     ) : (
                         filteredScores.map((score, index) => (
                             <div
-                                key={score.id}
+                                key={`${score.id}-${index}`}
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',

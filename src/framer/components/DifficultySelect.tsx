@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Difficulty } from '../types/types.ts';
 import Header from './Header.tsx';
 import Leaderboard from './Leaderboard.tsx';
 

@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Board, CellPosition, Difficulty } from './types.ts';
-import type { SudokuGameProps } from './types.ts';
+import type { Board, CellPosition, Difficulty } from '../types/types.ts';
+import type { SudokuGameProps } from '../types/types.ts';
 import {
   generatePuzzle,
   checkSolution,
   isValidMove,
   copyBoard
 } from './sudokuLogic.ts';
-import NumberPad from './NumberPad.tsx';
-import Header from './Header.tsx';
-import Leaderboard from './Leaderboard.tsx';
-import ScoresDb, { useScoresStore } from './Database.tsx';
-import { getNotionDataPrimaryDbId } from './NotionHook.tsx';
+import NumberPad from '../components/NumberPad.tsx';
+import Header from '../components/Header.tsx';
+import Leaderboard from '../components/Leaderboard.tsx';
+import ScoresDb, { useScoresStore } from '../data/Database.tsx';
+import { getNotionDataPrimaryDbId } from '../data/NotionHook.tsx';
 
 export default function SudokuGame(props: SudokuGameProps) {
   const {

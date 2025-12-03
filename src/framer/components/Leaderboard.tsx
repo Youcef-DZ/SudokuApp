@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchScoresFromNotion } from './Database.tsx';
+import { fetchScoresFromNotion } from '../data/Database.tsx';
 
 interface Score {
     id: string;

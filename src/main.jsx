@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import GameWrapper from './framer/GameWrapper';
-import LoginPage from './framer/LoginPage';
-import DifficultySelect from './framer/DifficultySelect';
+import GameWrapper from './framer/game/GameWrapper';
+import LoginPage from './framer/components/LoginPage';
+import DifficultySelect from './framer/components/DifficultySelect';
 import { AuthProvider, useSession, useUser } from '@descope/react-sdk';
-import { unprotectedComponent } from './framer/DescopeAuth';
+import { unprotectedComponent } from './framer/components/DescopeAuth';
 import './index.css';
 
 const projectId = "P35AlPWcTE6gN9hXrEFjboLuqX8T";
@@ -73,7 +73,7 @@ function App() {
       display: 'flex',
       backgroundColor: '#f3f4f6'
     }}>
-      <GameWrapper 
+      <GameWrapper
         difficulty={selectedDifficulty}
         primaryColor="#3b82f6"
         backgroundColor="#ffffff"

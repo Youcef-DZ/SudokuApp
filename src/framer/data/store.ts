@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
+    ;
 
 export function createStore<T>(initialState: T) {
     let state: T = initialState;

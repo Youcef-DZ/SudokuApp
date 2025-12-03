@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
 import { AuthProvider, useDescope, useSession, useUser } from '@descope/react-sdk';
 import SudokuGame from './SudokuGame.tsx';
-import DifficultySelect from './DifficultySelect.tsx';
-import LoginPage from './LoginPage.tsx';
-import type { SudokuGameProps, Difficulty } from './types.ts';
+import DifficultySelect from '../components/DifficultySelect.tsx';
+import LoginPage from '../components/LoginPage.tsx';
+import type { SudokuGameProps, Difficulty } from '../types/types.ts';
 
 const projectId = "P35AlPWcTE6gN9hXrEFjboLuqX8T";
 
@@ -23,7 +23,7 @@ function GameWithAuth(props: GameWrapperProps) {
   const { isAuthenticated } = useSession();
   const { user } = useUser();
   const { logout } = useDescope();
-  
+
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(startWithDifficulty || null);
   const [showGame, setShowGame] = useState(!!startWithDifficulty);
   const [showLogin, setShowLogin] = useState(false);

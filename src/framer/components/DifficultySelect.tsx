@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Difficulty } from '../types/types.ts';
 import Header from './Header.tsx';
 import Leaderboard from './Leaderboard.tsx';
 
 interface DifficultySelectProps {
   onSelectDifficulty: (difficulty: 'easy' | 'medium' | 'hard') => void;
   onLogin: () => void;
+  onLogout?: () => void;
   isAuthenticated: boolean;
   userName?: string;
   darkMode?: boolean;
@@ -15,6 +15,7 @@ interface DifficultySelectProps {
 export default function DifficultySelect({
   onSelectDifficulty,
   onLogin,
+  onLogout,
   isAuthenticated,
   userName,
   darkMode = false,
@@ -77,6 +78,7 @@ export default function DifficultySelect({
       <Header
         title="Sudoku"
         onLogin={onLogin}
+        onLogout={onLogout}
         isAuthenticated={isAuthenticated}
         userName={userName}
         darkMode={darkMode}

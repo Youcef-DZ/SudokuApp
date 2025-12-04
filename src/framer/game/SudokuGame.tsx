@@ -105,6 +105,7 @@ export default function SudokuGame(props: SudokuGameProps) {
   // Save score when game is won (only once)
   useEffect(() => {
     if (gameWon && handleCreate && notionData && !scoreSavedRef.current) {
+      console.log('Saving score. UserName:', userName);
       const dbId = getNotionDataPrimaryDbId(notionData);
       if (!dbId) return;
 

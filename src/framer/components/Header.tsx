@@ -32,6 +32,7 @@ function formatTime(seconds: number): string {
 export default function GameHeader({
   onNewGame,
   onLogin,
+  onLogout,
   responsiveCellSize = 50,
   isAuthenticated = false,
   userName,
@@ -160,19 +161,39 @@ export default function GameHeader({
                 </button>
               )
             ) : (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '8px 16px',
-                borderRadius: '10px',
-                background: darkMode
-                  ? 'rgba(99, 102, 241, 0.1)'
-                  : 'rgba(59, 130, 246, 0.08)',
-                border: darkMode
-                  ? '1px solid rgba(99, 102, 241, 0.2)'
-                  : '1px solid rgba(59, 130, 246, 0.15)'
-              }}>
+              <div
+                onClick={onLogout}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  background: darkMode
+                    ? 'rgba(99, 102, 241, 0.1)'
+                    : 'rgba(59, 130, 246, 0.08)',
+                  border: darkMode
+                    ? '1px solid rgba(99, 102, 241, 0.2)'
+                    : '1px solid rgba(59, 130, 246, 0.15)',
+                  cursor: onLogout ? 'pointer' : 'default',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                  if (onLogout) {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = darkMode
+                      ? '0 4px 12px rgba(99, 102, 241, 0.3)'
+                      : '0 4px 12px rgba(59, 130, 246, 0.25)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (onLogout) {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }
+                }}
+                title={onLogout ? 'Click to logout' : undefined}
+              >
                 <div style={{
                   width: '32px',
                   height: '32px',
@@ -197,6 +218,15 @@ export default function GameHeader({
                 }}>
                   {userName || 'User'}
                 </span>
+                {onLogout && (
+                  <span style={{
+                    fontSize: '12px',
+                    opacity: 0.7,
+                    marginLeft: '4px'
+                  }}>
+                    🚪
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -447,19 +477,39 @@ export default function GameHeader({
               </button >
             )
           ) : (
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: `${Math.max(10, responsiveCellSize * 0.2)}px`,
-              padding: `${Math.max(8, responsiveCellSize * 0.16)}px ${Math.max(16, responsiveCellSize * 0.32)}px`,
-              borderRadius: '10px',
-              background: darkMode
-                ? 'rgba(99, 102, 241, 0.1)'
-                : 'rgba(59, 130, 246, 0.08)',
-              border: darkMode
-                ? '1px solid rgba(99, 102, 241, 0.2)'
-                : '1px solid rgba(59, 130, 246, 0.15)'
-            }}>
+            <div
+              onClick={onLogout}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: `${Math.max(10, responsiveCellSize * 0.2)}px`,
+                padding: `${Math.max(8, responsiveCellSize * 0.16)}px ${Math.max(16, responsiveCellSize * 0.32)}px`,
+                borderRadius: '10px',
+                background: darkMode
+                  ? 'rgba(99, 102, 241, 0.1)'
+                  : 'rgba(59, 130, 246, 0.08)',
+                border: darkMode
+                  ? '1px solid rgba(99, 102, 241, 0.2)'
+                  : '1px solid rgba(59, 130, 246, 0.15)',
+                cursor: onLogout ? 'pointer' : 'default',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+              onMouseEnter={(e) => {
+                if (onLogout) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = darkMode
+                    ? '0 4px 12px rgba(99, 102, 241, 0.3)'
+                    : '0 4px 12px rgba(59, 130, 246, 0.25)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (onLogout) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }
+              }}
+              title={onLogout ? 'Click to logout' : undefined}
+            >
               <div style={{
                 width: `${Math.max(28, responsiveCellSize * 0.6)}px`,
                 height: `${Math.max(28, responsiveCellSize * 0.6)}px`,
@@ -484,6 +534,14 @@ export default function GameHeader({
               }}>
                 {userName || 'User'}
               </span>
+              {onLogout && (
+                <span style={{
+                  fontSize: `${Math.max(11, responsiveCellSize * 0.26)}px`,
+                  opacity: 0.7
+                }}>
+                  🚪
+                </span>
+              )}
             </div>
           )
           }

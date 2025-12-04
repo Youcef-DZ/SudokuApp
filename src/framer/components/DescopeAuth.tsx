@@ -1,6 +1,9 @@
-"use client"
-import React, { useState, useEffect } from "react"
-import { useDescope, useSession } from "@descope/react-sdk"
+"use client";
+import React, { useState, useEffect, useRef } from "react"
+import { useDescope, useSession, useUser } from "@descope/react-sdk"
+import { Descope } from "@descope/react-sdk"
+import { getSessionToken } from "@descope/react-sdk"
+import ReactDOM from "react-dom/client"
 import { AuthProvider } from "@descope/react-sdk"
 import type { ComponentType } from "react"
 import { useCallback } from "react"
@@ -9,7 +12,7 @@ const projectId = "P35AlPWcTE6gN9hXrEFjboLuqX8T"
 const redirectPage = "https://bulky-system-868836.framer.app"
 const googleProviderId = "google"
 
-export const protectedComponent = (Component: React.ComponentType<any>): ComponentType => {
+export const protectedComponent = (Component): ComponentType => {
     return (props) => {
         return (
             <ClientSideWrapper>
@@ -29,7 +32,7 @@ export const protectedComponent = (Component: React.ComponentType<any>): Compone
     }
 }
 
-export const unprotectedComponent = (Component: React.ComponentType<any>): ComponentType => {
+export const unprotectedComponent = (Component): ComponentType => {
     return (props) => {
         return (
             <ClientSideWrapper>
@@ -49,7 +52,7 @@ export const unprotectedComponent = (Component: React.ComponentType<any>): Compo
     }
 }
 
-export const protectedPage = (Component: React.ComponentType<any>): ComponentType => {
+export const protectedPage = (Component): ComponentType => {
     return (props) => {
         return (
             <ClientSideWrapper>
@@ -69,7 +72,7 @@ export const protectedPage = (Component: React.ComponentType<any>): ComponentTyp
     }
 }
 
-export const logoutButton = (Component: React.ComponentType<any>): ComponentType => {
+export const logoutButton = (Component): ComponentType => {
     return (props) => {
         return (
             <ClientSideWrapper>
@@ -84,7 +87,9 @@ export const logoutButton = (Component: React.ComponentType<any>): ComponentType
 }
 
 // Component to handle the session and conditional rendering
-const LogoutButtonContent = ({ Component, ...props }: { Component: React.ComponentType<any>, [key: string]: any }) => {
+const LogoutButtonContent = ({ Component, ...props }) => {
+    const { isAuthenticated, isSessionLoading } = useSession() // Check session status
+    const user = useUser() // Optional: Fetch user details
     const { logoutAll } = useDescope()
     const handleLogout = useCallback(() => {
         logoutAll()
@@ -101,13 +106,14 @@ const AuthWrapperContent = ({
     redirect,
     redirectURL,
     ...props
-}: { Component: React.ComponentType<any>, hidden: boolean, redirect: boolean, redirectURL: string, [key: string]: any }) => {
+}) => {
     const { refresh } = useDescope()
     useEffect(() => {
         refresh()
     }, [refresh])
 
-    const { isAuthenticated, isSessionLoading } = useSession()
+    const { isAuthenticated, isSessionLoading, sessionToken } = useSession()
+    const user = useUser() // Optional: Fetch user details
     if (isSessionLoading) {
         return <div>Loading...</div>
     }
@@ -138,7 +144,7 @@ const ClientSideWrapper: React.FC<{ children: React.ReactNode }> = ({
     return isClient ? <>{children}</> : null
 }
 
-export const oneTapPage = (Component: React.ComponentType<any>): ComponentType => {
+export const oneTapPage = (Component): ComponentType => {
     return (props) => {
         return (
             <ClientSideWrapper>
@@ -152,7 +158,7 @@ export const oneTapPage = (Component: React.ComponentType<any>): ComponentType =
     }
 }
 
-const OneTapContent = ({ Component, ...props }: { Component: React.ComponentType<any>, [key: string]: any }) => {
+const OneTapContent = ({ Component, ...props }) => {
     const sdk = useDescope()
     const { isAuthenticated, isSessionLoading } = useSession()
 

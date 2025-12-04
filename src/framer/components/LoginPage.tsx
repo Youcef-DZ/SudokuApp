@@ -3,7 +3,7 @@ import { Descope } from "@descope/react-sdk";
 interface LoginPageProps {
   flowId?: string;
   darkMode?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: () => void | Promise<void>;
   onBack?: () => void;
 }
 
@@ -113,17 +113,24 @@ export default function LoginPage({
           <Descope
             flowId={flowId}
             theme={darkMode ? 'dark' : 'light'}
-            onSuccess={(e) => {
-              console.log('Login successful!', e.detail.user);
+            onSuccess={async (e) => {
+              console.log('🎉 Descope Login successful!');
+              console.log('User from event:', e.detail.user);
+
               if (onSuccess) {
-                onSuccess();
+                // Call the success callback and wait for it
+                console.log('Waiting for session refresh...');
+                await onSuccess();
+                console.log('Session refresh complete, navigating back');
               } else {
-                // Refresh to update auth state
+                // Reload immediately to refresh auth state
+                console.log('Reloading page to update auth state...');
                 window.location.reload();
               }
             }}
             onError={(e) => {
-              console.error('Login error:', e);
+              console.error('❌ Descope Login error:', e);
+              console.error('Error detail:', e.detail);
             }}
           />
         </div>

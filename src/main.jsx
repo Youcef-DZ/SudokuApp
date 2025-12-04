@@ -12,8 +12,44 @@ const projectId = "P35AlPWcTE6gN9hXrEFjboLuqX8T";
 // Only wrap login page (hide it when authenticated)
 const UnprotectedLogin = unprotectedComponent(LoginPage);
 
+// Helper function to extract username from Descope user object or session token
+const getUserName = (user, sessionToken) => {
+  console.log('getUserName called with:', { user, sessionToken });
+
+  // First try to get from user object
+  if (user) {
+    console.log('Descope user object:', user);
+    console.log('user.givenName:', user.givenName);
+    console.log('user.name:', user.name);
+    console.log('user.email:', user.email);
+    console.log('user.loginIds:', user.loginIds);
+
+    const username = user.givenName || user.name || user.email || user.loginIds?.[0];
+    if (username) {
+      console.log('Extracted username from user:', username);
+      return username;
+    }
+  }
+
+  // If user object is null, try to extract from session token claims
+  if (sessionToken) {
+    console.log('Session token:', sessionToken);
+    // JWT tokens have claims that might include user info
+    // Common claims: email, name, given_name, family_name, sub (subject/userId)
+    const username = sessionToken.given_name || sessionToken.name || sessionToken.email || sessionToken.sub;
+    if (username) {
+      console.log('Extracted username from session token:', username);
+      return username;
+    }
+  }
+
+  console.log('Could not extract username from user or session');
+  return undefined;
+};
+
+
 function App() {
-  const { isSessionLoading } = useSession();
+  const { isSessionLoading, isAuthenticated, sessionToken } = useSession();
   const { user } = useUser();
   const [currentView, setCurrentView] = useState('game'); // Start directly in game like Framer
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
@@ -51,7 +87,6 @@ function App() {
 
   // Show difficulty selection
   if (currentView === 'difficulty') {
-    const { isAuthenticated } = useSession();
     return (
       <DifficultySelect
         onSelectDifficulty={(difficulty) => {
@@ -60,7 +95,7 @@ function App() {
         }}
         onLogin={() => setCurrentView('login')}
         isAuthenticated={isAuthenticated}
-        userName={user?.name || user?.email}
+        userName={getUserName(user, sessionToken)}
       />
     );
   }
@@ -90,7 +125,11 @@ function App() {
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider projectId={projectId}>
+    <AuthProvider
+      projectId={projectId}
+      persistTokens={true}
+      sessionTokenViaCookie={true}
+    >
       <App />
     </AuthProvider>
   </React.StrictMode>

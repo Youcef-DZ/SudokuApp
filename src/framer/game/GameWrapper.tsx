@@ -71,6 +71,7 @@ function GameWithAuth(props: GameWrapperProps) {
   const [showGame, setShowGame] = useState(!!startWithDifficulty);
   const [showLogin, setShowLogin] = useState(false);
   const [darkMode, setDarkMode] = useState(darkModeProp);
+  const [authRefreshKey, setAuthRefreshKey] = useState(0);
 
   // Extract username with proper fallback logic from both user object and session token
   const userName = getUserName(user, sessionToken);
@@ -98,6 +99,44 @@ function GameWithAuth(props: GameWrapperProps) {
     console.log('📍 View State: showLogin =', showLogin, ', showGame =', showGame);
   }, [showLogin, showGame]);
 
+  // Handle OAuth redirect: When user returns from OAuth provider (like Google),
+  // we need to show the login page so Descope component can process the callback
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasOAuthParams = urlParams.has('code') || urlParams.has('state');
+    
+    if (hasOAuthParams) {
+      console.log('🔄 OAuth redirect detected, ensuring login page is shown...');
+      
+      // CRITICAL: Show login page so Descope component can process OAuth callback
+      if (!showLogin) {
+        setShowLogin(true);
+      }
+      
+      // Give Descope time to process the OAuth callback, then clean URL
+      const timer = setTimeout(() => {
+        console.log('🔄 Cleaning OAuth params from URL...');
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Trigger a refresh to ensure session is loaded
+        refresh().then(() => {
+          console.log('✅ Session refreshed after OAuth');
+        });
+      }, 2000); // Wait 2 seconds for Descope to fully process
+      
+      return () => clearTimeout(timer);
+    }
+  }, [refresh, showLogin]);
+  
+  // Separate effect to close login modal when auth completes
+  useEffect(() => {
+    // If we're authenticated and login page is showing, close it
+    if (isAuthenticated && showLogin) {
+      console.log('✅ Auth successful, closing login modal...');
+      setShowLogin(false);
+    }
+  }, [isAuthenticated, showLogin]);
+
 
   const toggleTheme = useCallback(() => {
     setDarkMode(prev => !prev);
@@ -110,43 +149,23 @@ function GameWithAuth(props: GameWrapperProps) {
       setShowLogin(true);
     }
   }, [onLoginOverride]);
+  // Effect to watch for auth changes after login (for non-OAuth flows)
+  useEffect(() => {
+    if (isAuthenticated && showLogin) {
+      console.log('✅ Auth state detected, closing login page...');
+      setShowLogin(false);
+    }
+  }, [isAuthenticated, showLogin]);
 
   const handleLoginSuccess = useCallback(async () => {
-    console.log('🔄 Login successful, refreshing session...');
-    console.log('Before refresh - isAuthenticated:', isAuthenticated);
-    console.log('Before refresh - user:', user);
-    console.log('Before refresh - sessionToken:', sessionToken);
-
-    try {
-      // Wait for Descope to refresh and load the session
-      await refresh();
-      console.log('✅ Session refreshed successfully');
-
-      // Check localStorage
-      console.log('📦 Checking localStorage after refresh:');
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && (key.includes('descope') || key.includes('DS'))) {
-          console.log(`  ${key}:`, localStorage.getItem(key)?.substring(0, 50) + '...');
-        }
-      }
-
-      // Check cookies
-      console.log('🍪 Cookies after refresh:', document.cookie);
-
-      // Small delay to ensure React state updates propagate
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      console.log('After refresh - isAuthenticated:', isAuthenticated);
-      console.log('After refresh - user:', user);
-      console.log('After refresh - sessionToken:', sessionToken);
-    } catch (error) {
-      console.error('❌ Error refreshing session:', error);
-    }
-
-    console.log('Navigating back to difficulty select...');
-    setShowLogin(false);
-  }, [refresh, isAuthenticated, user, sessionToken]);
+    console.log('🔄 Login successful, waiting for auth state to update...');
+    
+    // The Descope component has already persisted tokens
+    // Just refresh the session and the useEffect above will close the modal when auth updates
+    await refresh();
+    
+    console.log('✅ Session refreshed, waiting for auth hooks to update...');
+  }, [refresh]);
 
   // Show login page
   if (showLogin) {

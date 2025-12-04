@@ -267,10 +267,13 @@ export default function SudokuGame(props: SudokuGameProps) {
         flexDirection: 'column',
         gap: '20px'
       }}>
-        {/* Header constrained to exact grid width */}
+        {/* Header - allow full width for buttons */}
         <div style={{
-          width: `${responsiveCellSize * 9 + 6}px`, // Exact grid width (9 cells + border + padding)
-          margin: '0 auto'
+          width: '100%', // Allow header to use full available width
+          margin: '0 auto',
+          position: 'relative',
+          zIndex: 10,
+          pointerEvents: 'auto'
         }}>
           <Header
             onNewGame={startNewGame}

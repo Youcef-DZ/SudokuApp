@@ -155,79 +155,50 @@ export default function GameHeader({
                       ? '0 2px 8px rgba(99, 102, 241, 0.25)'
                       : '0 2px 8px rgba(59, 130, 246, 0.2)';
                   }}
-                  title="Settings & Login"
+                  title="Login"
                 >
-                  ⚙️
+                  Login
                 </button>
               )
             ) : (
-              <div
+              <button
                 onClick={onLogout}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 16px',
+                  padding: '10px 16px',
                   borderRadius: '10px',
-                  background: darkMode
-                    ? 'rgba(99, 102, 241, 0.1)'
-                    : 'rgba(59, 130, 246, 0.08)',
                   border: darkMode
-                    ? '1px solid rgba(99, 102, 241, 0.2)'
-                    : '1px solid rgba(59, 130, 246, 0.15)',
-                  cursor: onLogout ? 'pointer' : 'default',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                    ? '2px solid rgba(99, 102, 241, 0.4)'
+                    : '2px solid rgba(59, 130, 246, 0.35)',
+                  background: darkMode
+                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
+                    : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  color: darkMode ? '#a5b4fc' : '#2563eb',
+                  cursor: 'pointer',
+                  fontSize: '18px',
+                  fontWeight: '600',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: darkMode
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(59, 130, 246, 0.2)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)'
                 }}
                 onMouseEnter={(e) => {
-                  if (onLogout) {
-                    e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = darkMode
-                      ? '0 4px 12px rgba(99, 102, 241, 0.3)'
-                      : '0 4px 12px rgba(59, 130, 246, 0.25)';
-                  }
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = darkMode
+                    ? '0 4px 16px rgba(99, 102, 241, 0.45)'
+                    : '0 4px 16px rgba(59, 130, 246, 0.35)';
                 }}
                 onMouseLeave={(e) => {
-                  if (onLogout) {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = darkMode
+                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                    : '0 2px 8px rgba(59, 130, 246, 0.2)';
                 }}
-                title={onLogout ? 'Click to logout' : undefined}
+                title={userName ? `Logout ${userName}` : 'Logout'}
               >
-                <div style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '50%',
-                  background: darkMode
-                    ? 'linear-gradient(135deg, #6366f1 0%, #38bdf8 100%)'
-                    : 'linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%)',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
-                }}>
-                  {userName ? userName.charAt(0).toUpperCase() : 'U'}
-                </div>
-                <span style={{
-                  fontSize: '15px',
-                  color: darkMode ? '#a5b4fc' : '#2563eb',
-                  fontWeight: '600'
-                }}>
-                  {userName || 'User'}
-                </span>
-                {onLogout && (
-                  <span style={{
-                    fontSize: '12px',
-                    opacity: 0.7,
-                    marginLeft: '4px'
-                  }}>
-                    🚪
-                  </span>
-                )}
-              </div>
+                {userName ? userName.split(' ').map(n => n.charAt(0).toUpperCase()).join('') : 'U'}
+              </button>
             )}
           </div>
         </div>
@@ -471,78 +442,58 @@ export default function GameHeader({
                     ? '0 2px 8px rgba(99, 102, 241, 0.25)'
                     : '0 2px 8px rgba(59, 130, 246, 0.2)';
                 }}
-                title="Settings & Login"
+                title="Login"
               >
-                ⚙️
+                Login
               </button >
             )
           ) : (
-            <div
-              onClick={onLogout}
+            <button
+              onClick={(e) => {
+                console.log('🔘 Button clicked in Header!', { onLogout, e });
+                if (onLogout) {
+                  console.log('📞 Calling onLogout...');
+                  onLogout();
+                } else {
+                  console.log('❌ onLogout is undefined!');
+                }
+              }}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: `${Math.max(10, responsiveCellSize * 0.2)}px`,
-                padding: `${Math.max(8, responsiveCellSize * 0.16)}px ${Math.max(16, responsiveCellSize * 0.32)}px`,
+                padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
                 borderRadius: '10px',
-                background: darkMode
-                  ? 'rgba(99, 102, 241, 0.1)'
-                  : 'rgba(59, 130, 246, 0.08)',
                 border: darkMode
-                  ? '1px solid rgba(99, 102, 241, 0.2)'
-                  : '1px solid rgba(59, 130, 246, 0.15)',
-                cursor: onLogout ? 'pointer' : 'default',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                  ? '1px solid rgba(99, 102, 241, 0.4)'
+                  : '1px solid rgba(59, 130, 246, 0.35)',
+                background: darkMode
+                  ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
+                  : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                color: darkMode ? '#a5b4fc' : '#2563eb',
+                cursor: 'pointer',
+                fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`,
+                fontWeight: '600',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: darkMode
+                  ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                  : '0 2px 8px rgba(59, 130, 246, 0.2)',
+                backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)'
               }}
               onMouseEnter={(e) => {
-                if (onLogout) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = darkMode
-                    ? '0 4px 12px rgba(99, 102, 241, 0.3)'
-                    : '0 4px 12px rgba(59, 130, 246, 0.25)';
-                }
+                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
+                e.currentTarget.style.boxShadow = darkMode
+                  ? '0 4px 16px rgba(99, 102, 241, 0.45)'
+                  : '0 4px 16px rgba(59, 130, 246, 0.35)';
               }}
               onMouseLeave={(e) => {
-                if (onLogout) {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = darkMode
+                  ? '0 2px 8px rgba(99, 102, 241, 0.25)'
+                  : '0 2px 8px rgba(59, 130, 246, 0.2)';
               }}
-              title={onLogout ? 'Click to logout' : undefined}
+              title={userName ? `Logout ${userName}` : 'Logout'}
             >
-              <div style={{
-                width: `${Math.max(28, responsiveCellSize * 0.6)}px`,
-                height: `${Math.max(28, responsiveCellSize * 0.6)}px`,
-                borderRadius: '50%',
-                background: darkMode
-                  ? 'linear-gradient(135deg, #6366f1 0%, #38bdf8 100%)'
-                  : 'linear-gradient(135deg, #3b82f6 0%, #0ea5e9 100%)',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 'bold',
-                fontSize: `${Math.max(12, responsiveCellSize * 0.28)}px`,
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)'
-              }}>
-                {userName ? userName.charAt(0).toUpperCase() : 'U'}
-              </div>
-              <span style={{
-                fontSize: `${Math.max(14, responsiveCellSize * 0.3)}px`,
-                color: darkMode ? '#a5b4fc' : '#2563eb',
-                fontWeight: '600'
-              }}>
-                {userName || 'User'}
-              </span>
-              {onLogout && (
-                <span style={{
-                  fontSize: `${Math.max(11, responsiveCellSize * 0.26)}px`,
-                  opacity: 0.7
-                }}>
-                  🚪
-                </span>
-              )}
-            </div>
+              {userName ? userName.split(' ').map(n => n.charAt(0).toUpperCase()).join('') : 'U'}
+            </button>
           )
           }
         </div >

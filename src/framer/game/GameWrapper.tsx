@@ -210,7 +210,9 @@ function GameWithAuth(props: GameWrapperProps) {
       onToggleTheme={toggleTheme}
       onLogin={handleLogin}
       onLogout={onLogoutOverride || (() => {
+        console.log('🚪 Logout button clicked');
         logout();
+        console.log('✅ Logout completed');
         // Optionally go back to difficulty selection
         // setShowGame(false);
       })}

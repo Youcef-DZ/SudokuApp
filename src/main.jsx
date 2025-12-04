@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import GameWrapper from './framer/game/GameWrapper';
 import LoginPage from './framer/components/LoginPage';
 import DifficultySelect from './framer/components/DifficultySelect';
-import { AuthProvider, useSession, useUser } from '@descope/react-sdk';
+import { AuthProvider, useSession, useUser, useDescope } from '@descope/react-sdk';
 import { unprotectedComponent } from './framer/components/DescopeAuth';
 import './index.css';
 
@@ -51,6 +51,7 @@ const getUserName = (user, sessionToken) => {
 function App() {
   const { isSessionLoading, isAuthenticated, sessionToken } = useSession();
   const { user } = useUser();
+  const { logout } = useDescope();
   const [currentView, setCurrentView] = useState('game'); // Start directly in game like Framer
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
 
@@ -113,10 +114,12 @@ function App() {
         primaryColor="#3b82f6"
         backgroundColor="#ffffff"
         onLoginOverride={() => setCurrentView('login')}
-        onLogoutOverride={() => {
-          // Logout is handled by GameWrapper
-          // Just navigate back home
-          setCurrentView('game');
+        onLogoutOverride={async () => {
+          console.log('🚪 Logging out from main.jsx...');
+          await logout();
+          console.log('✅ Logout completed, reloading page...');
+          // Reload page to ensure all auth state is cleared
+          window.location.reload();
         }}
       />
     </div>

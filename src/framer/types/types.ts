@@ -13,6 +13,18 @@ export interface PuzzleResult {
   id?: number;
 }
 
+export interface GameState {
+  currentBoard: Board;
+  initialBoard: Board;
+  solution: Board;
+  elapsedTime: number;
+  startTime: number;
+  puzzleId?: number;
+  selectedCell: CellPosition | null;
+  errors: string[]; // Set converted to array for JSON
+  gameWon: boolean;
+}
+
 export interface SudokuGameProps {
   difficulty?: Difficulty;
   primaryColor?: string;
@@ -27,4 +39,6 @@ export interface SudokuGameProps {
   userName?: string;
   darkMode?: boolean;
   onToggleTheme?: () => void;
+  initialGameState?: GameState | null;
+  onGameStateChange?: (state: GameState) => void;
 }

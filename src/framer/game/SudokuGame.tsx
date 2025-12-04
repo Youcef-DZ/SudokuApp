@@ -126,7 +126,7 @@ export default function SudokuGame(props: SudokuGameProps) {
           },
           Date: {
             TYPE: 'rich_text',
-            VALUE: new Date().toISOString().split('T')[0]
+            VALUE: new Date().toISOString()
           }
         }
       };

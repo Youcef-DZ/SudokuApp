@@ -68,13 +68,15 @@ export default function GameHeader({
           <div style={{
             fontWeight: '700',
             fontSize: '24px',
-            background: darkMode
+            backgroundImage: darkMode
               ? 'linear-gradient(135deg, #a5b4fc 0%, #38bdf8 100%)'
               : 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)',
             WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
-            letterSpacing: '0.5px'
+            WebkitTextFillColor: 'transparent',
+            color: 'transparent',
+            letterSpacing: '0.5px',
+            display: 'inline-block'
           }}>
             {title}
           </div>

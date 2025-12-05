@@ -32,6 +32,7 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
   const [errors, setErrors] = useState<Set<string>>(new Set());
   const [gameWon, setGameWon] = useState(false);
+  const [gameCompleted, setGameCompleted] = useState(false); // Track if game has ever been completed
   const [elapsedTime, setElapsedTime] = useState(0); // in seconds
   const [startTime, setStartTime] = useState<number>(Date.now());
   const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
@@ -72,6 +73,7 @@ export default function SudokuGame(props: SudokuGameProps) {
     setSelectedCell(null);
     setErrors(new Set());
     setGameWon(false);
+    setGameCompleted(false); // Reset for new game
     setElapsedTime(0);
     setStartTime(Date.now());
     setLoading(false);
@@ -139,14 +141,14 @@ export default function SudokuGame(props: SudokuGameProps) {
 
   // Timer effect - updates every second
   useEffect(() => {
-    if (gameWon) return; // Stop timer when game is won
+    if (gameCompleted) return; // Stop timer when game has been completed
 
     const timer = setInterval(() => {
       setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [startTime, gameWon]);
+  }, [startTime, gameCompleted]);
 
   const handleCellClick = useCallback((row: number, col: number) => {
     setSelectedCell({ row, col });
@@ -172,7 +174,11 @@ export default function SudokuGame(props: SudokuGameProps) {
     setErrors(newErrors);
 
     if (checkSolution(newBoard, solution)) {
+      // Capture final time before stopping the timer
+      const finalTime = Math.floor((Date.now() - startTime) / 1000);
+      setElapsedTime(finalTime);
       setGameWon(true);
+      setGameCompleted(true); // Mark game as completed to prevent timer from restarting
     }
   }, [selectedCell, initialBoard, currentBoard, errors, solution]);
 
@@ -446,8 +452,33 @@ export default function SudokuGame(props: SudokuGameProps) {
               border: darkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.05)',
               backdropFilter: 'blur(10px)',
               maxWidth: '90%',
-              width: '400px'
+              width: '400px',
+              position: 'relative'
             }}>
+              {/* Close button */}
+              <button
+                onClick={() => setGameWon(false)}
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '24px',
+                  color: darkMode ? '#94a3b8' : '#64748b',
+                  cursor: 'pointer',
+                  padding: '4px 8px',
+                  lineHeight: '1',
+                  transition: 'color 0.2s',
+                  fontWeight: '300'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = darkMode ? '#fff' : '#000'}
+                onMouseLeave={(e) => e.currentTarget.style.color = darkMode ? '#94a3b8' : '#64748b'}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+
               <h2 style={{
                 fontSize: '32px',
                 marginBottom: '16px',

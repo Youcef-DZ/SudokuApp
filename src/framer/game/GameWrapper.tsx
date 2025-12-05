@@ -71,7 +71,6 @@ function GameWithAuth(props: GameWrapperProps) {
   const [showGame, setShowGame] = useState(!!startWithDifficulty);
   const [showLogin, setShowLogin] = useState(false);
   const [darkMode, setDarkMode] = useState(darkModeProp);
-  const [authRefreshKey, setAuthRefreshKey] = useState(0);
 
   // Extract username with proper fallback logic from both user object and session token
   const userName = getUserName(user, sessionToken);

@@ -37,6 +37,7 @@ export interface SudokuGameProps {
   onLogout?: () => void;
   isAuthenticated?: boolean;
   userName?: string;
+  userEmail?: string;
   darkMode?: boolean;
   onToggleTheme?: () => void;
   initialGameState?: GameState | null;

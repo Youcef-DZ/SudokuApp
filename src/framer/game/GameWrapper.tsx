@@ -74,6 +74,9 @@ function GameWithAuth(props: GameWrapperProps) {
 
   // Extract username with proper fallback logic from both user object and session token
   const userName = getUserName(user, sessionToken);
+  
+  // Extract email from user object or session token
+  const userEmail = user?.email || (sessionToken as any)?.email;
 
   // Debug log when auth state changes
   useEffect(() => {
@@ -205,6 +208,7 @@ function GameWithAuth(props: GameWrapperProps) {
       difficulty={selectedDifficulty || 'medium'}
       isAuthenticated={isAuthenticated}
       userName={userName}
+      userEmail={userEmail}
       darkMode={darkMode}
       onToggleTheme={toggleTheme}
       onLogin={handleLogin}

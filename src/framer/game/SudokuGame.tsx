@@ -22,6 +22,7 @@ export default function SudokuGame(props: SudokuGameProps) {
     onLogout,
     isAuthenticated = false,
     userName,
+    userEmail,
     darkMode = false,
     onToggleTheme
   } = props;
@@ -292,6 +293,7 @@ export default function SudokuGame(props: SudokuGameProps) {
             responsiveCellSize={responsiveCellSize}
             isAuthenticated={isAuthenticated}
             userName={userName}
+            userEmail={userEmail}
             elapsedTime={elapsedTime}
             darkMode={darkMode}
             onToggleTheme={onToggleTheme}

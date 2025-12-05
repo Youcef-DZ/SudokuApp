@@ -38,6 +38,7 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
   const [loading, setLoading] = useState(true);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [currentDifficulty, setCurrentDifficulty] = useState<string>(difficulty); // Track current difficulty
 
   // Get handleCreate from ScoresDb hook for saving scores
   const [scoresStore] = useScoresStore();
@@ -80,11 +81,13 @@ export default function SudokuGame(props: SudokuGameProps) {
     scoreSavedRef.current = false; // Reset for new game
   }, []);
 
-  const startNewGame = useCallback(async () => {
+  const startNewGame = useCallback(async (newDifficulty?: string) => {
     setLoading(true);
-    const result = await generatePuzzle(difficulty as Difficulty);
+    const targetDifficulty = (newDifficulty || currentDifficulty) as Difficulty;
+    setCurrentDifficulty(targetDifficulty); // Update current difficulty
+    const result = await generatePuzzle(targetDifficulty);
     handleGameInit(result);
-  }, [difficulty, handleGameInit]);
+  }, [currentDifficulty, handleGameInit]);
 
   useEffect(() => {
     let mounted = true;
@@ -124,7 +127,7 @@ export default function SudokuGame(props: SudokuGameProps) {
           },
           Difficulty: {
             TYPE: 'select',
-            VALUE: difficulty.charAt(0).toUpperCase() + difficulty.slice(1)
+            VALUE: currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1)
           },
           Date: {
             TYPE: 'rich_text',
@@ -137,7 +140,7 @@ export default function SudokuGame(props: SudokuGameProps) {
       scoreSavedRef.current = true; // Mark as saved
       console.log('Score saved to Notion!');
     }
-  }, [gameWon, handleCreate, notionData, elapsedTime, userName, difficulty]);
+  }, [gameWon, handleCreate, notionData, elapsedTime, userName, currentDifficulty]);
 
   // Timer effect - updates every second
   useEffect(() => {
@@ -293,7 +296,7 @@ export default function SudokuGame(props: SudokuGameProps) {
             darkMode={darkMode}
             onToggleTheme={onToggleTheme}
             puzzleId={puzzleId}
-            difficulty={difficulty}
+            difficulty={currentDifficulty}
             onShowLeaderboard={() => setShowLeaderboard(true)}
           />
         </div>
@@ -501,12 +504,12 @@ export default function SudokuGame(props: SudokuGameProps) {
                 color: darkMode ? '#94a3b8' : '#64748b',
                 marginBottom: '32px'
               }}>
-                Difficulty: <span style={{ textTransform: 'capitalize' }}>{difficulty}</span>
+                Difficulty: <span style={{ textTransform: 'capitalize' }}>{currentDifficulty}</span>
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <button
-                  onClick={startNewGame}
+                  onClick={() => startNewGame()}
                   style={{
                     padding: '16px 32px',
                     fontSize: '18px',
@@ -552,7 +555,7 @@ export default function SudokuGame(props: SudokuGameProps) {
           <Leaderboard
             darkMode={darkMode}
             onClose={() => setShowLeaderboard(false)}
-            initialDifficulty={difficulty as 'easy' | 'medium' | 'hard'}
+            initialDifficulty={currentDifficulty as 'easy' | 'medium' | 'hard'}
           />
         )}
 

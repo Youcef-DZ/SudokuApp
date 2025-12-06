@@ -35,6 +35,11 @@ jobs:
           cp package.json dist/
           cp package-lock.json dist/ || true
 
+      - name: Install production dependencies in dist
+        run: |
+          cd dist
+          npm install --production
+
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:

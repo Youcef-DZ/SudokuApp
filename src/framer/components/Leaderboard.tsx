@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchScoresFromNotion } from '../data/Database.tsx';
-import { getTheme, leaderboardContainerStyle, leaderboardCardStyle, tabButtonStyle } from '../shared/theme';
+import { getTheme, leaderboardContainerStyle, leaderboardCardStyle, tabButtonStyle } from '../shared/theme.ts';
 
 interface Score {
     id: string;

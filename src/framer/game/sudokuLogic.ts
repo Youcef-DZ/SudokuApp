@@ -1,4 +1,4 @@
-import type { Board, Difficulty, PuzzleResult } from '../shared/types';
+import type { Board, Difficulty, PuzzleResult } from '../shared/types.ts';
 import { getRandomPuzzle } from '../data/Database.tsx';
 
 export const isValid = (board: Board, row: number, col: number, num: number): boolean => {

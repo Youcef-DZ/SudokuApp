@@ -3,8 +3,8 @@ import { AuthProvider, useDescope, useSession, useUser, Descope } from '@descope
 import SudokuGame from './SudokuGame.tsx';
 import Leaderboard from '../components/Leaderboard.tsx';
 import { fetchPuzzlesFromNotion } from '../data/Database.tsx';
-import type { SudokuGameProps, Difficulty } from '../shared/types';
-import { getTheme, createPopupOverlayStyle, createPopupCardStyle, sudokuLogoStyle, sudokuLogoCellStyle, difficultyButtonStyle } from '../shared/theme';
+import type { SudokuGameProps, Difficulty } from '../shared/types.ts';
+import { getTheme, createPopupOverlayStyle, createPopupCardStyle, sudokuLogoStyle, sudokuLogoCellStyle, difficultyButtonStyle } from '../shared/theme.ts';
 
 const projectId = "P35AlPWcTE6gN9hXrEFjboLuqX8T";
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Board, CellPosition, Difficulty } from '../shared/types';
-import type { SudokuGameProps } from '../shared/types';
+import type { Board, CellPosition, Difficulty } from '../shared/types.ts';
+import type { SudokuGameProps } from '../shared/types.ts';
 import {
   generatePuzzle,
   checkSolution,
@@ -12,7 +12,7 @@ import Header from '../components/Header.tsx';
 import Leaderboard from '../components/Leaderboard.tsx';
 import ScoresDb, { useScoresStore } from '../data/Database.tsx';
 import { getNotionDataPrimaryDbId } from '../data/NotionHook.tsx';
-import { getTheme } from '../shared/theme';
+import { getTheme } from '../shared/theme.ts';
 
 export default function SudokuGame(props: SudokuGameProps) {
   const {

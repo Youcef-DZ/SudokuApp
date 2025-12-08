@@ -1,5 +1,5 @@
 import React from 'react';
-import { getTheme, createGradientTextStyle, themeToggleButtonStyle } from '../shared/theme';
+import { getTheme, createGradientTextStyle, themeToggleButtonStyle } from '../shared/theme.ts';
 
 interface GameHeaderProps {
   onNewGame?: (difficulty?: string) => void;
@@ -295,8 +295,8 @@ export default function GameHeader({
             <button
               onClick={onShowLeaderboard}
               style={{
-                padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
                 ...themeToggleButtonStyle(theme),
+                padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
                 fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`
               }}
               onMouseEnter={(e) => {
@@ -322,8 +322,8 @@ export default function GameHeader({
             <button
               onClick={onToggleTheme}
               style={{
-                padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
                 ...themeToggleButtonStyle(theme),
+                padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
                 fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`
               }}
               onMouseEnter={(e) => {

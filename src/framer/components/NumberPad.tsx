@@ -1,4 +1,4 @@
-import { getTheme, createButtonStyle } from '../shared/theme';
+import { getTheme, createButtonStyle } from '../shared/theme.ts';
 
 interface NumberPadProps {
   selectedCell: { row: number; col: number } | null;

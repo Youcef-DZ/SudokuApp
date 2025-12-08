@@ -32,12 +32,12 @@ export default function LoginPage({
       position: 'relative'
     }}>
       <div style={{
-        maxWidth: '450px',
+        maxWidth: '420px',
         width: '100%',
         textAlign: 'center',
         backgroundColor: darkMode ? '#1f2937' : 'white',
         borderRadius: '16px',
-        padding: '40px',
+        padding: '24px',
         boxShadow: darkMode
           ? '0 20px 50px rgba(0, 0, 0, 0.5)'
           : '0 20px 50px rgba(0, 0, 0, 0.15)',
@@ -77,8 +77,8 @@ export default function LoginPage({
           display: 'inline-grid',
           gridTemplateColumns: 'repeat(3, 1fr)',
           gap: '2px',
-          marginBottom: '16px',
-          padding: '8px',
+          marginBottom: '12px',
+          padding: '6px',
           background: darkMode 
             ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
             : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
@@ -112,24 +112,24 @@ export default function LoginPage({
         </div>
         
         <h1 style={{
-          fontSize: '32px',
+          fontSize: '24px',
           fontWeight: 'bold',
-          marginBottom: '12px',
+          marginBottom: '6px',
           color: colors.text
         }}>
           Sudoku
         </h1>
         <p style={{
           color: colors.subtext,
-          marginBottom: '30px',
-          fontSize: '15px',
-          lineHeight: '1.6'
+          marginBottom: '20px',
+          fontSize: '13px',
+          lineHeight: '1.4'
         }}>
           Sign in to save your progress and compete on the leaderboard
         </p>
         <div style={{
           background: darkMode ? 'rgba(15, 23, 42, 0.4)' : 'rgba(249, 250, 251, 0.7)',
-          padding: '32px',
+          padding: '20px',
           borderRadius: '12px',
           border: darkMode
             ? '1px solid rgba(99, 102, 241, 0.2)'
@@ -164,9 +164,9 @@ export default function LoginPage({
           <button
             onClick={onBack}
             style={{
-              marginTop: '20px',
-              padding: '12px 24px',
-              fontSize: '15px',
+              marginTop: '12px',
+              padding: '9px 18px',
+              fontSize: '13px',
               fontWeight: '600',
               background: 'transparent',
               color: darkMode ? '#9ca3af' : '#6b7280',

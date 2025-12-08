@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { AuthProvider, useDescope, useSession, useUser } from '@descope/react-sdk';
 import SudokuGame from './SudokuGame.tsx';
-import DifficultySelect from '../components/DifficultySelect.tsx';
 import LoginPage from '../components/LoginPage.tsx';
+import Leaderboard from '../components/Leaderboard.tsx';
+import { fetchPuzzlesFromNotion } from '../data/Database.tsx';
 import type { SudokuGameProps, Difficulty } from '../types/types.ts';
 
 const projectId = "P35AlPWcTE6gN9hXrEFjboLuqX8T";
@@ -68,8 +69,8 @@ function GameWithAuth(props: GameWrapperProps) {
   const { logout, refresh } = useDescope();
 
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(startWithDifficulty || null);
-  const [showGame, setShowGame] = useState(!!startWithDifficulty);
-  const [showLogin, setShowLogin] = useState(false);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [showDifficultyPopup, setShowDifficultyPopup] = useState(!startWithDifficulty);
   const [darkMode, setDarkMode] = useState(darkModeProp);
 
   // Extract username with proper fallback logic from both user object and session token
@@ -77,6 +78,16 @@ function GameWithAuth(props: GameWrapperProps) {
   
   // Extract email from user object or session token
   const userEmail = user?.email || (sessionToken as any)?.email;
+
+  // Preload puzzles immediately on component mount
+  useEffect(() => {
+    console.log('🎲 Preloading puzzles...');
+    fetchPuzzlesFromNotion().then(() => {
+      console.log('✅ Puzzles preloaded and cached');
+    }).catch((error) => {
+      console.error('❌ Failed to preload puzzles:', error);
+    });
+  }, []);
 
   // Debug log when auth state changes
   useEffect(() => {
@@ -96,23 +107,23 @@ function GameWithAuth(props: GameWrapperProps) {
     }
   }, [isAuthenticated, userName, user, sessionToken]);
 
-  // Additional debug: log whenever showLogin or showGame changes
+  // Additional debug: log whenever popup states change
   useEffect(() => {
-    console.log('📍 View State: showLogin =', showLogin, ', showGame =', showGame);
-  }, [showLogin, showGame]);
+    console.log('📍 Popup State: showLoginPopup =', showLoginPopup, ', showDifficultyPopup =', showDifficultyPopup);
+  }, [showLoginPopup, showDifficultyPopup]);
 
   // Handle OAuth redirect: When user returns from OAuth provider (like Google),
-  // we need to show the login page so Descope component can process the callback
+  // we need to show the login popup so Descope component can process the callback
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const hasOAuthParams = urlParams.has('code') || urlParams.has('state');
     
     if (hasOAuthParams) {
-      console.log('🔄 OAuth redirect detected, ensuring login page is shown...');
+      console.log('🔄 OAuth redirect detected, ensuring login popup is shown...');
       
-      // CRITICAL: Show login page so Descope component can process OAuth callback
-      if (!showLogin) {
-        setShowLogin(true);
+      // CRITICAL: Show login popup so Descope component can process OAuth callback
+      if (!showLoginPopup) {
+        setShowLoginPopup(true);
       }
       
       // Give Descope time to process the OAuth callback, then clean URL
@@ -128,16 +139,34 @@ function GameWithAuth(props: GameWrapperProps) {
       
       return () => clearTimeout(timer);
     }
-  }, [refresh, showLogin]);
+  }, [refresh, showLoginPopup]);
   
-  // Separate effect to close login modal when auth completes
+  // Separate effect to close login popup when auth completes and show difficulty popup
   useEffect(() => {
-    // If we're authenticated and login page is showing, close it
-    if (isAuthenticated && showLogin) {
-      console.log('✅ Auth successful, closing login modal...');
-      setShowLogin(false);
+    // If we're authenticated and login popup is showing, close it and show difficulty
+    if (isAuthenticated && showLoginPopup) {
+      console.log('✅ Auth successful, closing login popup and showing difficulty...');
+      setShowLoginPopup(false);
+      if (!selectedDifficulty) {
+        setShowDifficultyPopup(true);
+      }
     }
-  }, [isAuthenticated, showLogin]);
+  }, [isAuthenticated, showLoginPopup, selectedDifficulty]);
+
+  // Show login popup on initial load if not authenticated and no difficulty selected
+  useEffect(() => {
+    // Check if we're processing OAuth (don't auto-show login if OAuth is in progress)
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasOAuthParams = urlParams.has('code') || urlParams.has('state');
+    
+    if (!hasOAuthParams && !isAuthenticated && !showLoginPopup && !selectedDifficulty) {
+      console.log('🔑 Not authenticated on initial load, showing login popup...');
+      setShowLoginPopup(true);
+    } else if (isAuthenticated && !selectedDifficulty && !showDifficultyPopup) {
+      console.log('✅ Already authenticated, showing difficulty popup...');
+      setShowDifficultyPopup(true);
+    }
+  }, [isAuthenticated]);
 
 
   const toggleTheme = useCallback(() => {
@@ -148,16 +177,19 @@ function GameWithAuth(props: GameWrapperProps) {
     if (onLoginOverride) {
       onLoginOverride();
     } else {
-      setShowLogin(true);
+      setShowLoginPopup(true);
     }
   }, [onLoginOverride]);
   // Effect to watch for auth changes after login (for non-OAuth flows)
   useEffect(() => {
-    if (isAuthenticated && showLogin) {
-      console.log('✅ Auth state detected, closing login page...');
-      setShowLogin(false);
+    if (isAuthenticated && showLoginPopup) {
+      console.log('✅ Auth state detected, closing login popup...');
+      setShowLoginPopup(false);
+      if (!selectedDifficulty) {
+        setShowDifficultyPopup(true);
+      }
     }
-  }, [isAuthenticated, showLogin]);
+  }, [isAuthenticated, showLoginPopup, selectedDifficulty]);
 
   const handleLoginSuccess = useCallback(async () => {
     console.log('🔄 Login successful, waiting for auth state to update...');
@@ -169,57 +201,231 @@ function GameWithAuth(props: GameWrapperProps) {
     console.log('✅ Session refreshed, waiting for auth hooks to update...');
   }, [refresh]);
 
-  // Show login page
-  if (showLogin) {
-    return (
-      <LoginPage
-        darkMode={darkMode}
-        onSuccess={handleLoginSuccess}
-        onBack={() => setShowLogin(false)}
-      />
-    );
-  }
+  const handleSkipLogin = useCallback(() => {
+    console.log('⏭️ User skipped login');
+    setShowLoginPopup(false);
+    setShowDifficultyPopup(true);
+  }, []);
 
-  // Show difficulty selection first
-  if (!showGame) {
-    return (
-      <DifficultySelect
-        onSelectDifficulty={(difficulty) => {
-          setSelectedDifficulty(difficulty);
-          setShowGame(true);
-        }}
-        onLogin={handleLogin}
-        onLogout={() => {
-          logout();
-          // Stay on difficulty select after logout
-        }}
-        isAuthenticated={isAuthenticated}
-        userName={userName}
-        darkMode={darkMode}
-        onToggleTheme={toggleTheme}
-      />
-    );
-  }
+  const handleDifficultySelect = useCallback((difficulty: Difficulty) => {
+    console.log('🎯 Difficulty selected:', difficulty);
+    setSelectedDifficulty(difficulty);
+    setShowDifficultyPopup(false);
+  }, []);
 
-  // Show game after difficulty is selected
+  const [hoveredDifficulty, setHoveredDifficulty] = useState<string | null>(null);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+
+  const difficulties = [
+    { level: 'easy' as const, title: 'Easy' },
+    { level: 'medium' as const, title: 'Medium' },
+    { level: 'hard' as const, title: 'Hard' }
+  ];
+
+  // Show game board only after difficulty is selected, with popups overlaid
   return (
-    <SudokuGame
-      {...gameProps}
-      difficulty={selectedDifficulty || 'medium'}
-      isAuthenticated={isAuthenticated}
-      userName={userName}
-      userEmail={userEmail}
-      darkMode={darkMode}
-      onToggleTheme={toggleTheme}
-      onLogin={handleLogin}
-      onLogout={onLogoutOverride || (() => {
-        console.log('🚪 Logout button clicked');
-        logout();
-        console.log('✅ Logout completed');
-        // Optionally go back to difficulty selection
-        // setShowGame(false);
-      })}
-    />
+    <div style={{ 
+      position: 'relative', 
+      width: '100%', 
+      height: '100%',
+      background: darkMode
+        ? 'linear-gradient(135deg, #1a0b2e 0%, #16213e 30%, #0f3443 60%, #0d3b3f 100%)'
+        : 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 30%, #e0f7fa 60%, #e0f2f1 100%)'
+    }}>
+      {/* Game board (only rendered after difficulty is selected) */}
+      {selectedDifficulty && (
+        <SudokuGame
+          {...gameProps}
+          difficulty={selectedDifficulty}
+          isAuthenticated={isAuthenticated}
+          userName={userName}
+          userEmail={userEmail}
+          darkMode={darkMode}
+          onToggleTheme={toggleTheme}
+          onLogin={handleLogin}
+          onLogout={onLogoutOverride || (() => {
+            console.log('🚪 Logout button clicked');
+            logout();
+            console.log('✅ Logout completed');
+            // Reset game state on logout
+            setSelectedDifficulty(null);
+            setShowDifficultyPopup(true);
+          })}
+        />
+      )}
+
+      {/* Login Popup */}
+      {showLoginPopup && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px',
+          boxSizing: 'border-box'
+        }}>
+          <div style={{
+            maxWidth: '450px',
+            width: '100%',
+            position: 'relative'
+          }}>
+            <LoginPage
+              darkMode={darkMode}
+              onSuccess={handleLoginSuccess}
+              onBack={handleSkipLogin}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Difficulty Selection Popup */}
+      {showDifficultyPopup && !showLoginPopup && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px',
+          boxSizing: 'border-box'
+        }}>
+          <div style={{
+            maxWidth: '500px',
+            width: '100%',
+            backgroundColor: darkMode ? '#1f2937' : 'white',
+            borderRadius: '16px',
+            padding: '40px',
+            boxShadow: darkMode
+              ? '0 20px 50px rgba(0, 0, 0, 0.5)'
+              : '0 20px 50px rgba(0, 0, 0, 0.15)',
+            boxSizing: 'border-box',
+            textAlign: 'center',
+            fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+          }}>
+            <h2 style={{
+              fontSize: '28px',
+              fontWeight: 'bold',
+              marginBottom: '8px',
+              color: darkMode ? '#e5e7eb' : '#1f2937'
+            }}>
+              Select Difficulty
+            </h2>
+            
+            <p style={{
+              fontSize: '16px',
+              color: darkMode ? '#9ca3af' : '#6b7280',
+              marginBottom: '32px',
+              fontWeight: '500'
+            }}>
+              Choose a difficulty level to start playing
+            </p>
+
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              marginBottom: '24px',
+              alignItems: 'center'
+            }}>
+              {difficulties.map(({ level, title }) => (
+                <button
+                  key={level}
+                  onClick={() => handleDifficultySelect(level)}
+                  onMouseEnter={() => setHoveredDifficulty(level)}
+                  onMouseLeave={() => setHoveredDifficulty(null)}
+                  style={{
+                    background: darkMode
+                      ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
+                      : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                    border: hoveredDifficulty === level
+                      ? (darkMode
+                        ? '2px solid rgba(99, 102, 241, 0.5)'
+                        : '2px solid rgba(59, 130, 246, 0.4)')
+                      : (darkMode
+                        ? '2px solid rgba(99, 102, 241, 0.25)'
+                        : '2px solid rgba(59, 130, 246, 0.25)'),
+                    borderRadius: '12px',
+                    padding: '18px 32px',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    fontSize: '20px',
+                    fontWeight: '600',
+                    color: darkMode ? '#a5b4fc' : '#2563eb',
+                    width: '100%',
+                    maxWidth: '320px',
+                    boxShadow: hoveredDifficulty === level
+                      ? (darkMode
+                        ? '0 8px 20px rgba(99, 102, 241, 0.4)'
+                        : '0 8px 20px rgba(59, 130, 246, 0.35)')
+                      : (darkMode
+                        ? '0 2px 8px rgba(0, 0, 0, 0.3)'
+                        : '0 2px 8px rgba(59, 130, 246, 0.15)'),
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                    transform: hoveredDifficulty === level ? 'translateY(-2px) scale(1.02)' : 'translateY(0) scale(1)'
+                  }}
+                >
+                  {title}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setShowLeaderboard(true)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  color: darkMode ? '#94a3b8' : '#64748b',
+                  cursor: 'pointer',
+                  marginTop: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  transition: 'all 0.2s',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                🏆 View Leaderboard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Leaderboard Modal */}
+      {showLeaderboard && (
+        <Leaderboard
+          darkMode={darkMode}
+          onClose={() => setShowLeaderboard(false)}
+        />
+      )}
+    </div>
   );
 }
 

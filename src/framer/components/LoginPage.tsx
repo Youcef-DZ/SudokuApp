@@ -26,63 +26,93 @@ export default function LoginPage({
       alignItems: 'center',
       justifyContent: 'center',
       width: '100%',
-      height: '100%',
-      background: darkMode
-        ? 'linear-gradient(135deg, #1a0b2e 0%, #16213e 30%, #0f3443 60%, #0d3b3f 100%)'
-        : 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 30%, #e0f7fa 60%, #e0f2f1 100%)',
       fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       padding: '20px',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
+      position: 'relative'
     }}>
       <div style={{
         maxWidth: '450px',
         width: '100%',
-        textAlign: 'center'
+        textAlign: 'center',
+        backgroundColor: darkMode ? '#1f2937' : 'white',
+        borderRadius: '16px',
+        padding: '40px',
+        boxShadow: darkMode
+          ? '0 20px 50px rgba(0, 0, 0, 0.5)'
+          : '0 20px 50px rgba(0, 0, 0, 0.15)',
+        position: 'relative'
       }}>
         {onBack && (
           <button
             onClick={onBack}
             style={{
               position: 'absolute',
-              top: '20px',
-              left: '20px',
-              padding: '12px 20px',
-              fontSize: '16px',
+              top: '16px',
+              right: '16px',
+              padding: '8px 16px',
+              fontSize: '14px',
               fontWeight: '600',
-              background: darkMode
-                ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
-                : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
-              color: darkMode ? '#a5b4fc' : '#2563eb',
-              border: darkMode
-                ? '2px solid rgba(99, 102, 241, 0.3)'
-                : '2px solid rgba(59, 130, 246, 0.25)',
-              borderRadius: '10px',
+              background: 'transparent',
+              color: darkMode ? '#9ca3af' : '#6b7280',
+              border: 'none',
+              borderRadius: '8px',
               cursor: 'pointer',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              boxShadow: darkMode
-                ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                : '0 2px 8px rgba(59, 130, 246, 0.15)'
+              transition: 'all 0.2s',
             }}
             onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-              e.currentTarget.style.boxShadow = darkMode
-                ? '0 4px 16px rgba(99, 102, 241, 0.4)'
-                : '0 4px 16px rgba(59, 130, 246, 0.3)';
+              e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+              e.currentTarget.style.color = darkMode ? '#e5e7eb' : '#1f2937';
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0) scale(1)';
-              e.currentTarget.style.boxShadow = darkMode
-                ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                : '0 2px 8px rgba(59, 130, 246, 0.15)';
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = darkMode ? '#9ca3af' : '#6b7280';
             }}
           >
-            ← Back
+            Skip
           </button>
         )}
+        {/* Sudoku Logo */}
+        <div style={{
+          display: 'inline-grid',
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '2px',
+          marginBottom: '16px',
+          padding: '8px',
+          background: darkMode 
+            ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
+            : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+          borderRadius: '8px',
+          border: darkMode
+            ? '2px solid rgba(99, 102, 241, 0.25)'
+            : '2px solid rgba(59, 130, 246, 0.25)'
+        }}>
+          {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+            <div
+              key={i}
+              style={{
+                width: '16px',
+                height: '16px',
+                backgroundColor: [1, 3, 5, 7].includes(i) 
+                  ? (darkMode ? '#60a5fa' : '#3b82f6')
+                  : (darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(59, 130, 246, 0.1)'),
+                borderRadius: '3px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '9px',
+                fontWeight: 'bold',
+                color: [1, 3, 5, 7].includes(i) ? 'white' : (darkMode ? '#94a3b8' : '#64748b'),
+                transition: 'all 0.3s'
+              }}
+            >
+              {[1, 3, 5, 7].includes(i) ? [5, 9, 2, 7][([1, 3, 5, 7].indexOf(i))] : ''}
+            </div>
+          ))}
+        </div>
+        
         <h1 style={{
-          fontSize: 'clamp(28px, 6vw, 36px)',
+          fontSize: '32px',
           fontWeight: 'bold',
           marginBottom: '12px',
           color: colors.text
@@ -92,23 +122,18 @@ export default function LoginPage({
         <p style={{
           color: colors.subtext,
           marginBottom: '30px',
-          fontSize: 'clamp(14px, 3vw, 15px)',
+          fontSize: '15px',
           lineHeight: '1.6'
         }}>
-          Sign in to save your progress and compete with others
+          Sign in to save your progress and compete on the leaderboard
         </p>
         <div style={{
-          background: darkMode ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.85)',
-          padding: 'clamp(28px, 6vw, 44px)',
-          borderRadius: '16px',
-          boxShadow: darkMode
-            ? '0 12px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(99, 102, 241, 0.15)'
-            : '0 12px 40px rgba(59, 130, 246, 0.18), 0 0 0 1px rgba(59, 130, 246, 0.12)',
+          background: darkMode ? 'rgba(15, 23, 42, 0.4)' : 'rgba(249, 250, 251, 0.7)',
+          padding: '32px',
+          borderRadius: '12px',
           border: darkMode
-            ? '2px solid rgba(99, 102, 241, 0.25)'
-            : '2px solid rgba(59, 130, 246, 0.2)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)'
+            ? '1px solid rgba(99, 102, 241, 0.2)'
+            : '1px solid rgba(59, 130, 246, 0.15)',
         }}>
           <Descope
             flowId={flowId}
@@ -134,6 +159,35 @@ export default function LoginPage({
             }}
           />
         </div>
+        
+        {onBack && (
+          <button
+            onClick={onBack}
+            style={{
+              marginTop: '20px',
+              padding: '12px 24px',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: 'transparent',
+              color: darkMode ? '#9ca3af' : '#6b7280',
+              border: darkMode ? '1px solid rgba(156, 163, 175, 0.3)' : '1px solid rgba(107, 114, 128, 0.3)',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              width: '100%'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+              e.currentTarget.style.borderColor = darkMode ? 'rgba(156, 163, 175, 0.5)' : 'rgba(107, 114, 128, 0.5)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.borderColor = darkMode ? 'rgba(156, 163, 175, 0.3)' : 'rgba(107, 114, 128, 0.3)';
+            }}
+          >
+            Skip for now
+          </button>
+        )}
       </div>
     </div>
   );

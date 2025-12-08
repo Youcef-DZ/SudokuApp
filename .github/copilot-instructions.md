@@ -43,7 +43,7 @@ GameWrapper (AuthProvider)
 ```
 
 ### State Management
-**Custom store pattern** (`src/framer/data/store.ts`):
+**Custom store pattern** (`src/framer/shared/store.ts`):
 - Lightweight pub-sub system (no external libraries like Redux/Zustand)
 - `createStore<T>` returns a React hook with `[state, setState]` signature
 - Used for sharing Notion write handlers across component tree (`ScoresDb` → `SudokuGame`)
@@ -91,21 +91,22 @@ npm run dev      # Starts Vite at localhost:5173
 ## File Organization
 ```
 src/framer/              # ⚠️ Edit these files
-├── types/types.ts       # Shared type definitions
+├── shared/              # Shared utilities
+│   ├── types.ts         # Type definitions
+│   ├── theme.ts         # Centralized styles & colors
+│   └── store.ts         # Custom state management
 ├── game/
 │   ├── GameWrapper.tsx  # Auth wrapper + view routing
 │   ├── SudokuGame.tsx   # Main game component
 │   └── sudokuLogic.ts   # Pure logic (validation, board copying)
 ├── data/
 │   ├── Database.tsx     # Notion puzzle/score fetching
-│   ├── NotionHook.tsx   # Vendored Notion SDK (read-only)
-│   └── store.ts         # Custom state management
+│   └── NotionHook.tsx   # Vendored Notion SDK (read-only)
 └── components/
     ├── DescopeAuth.tsx  # Auth HOCs (protectedComponent, etc.)
     ├── DifficultySelect.tsx
     ├── Header.tsx
     ├── Leaderboard.tsx
-    ├── LoginPage.tsx
     └── NumberPad.tsx
 ```
 

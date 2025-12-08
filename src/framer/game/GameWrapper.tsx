@@ -1,10 +1,10 @@
 import { useState, useCallback, useEffect } from 'react';
-import { AuthProvider, useDescope, useSession, useUser } from '@descope/react-sdk';
+import { AuthProvider, useDescope, useSession, useUser, Descope } from '@descope/react-sdk';
 import SudokuGame from './SudokuGame.tsx';
-import LoginPage from '../components/LoginPage.tsx';
 import Leaderboard from '../components/Leaderboard.tsx';
 import { fetchPuzzlesFromNotion } from '../data/Database.tsx';
-import type { SudokuGameProps, Difficulty } from '../types/types.ts';
+import type { SudokuGameProps, Difficulty } from '../shared/types';
+import { getTheme, createPopupOverlayStyle, createPopupCardStyle, sudokuLogoStyle, sudokuLogoCellStyle, difficultyButtonStyle } from '../shared/theme';
 
 const projectId = "P35AlPWcTE6gN9hXrEFjboLuqX8T";
 
@@ -216,6 +216,8 @@ function GameWithAuth(props: GameWrapperProps) {
   const [hoveredDifficulty, setHoveredDifficulty] = useState<string | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
 
+  const theme = getTheme(darkMode);
+
   const difficulties = [
     { level: 'easy' as const, title: 'Easy' },
     { level: 'medium' as const, title: 'Medium' },
@@ -228,9 +230,7 @@ function GameWithAuth(props: GameWrapperProps) {
       position: 'relative', 
       width: '100%', 
       height: '100%',
-      background: darkMode
-        ? 'linear-gradient(135deg, #1a0b2e 0%, #16213e 30%, #0f3443 60%, #0d3b3f 100%)'
-        : 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 30%, #e0f7fa 60%, #e0f2f1 100%)'
+      background: theme.gradients.background
     }}>
       {/* Game board (only rendered after difficulty is selected) */}
       {selectedDifficulty && (
@@ -256,80 +256,136 @@ function GameWithAuth(props: GameWrapperProps) {
 
       {/* Login Popup */}
       {showLoginPopup && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px',
-          boxSizing: 'border-box'
-        }}>
-          <div style={{
-            maxWidth: '450px',
-            width: '100%',
-            position: 'relative'
-          }}>
-            <LoginPage
-              darkMode={darkMode}
-              onSuccess={handleLoginSuccess}
-              onBack={handleSkipLogin}
-            />
+        <div style={createPopupOverlayStyle()}>
+          <div style={createPopupCardStyle(theme)}>
+            {/* Skip Button */}
+            <button
+              onClick={handleSkipLogin}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                fontWeight: '600',
+                background: 'transparent',
+                color: theme.colors.textSecondary,
+                border: 'none',
+                borderRadius: theme.borderRadius.sm,
+                cursor: 'pointer',
+                transition: theme.transitions.fast,
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
+                e.currentTarget.style.color = theme.colors.text;
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.color = theme.colors.textSecondary;
+              }}
+            >
+              Skip
+            </button>
+
+            {/* Sudoku Logo */}
+            <div style={sudokuLogoStyle(theme)}>
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                <div key={i} style={sudokuLogoCellStyle(theme, [1, 3, 5, 7].includes(i), darkMode)}>
+                  {[1, 3, 5, 7].includes(i) ? [5, 9, 2, 7][([1, 3, 5, 7].indexOf(i))] : ''}
+                </div>
+              ))}
+            </div>
+            
+            <h1 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              marginBottom: '6px',
+              color: theme.colors.text
+            }}>
+              Sudoku
+            </h1>
+            <p style={{
+              color: theme.colors.textSecondary,
+              marginBottom: '20px',
+              fontSize: '13px',
+              lineHeight: '1.4'
+            }}>
+              Sign in to save your progress and compete on the leaderboard
+            </p>
+            <div style={{
+              background: darkMode ? 'rgba(15, 23, 42, 0.4)' : 'rgba(249, 250, 251, 0.7)',
+              padding: '20px',
+              borderRadius: theme.borderRadius.lg,
+              border: `1px solid ${theme.colors.border}`,
+            }}>
+              <Descope
+                flowId="sign-up-or-in"
+                theme={darkMode ? 'dark' : 'light'}
+                onSuccess={async (e) => {
+                  console.log('🎉 Descope Login successful!');
+                  console.log('User from event:', e.detail.user);
+                  console.log('Waiting for session refresh...');
+                  await handleLoginSuccess();
+                  console.log('Session refresh complete, navigating back');
+                }}
+                onError={(e) => {
+                  console.error('❌ Descope Login error:', e);
+                  console.error('Error detail:', e.detail);
+                }}
+              />
+            </div>
+            
+            <button
+              onClick={handleSkipLogin}
+              style={{
+                marginTop: '12px',
+                padding: '9px 18px',
+                fontSize: '13px',
+                fontWeight: '600',
+                background: 'transparent',
+                color: theme.colors.textSecondary,
+                border: theme.borders.thin,
+                borderRadius: theme.borderRadius.sm,
+                cursor: 'pointer',
+                transition: theme.transitions.fast,
+                width: '100%'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+                e.currentTarget.style.borderColor = theme.colors.textSecondary;
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = theme.colors.textSecondary;
+              }}
+            >
+              Skip for now
+            </button>
           </div>
         </div>
       )}
 
       {/* Difficulty Selection Popup */}
       {showDifficultyPopup && !showLoginPopup && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px',
-          boxSizing: 'border-box'
-        }}>
+        <div style={createPopupOverlayStyle()}>
           <div style={{
-            maxWidth: '500px',
-            width: '100%',
-            backgroundColor: darkMode ? '#1f2937' : 'white',
-            borderRadius: '16px',
+            ...createPopupCardStyle(theme, '500px'),
             padding: '40px',
-            boxShadow: darkMode
-              ? '0 20px 50px rgba(0, 0, 0, 0.5)'
-              : '0 20px 50px rgba(0, 0, 0, 0.15)',
-            boxSizing: 'border-box',
-            textAlign: 'center',
             fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
           }}>
             <h2 style={{
               fontSize: '28px',
               fontWeight: 'bold',
-              marginBottom: '8px',
-              color: darkMode ? '#e5e7eb' : '#1f2937'
+              marginBottom: theme.spacing.sm,
+              color: theme.colors.text
             }}>
               Select Difficulty
             </h2>
             
             <p style={{
               fontSize: '16px',
-              color: darkMode ? '#9ca3af' : '#6b7280',
-              marginBottom: '32px',
+              color: theme.colors.textSecondary,
+              marginBottom: theme.spacing.xl,
               fontWeight: '500'
             }}>
               Choose a difficulty level to start playing
@@ -339,7 +395,7 @@ function GameWithAuth(props: GameWrapperProps) {
               display: 'flex',
               flexDirection: 'column',
               gap: '12px',
-              marginBottom: '24px',
+              marginBottom: theme.spacing.lg,
               alignItems: 'center'
             }}>
               {difficulties.map(({ level, title }) => (
@@ -349,35 +405,8 @@ function GameWithAuth(props: GameWrapperProps) {
                   onMouseEnter={() => setHoveredDifficulty(level)}
                   onMouseLeave={() => setHoveredDifficulty(null)}
                   style={{
-                    background: darkMode
-                      ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
-                      : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
-                    border: hoveredDifficulty === level
-                      ? (darkMode
-                        ? '2px solid rgba(99, 102, 241, 0.5)'
-                        : '2px solid rgba(59, 130, 246, 0.4)')
-                      : (darkMode
-                        ? '2px solid rgba(99, 102, 241, 0.25)'
-                        : '2px solid rgba(59, 130, 246, 0.25)'),
-                    borderRadius: '12px',
-                    padding: '18px 32px',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    fontSize: '20px',
-                    fontWeight: '600',
-                    color: darkMode ? '#a5b4fc' : '#2563eb',
-                    width: '100%',
-                    maxWidth: '320px',
-                    boxShadow: hoveredDifficulty === level
-                      ? (darkMode
-                        ? '0 8px 20px rgba(99, 102, 241, 0.4)'
-                        : '0 8px 20px rgba(59, 130, 246, 0.35)')
-                      : (darkMode
-                        ? '0 2px 8px rgba(0, 0, 0, 0.3)'
-                        : '0 2px 8px rgba(59, 130, 246, 0.15)'),
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    transform: hoveredDifficulty === level ? 'translateY(-2px) scale(1.02)' : 'translateY(0) scale(1)'
+                    ...difficultyButtonStyle(theme, hoveredDifficulty === level, darkMode),
+                    maxWidth: '320px'
                   }}
                 >
                   {title}
@@ -391,15 +420,15 @@ function GameWithAuth(props: GameWrapperProps) {
                   border: 'none',
                   fontSize: '15px',
                   fontWeight: '600',
-                  color: darkMode ? '#94a3b8' : '#64748b',
+                  color: theme.colors.textSecondary,
                   cursor: 'pointer',
-                  marginTop: '8px',
+                  marginTop: theme.spacing.sm,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  transition: 'all 0.2s',
+                  padding: theme.spacing.sm + ' ' + theme.spacing.md,
+                  borderRadius: theme.borderRadius.sm,
+                  transition: theme.transitions.fast,
                   justifyContent: 'center'
                 }}
                 onMouseEnter={(e) => {

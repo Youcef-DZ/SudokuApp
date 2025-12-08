@@ -1,4 +1,5 @@
 import React from 'react';
+import { getTheme, createGradientTextStyle, themeToggleButtonStyle } from '../shared/theme';
 
 interface GameHeaderProps {
   onNewGame?: (difficulty?: string) => void;
@@ -52,6 +53,8 @@ export default function GameHeader({
 }: GameHeaderProps) {
   const [showDifficultyPopup, setShowDifficultyPopup] = React.useState(false);
   const [showUserPopup, setShowUserPopup] = React.useState(false);
+  const theme = getTheme(darkMode);
+  
   // Simple layout for pages without game controls (like difficulty select)
   if (!showTimer && !showNewGameButton && title) {
     return (
@@ -68,13 +71,7 @@ export default function GameHeader({
           <div style={{
             fontWeight: '700',
             fontSize: '24px',
-            backgroundImage: darkMode
-              ? 'linear-gradient(135deg, #a5b4fc 0%, #38bdf8 100%)'
-              : 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)',
-            WebkitBackgroundClip: 'text',
-            backgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            color: 'transparent',
+            ...createGradientTextStyle(theme),
             letterSpacing: '0.5px',
             display: 'inline-block'
           }}>
@@ -91,24 +88,8 @@ export default function GameHeader({
               <button
                 onClick={onToggleTheme}
                 style={{
-                  padding: '10px 16px',
-                  borderRadius: '10px',
-                  border: darkMode
-                    ? '2px solid rgba(251, 191, 36, 0.4)'
-                    : '2px solid rgba(124, 58, 237, 0.3)',
-                  background: darkMode
-                    ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)'
-                    : 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(67, 56, 202, 0.1) 100%)',
-                  color: darkMode ? '#fcd34d' : '#7c3aed',
-                  cursor: 'pointer',
-                  fontSize: '18px',
-                  fontWeight: '600',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: darkMode
-                    ? '0 2px 8px rgba(251, 191, 36, 0.2)'
-                    : '0 2px 8px rgba(124, 58, 237, 0.15)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)'
+                  ...themeToggleButtonStyle(theme),
+                  fontSize: '18px'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px) scale(1.05) rotate(15deg)';
@@ -133,21 +114,15 @@ export default function GameHeader({
                   onClick={onLogin}
                   style={{
                     padding: '10px 16px',
-                    borderRadius: '10px',
-                    border: darkMode
-                      ? '2px solid rgba(99, 102, 241, 0.4)'
-                      : '2px solid rgba(59, 130, 246, 0.35)',
-                    background: darkMode
-                      ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
-                      : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                    borderRadius: theme.borderRadius.md,
+                    border: theme.borders.thick,
+                    background: theme.gradients.logo,
                     color: darkMode ? '#a5b4fc' : '#2563eb',
                     cursor: 'pointer',
                     fontSize: '18px',
                     fontWeight: '600',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: darkMode
-                      ? '0 2px 8px rgba(99, 102, 241, 0.25)'
-                      : '0 2px 8px rgba(59, 130, 246, 0.2)',
+                    transition: theme.transitions.normal,
+                    boxShadow: theme.shadows.md,
                     backdropFilter: 'blur(8px)',
                     WebkitBackdropFilter: 'blur(8px)'
                   }}
@@ -173,21 +148,15 @@ export default function GameHeader({
                 onClick={() => setShowUserPopup(true)}
                 style={{
                   padding: '10px 16px',
-                  borderRadius: '10px',
-                  border: darkMode
-                    ? '2px solid rgba(99, 102, 241, 0.4)'
-                    : '2px solid rgba(59, 130, 246, 0.35)',
-                  background: darkMode
-                    ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
-                    : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                  borderRadius: theme.borderRadius.md,
+                  border: theme.borders.thick,
+                  background: theme.gradients.logo,
                   color: darkMode ? '#a5b4fc' : '#2563eb',
                   cursor: 'pointer',
                   fontSize: '18px',
                   fontWeight: '600',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  boxShadow: darkMode
-                    ? '0 2px 8px rgba(99, 102, 241, 0.25)'
-                    : '0 2px 8px rgba(59, 130, 246, 0.2)',
+                  transition: theme.transitions.normal,
+                  boxShadow: theme.shadows.md,
                   backdropFilter: 'blur(8px)',
                   WebkitBackdropFilter: 'blur(8px)'
                 }}
@@ -235,21 +204,15 @@ export default function GameHeader({
               onClick={() => setShowDifficultyPopup(true)}
               style={{
                 padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
-                background: darkMode
-                  ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(56, 189, 248, 0.15) 100%)'
-                  : 'linear-gradient(135deg, rgba(59, 130, 246, 0.12) 0%, rgba(14, 165, 233, 0.12) 100%)',
+                background: theme.gradients.logo,
                 color: darkMode ? '#a5b4fc' : '#2563eb',
-                border: darkMode
-                  ? '1px solid rgba(99, 102, 241, 0.4)'
-                  : '1px solid rgba(59, 130, 246, 0.35)',
-                borderRadius: '10px',
+                border: theme.borders.medium,
+                borderRadius: theme.borderRadius.md,
                 cursor: 'pointer',
                 fontSize: `${Math.max(14, responsiveCellSize * 0.32)}px`,
                 fontWeight: '600',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: darkMode
-                  ? '0 2px 8px rgba(99, 102, 241, 0.25)'
-                  : '0 2px 8px rgba(59, 130, 246, 0.2)',
+                transition: theme.transitions.normal,
+                boxShadow: theme.shadows.md,
                 backdropFilter: 'blur(8px)',
                 WebkitBackdropFilter: 'blur(8px)'
               }}
@@ -285,9 +248,7 @@ export default function GameHeader({
               fontSize: `${Math.max(12, responsiveCellSize * 0.3)}px`,
               color: darkMode ? '#a5b4fc' : '#2563eb',
               fontWeight: '600',
-              background: darkMode
-                ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.12) 0%, rgba(56, 189, 248, 0.12) 100%)'
-                : 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(14, 165, 233, 0.1) 100%)',
+              background: theme.gradients.logo,
               padding: '4px 12px',
               borderRadius: '6px',
               border: '1px solid transparent',
@@ -335,23 +296,8 @@ export default function GameHeader({
               onClick={onShowLeaderboard}
               style={{
                 padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
-                borderRadius: '10px',
-                border: darkMode
-                  ? '1px solid rgba(251, 191, 36, 0.4)'
-                  : '1px solid rgba(124, 58, 237, 0.3)',
-                background: darkMode
-                  ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)'
-                  : 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(67, 56, 202, 0.1) 100%)',
-                color: darkMode ? '#fcd34d' : '#7c3aed',
-                cursor: 'pointer',
-                fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`,
-                fontWeight: '600',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: darkMode
-                  ? '0 2px 8px rgba(251, 191, 36, 0.2)'
-                  : '0 2px 8px rgba(124, 58, 237, 0.15)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)'
+                ...themeToggleButtonStyle(theme),
+                fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
@@ -377,23 +323,8 @@ export default function GameHeader({
               onClick={onToggleTheme}
               style={{
                 padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
-                borderRadius: '10px',
-                border: darkMode
-                  ? '1px solid rgba(251, 191, 36, 0.4)'
-                  : '1px solid rgba(124, 58, 237, 0.3)',
-                background: darkMode
-                  ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)'
-                  : 'linear-gradient(135deg, rgba(124, 58, 237, 0.1) 0%, rgba(67, 56, 202, 0.1) 100%)',
-                color: darkMode ? '#fcd34d' : '#7c3aed',
-                cursor: 'pointer',
-                fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`,
-                fontWeight: '600',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: darkMode
-                  ? '0 2px 8px rgba(251, 191, 36, 0.2)'
-                  : '0 2px 8px rgba(124, 58, 237, 0.15)',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)'
+                ...themeToggleButtonStyle(theme),
+                fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px) scale(1.05) rotate(15deg)';

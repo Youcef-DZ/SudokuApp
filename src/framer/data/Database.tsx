@@ -88,7 +88,7 @@ export const fetchScoresFromNotion = async (): Promise<ScoreData[]> => {
   return [];
 };
 
-import { createStore } from "./store.ts"
+import { createStore } from "../shared/store"
 import { useNotionData } from "./NotionHook.tsx"
 import { useEffect } from "react"
 

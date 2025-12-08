@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { fetchScoresFromNotion } from '../data/Database.tsx';
+import { getTheme, leaderboardContainerStyle, leaderboardCardStyle, tabButtonStyle } from '../shared/theme';
 
 interface Score {
     id: string;
@@ -18,6 +19,7 @@ interface LeaderboardProps {
 export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'medium' }: LeaderboardProps) {
     const [activeTab, setActiveTab] = useState<'easy' | 'medium' | 'hard'>(initialDifficulty);
     const [scores, setScores] = useState<Score[]>([]);
+    const theme = getTheme(darkMode);
 
     useEffect(() => {
         const loadScores = async () => {
@@ -48,41 +50,8 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
     };
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: darkMode ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)',
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '20px'
-        }}>
-            <div style={{
-                width: '100%',
-                maxWidth: '500px',
-                background: darkMode
-                    ? 'linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)'
-                    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.95) 100%)',
-                borderRadius: '24px',
-                border: darkMode
-                    ? '1px solid rgba(99, 102, 241, 0.2)'
-                    : '1px solid rgba(59, 130, 246, 0.2)',
-                boxShadow: darkMode
-                    ? '0 20px 50px rgba(0, 0, 0, 0.5)'
-                    : '0 20px 50px rgba(59, 130, 246, 0.15)',
-                padding: '32px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '24px',
-                maxHeight: '80vh',
-                overflow: 'hidden'
-            }}>
+        <div style={leaderboardContainerStyle(theme)}>
+            <div style={leaderboardCardStyle(theme)}>
                 {/* Header */}
                 <div style={{
                     display: 'flex',
@@ -93,9 +62,7 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                         fontSize: '28px',
                         fontWeight: '800',
                         margin: 0,
-                        background: darkMode
-                            ? 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)'
-                            : 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+                        backgroundImage: theme.gradients.textGradient,
                         WebkitBackgroundClip: 'text',
                         WebkitTextFillColor: 'transparent'
                     }}>
@@ -108,13 +75,13 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                             border: 'none',
                             fontSize: '24px',
                             cursor: 'pointer',
-                            color: darkMode ? '#94a3b8' : '#64748b',
-                            padding: '8px',
+                            color: theme.colors.textSecondary,
+                            padding: theme.spacing.sm,
                             borderRadius: '50%',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            transition: 'all 0.2s'
+                            transition: theme.transitions.fast
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.background = darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
@@ -134,7 +101,7 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                     display: 'flex',
                     background: darkMode ? 'rgba(15, 23, 42, 0.5)' : 'rgba(241, 245, 249, 0.8)',
                     padding: '4px',
-                    borderRadius: '12px',
+                    borderRadius: theme.borderRadius.lg,
                     gap: '4px'
                 }}>
                     {(['easy', 'medium', 'hard'] as const).map((difficulty) => (
@@ -142,25 +109,9 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                             key={difficulty}
                             onClick={() => setActiveTab(difficulty)}
                             style={{
+                                ...tabButtonStyle(theme, activeTab === difficulty),
                                 flex: 1,
-                                padding: '8px 16px',
-                                borderRadius: '8px',
-                                border: 'none',
-                                background: activeTab === difficulty
-                                    ? (darkMode
-                                        ? 'linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(56, 189, 248, 0.2) 100%)'
-                                        : 'white')
-                                    : 'transparent',
-                                color: activeTab === difficulty
-                                    ? (darkMode ? '#fff' : '#0f172a')
-                                    : (darkMode ? '#64748b' : '#64748b'),
-                                fontWeight: activeTab === difficulty ? '600' : '500',
-                                cursor: 'pointer',
-                                textTransform: 'capitalize',
-                                transition: 'all 0.3s',
-                                boxShadow: activeTab === difficulty && !darkMode
-                                    ? '0 2px 8px rgba(0,0,0,0.05)'
-                                    : 'none'
+                                boxShadow: activeTab === difficulty && !darkMode ? theme.shadows.sm : 'none'
                             }}
                         >
                             {difficulty}
@@ -181,9 +132,9 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                         <div style={{
                             textAlign: 'center',
                             padding: '40px 0',
-                            color: darkMode ? '#64748b' : '#94a3b8'
+                            color: theme.colors.textSecondary
                         }}>
-                            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
+                            <div style={{ fontSize: '48px', marginBottom: theme.spacing.md }}>📝</div>
                             <p>No scores yet for this difficulty.</p>
                             <p style={{ fontSize: '14px' }}>Be the first to set a record!</p>
                         </div>
@@ -195,14 +146,14 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                                     display: 'flex',
                                     alignItems: 'center',
                                     padding: '12px 16px',
-                                    borderRadius: '12px',
+                                    borderRadius: theme.borderRadius.lg,
                                     background: darkMode
                                         ? 'rgba(30, 41, 59, 0.4)'
                                         : 'rgba(255, 255, 255, 0.6)',
                                     border: darkMode
                                         ? '1px solid rgba(255, 255, 255, 0.05)'
                                         : '1px solid rgba(0, 0, 0, 0.05)',
-                                    gap: '16px'
+                                    gap: theme.spacing.md
                                 }}
                             >
                                 <div style={{
@@ -219,7 +170,7 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                                             : index === 2
                                                 ? 'linear-gradient(135deg, #b45309 0%, #78350f 100%)'
                                                 : (darkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'),
-                                    color: index < 3 ? 'white' : (darkMode ? '#94a3b8' : '#64748b'),
+                                    color: index < 3 ? 'white' : theme.colors.textSecondary,
                                     fontWeight: '700',
                                     fontSize: '14px'
                                 }}>
@@ -229,14 +180,14 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                                 <div style={{ flex: 1 }}>
                                     <div style={{
                                         fontWeight: '600',
-                                        color: darkMode ? '#e2e8f0' : '#1e293b',
+                                        color: theme.colors.text,
                                         fontSize: '16px'
                                     }}>
                                         {score.userName}
                                     </div>
                                     <div style={{
                                         fontSize: '12px',
-                                        color: darkMode ? '#64748b' : '#94a3b8'
+                                        color: theme.colors.textSecondary
                                     }}>
                                         {formatDate(score.date)}
                                     </div>
@@ -246,7 +197,7 @@ export default function Leaderboard({ darkMode, onClose, initialDifficulty = 'me
                                     fontFamily: 'monospace',
                                     fontSize: '18px',
                                     fontWeight: '700',
-                                    color: darkMode ? '#38bdf8' : '#0284c7'
+                                    color: theme.colors.info
                                 }}>
                                     {formatTime(score.time)}
                                 </div>

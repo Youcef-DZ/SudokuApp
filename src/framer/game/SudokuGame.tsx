@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Board, CellPosition, Difficulty } from '../types/types.ts';
-import type { SudokuGameProps } from '../types/types.ts';
+import type { Board, CellPosition, Difficulty } from '../shared/types';
+import type { SudokuGameProps } from '../shared/types';
 import {
   generatePuzzle,
   checkSolution,
@@ -12,6 +12,7 @@ import Header from '../components/Header.tsx';
 import Leaderboard from '../components/Leaderboard.tsx';
 import ScoresDb, { useScoresStore } from '../data/Database.tsx';
 import { getNotionDataPrimaryDbId } from '../data/NotionHook.tsx';
+import { getTheme } from '../shared/theme';
 
 export default function SudokuGame(props: SudokuGameProps) {
   const {
@@ -40,6 +41,8 @@ export default function SudokuGame(props: SudokuGameProps) {
   const [loading, setLoading] = useState(true);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [currentDifficulty, setCurrentDifficulty] = useState<string>(difficulty); // Track current difficulty
+
+  const theme = getTheme(darkMode);
 
   // Get handleCreate from ScoresDb hook for saving scores
   const [scoresStore] = useScoresStore();
@@ -212,10 +215,8 @@ export default function SudokuGame(props: SudokuGameProps) {
         justifyContent: 'center',
         height: '100vh',
         width: '100%',
-        background: darkMode
-          ? 'linear-gradient(135deg, #1a0b2e 0%, #16213e 30%, #0f3443 60%, #0d3b3f 100%)'
-          : 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 30%, #e0f7fa 60%, #e0f2f1 100%)',
-        color: darkMode ? '#e2e8f0' : '#1e293b',
+        background: theme.gradients.background,
+        color: theme.colors.text,
         fontFamily: '"Inter", sans-serif'
       }}>
         <div style={{
@@ -255,11 +256,9 @@ export default function SudokuGame(props: SudokuGameProps) {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '24px',
+      gap: theme.spacing.lg,
       padding: '20px',
-      background: darkMode
-        ? 'linear-gradient(135deg, #1a0b2e 0%, #16213e 30%, #0f3443 60%, #0d3b3f 100%)'
-        : 'linear-gradient(135deg, #eff6ff 0%, #e0f2fe 30%, #e0f7fa 60%, #e0f2f1 100%)',
+      background: theme.gradients.background,
       fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       width: '100%',
       minHeight: '100vh',

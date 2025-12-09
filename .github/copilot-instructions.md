@@ -76,7 +76,7 @@ npm run dev      # Starts Vite at localhost:5173 (opens automatically)
 ### File Modification Rules
 1. **Core logic changes**: Edit `src/framer/` files ONLY
 2. **Authentication changes**: Test both OAuth flow and manual login
-3. **Notion changes**: Verify DB IDs match constants in `Database.tsx` (puzzles: `2a34ffe6`, scores: `2bb4ffe6`)
+3. **Notion changes**: Verify DB IDs match constants in `Database.tsx` (puzzles: `2a34ffe6f70c809fa74dca478af13756`, scores: `2bb4ffe6f70c80dfb0b8d0f4f06ce125`)
 4. **Type changes**: Update `src/framer/shared/types.ts` - used across all components
 
 ## Common Pitfalls
@@ -143,7 +143,7 @@ src/framer/              # ⚠️ Edit these files
 
 ### Working with Notion Data
 1. Puzzle database ID: `2a34ffe6f70c809fa74dca478af13756`
-2. Scores database ID: `2bb4ffe6f70c809fa74dca478af13756`
+2. Scores database ID: `2bb4ffe6f70c80dfb0b8d0f4f06ce125`
 3. Proxy endpoint: `https://notion-dgmd-cc.vercel.app/api/query`
 4. See `Database.tsx` for query patterns
 

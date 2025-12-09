@@ -60,8 +60,8 @@ npm run dev      # Starts Vite at localhost:5173 (opens automatically)
 - **Platform**: Azure Web App (app name: 'Sudoku')
 - **Trigger**: Automatic on push to `main` branch via GitHub Actions
 - **Workflow**: `.github/workflows/main_sudoku.yml`
-- **Process**: Builds with Vite → Copies server files → Deploys to Azure
-- **Production server**: Express server (`server.js`) serves the built `dist/` directory
+- **Process**: Builds with Vite → Copies `server.js`, `package.json` to `dist/` → Installs production dependencies → Deploys `dist/` to Azure
+- **Production server**: Express server (`server.js`) copied into `dist/` serves static files from its location (which is the built dist directory)
 
 ### Key Commands
 - **Build**: `npm run build` (outputs to `dist/`)

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { getTheme } from '../shared/theme.ts';
 
 interface UserProfileProps {
     isAuthenticated: boolean;
@@ -21,7 +20,6 @@ export default function UserProfile({
     darkMode = false
 }: UserProfileProps) {
     const [showUserPopup, setShowUserPopup] = useState(false);
-    const theme = getTheme(darkMode);
 
     const buttonStyle = {
         padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import type { Board, Difficulty } from '../../shared/types.ts';
 import { generatePuzzle, checkSolution, isValidMove, copyBoard } from '../sudokuLogic.ts';
 

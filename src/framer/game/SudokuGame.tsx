@@ -122,7 +122,7 @@ export default function SudokuGame(props: SudokuGameProps) {
 
   // Handle number input
   const handleNumberInput = (num: number) => {
-    const isPuzzleSolved = gameState.handleNumberInput(num, cellSelection.selectedCell);
+    gameState.handleNumberInput(num, cellSelection.selectedCell);
     // No need to do anything special here - gameState will update gameWon/gameCompleted
   };
 

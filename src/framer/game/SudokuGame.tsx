@@ -1,18 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Board, CellPosition, Difficulty } from '../shared/types.ts';
+import { useState, useEffect, useRef } from 'react';
 import type { SudokuGameProps } from '../shared/types.ts';
-import {
-  generatePuzzle,
-  checkSolution,
-  isValidMove,
-  copyBoard
-} from './sudokuLogic.ts';
 import NumberPad from '../components/NumberPad.tsx';
 import Header from '../components/Header.tsx';
 import Leaderboard from '../components/Leaderboard.tsx';
 import ScoresDb, { useScoresStore } from '../data/Database.tsx';
 import { getNotionDataPrimaryDbId } from '../data/NotionHook.tsx';
 import { getTheme } from '../shared/theme.ts';
+import { useGameState } from './hooks/useGameState.ts';
+import { useCellSelection } from './hooks/useCellSelection.ts';
+import { useTimer } from './hooks/useTimer.ts';
 
 export default function SudokuGame(props: SudokuGameProps) {
   const {
@@ -28,21 +24,16 @@ export default function SudokuGame(props: SudokuGameProps) {
     onToggleTheme
   } = props;
 
-  const [solution, setSolution] = useState<Board>([]);
-  const [currentBoard, setCurrentBoard] = useState<Board>([]);
-  const [initialBoard, setInitialBoard] = useState<Board>([]);
-  const [selectedCell, setSelectedCell] = useState<CellPosition | null>(null);
-  const [errors, setErrors] = useState<Set<string>>(new Set());
-  const [gameWon, setGameWon] = useState(false);
-  const [gameCompleted, setGameCompleted] = useState(false); // Track if game has ever been completed
-  const [elapsedTime, setElapsedTime] = useState(0); // in seconds
-  const [startTime, setStartTime] = useState<number>(Date.now());
-  const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
-  const [showLeaderboard, setShowLeaderboard] = useState(false);
-  const [currentDifficulty, setCurrentDifficulty] = useState<string>(difficulty); // Track current difficulty
-
   const theme = getTheme(darkMode);
+
+  // Custom hooks for game logic
+  const gameState = useGameState(difficulty);
+  const cellSelection = useCellSelection();
+  const timer = useTimer();
+
+  // UI state
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
 
   // Get handleCreate from ScoresDb hook for saving scores
   const [scoresStore] = useScoresStore();
@@ -53,16 +44,14 @@ export default function SudokuGame(props: SudokuGameProps) {
   const scoreSavedRef = useRef(false);
 
   // Responsive cell size based on screen width
-  const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
-
   useEffect(() => {
     const updateCellSize = () => {
-      const maxWidth = window.innerWidth - 40; // 20px padding each side
-      const maxHeight = window.innerHeight - 300; // Leave room for header, numberpad, etc
+      const maxWidth = window.innerWidth - 40;
+      const maxHeight = window.innerHeight - 300;
       const maxBoardSize = Math.min(maxWidth, maxHeight);
       const calculatedCellSize = Math.floor(maxBoardSize / 9);
-      const finalCellSize = Math.min(calculatedCellSize, cellSize); // Don't exceed prop cellSize
-      setResponsiveCellSize(Math.max(30, finalCellSize)); // Minimum 30px
+      const finalCellSize = Math.min(calculatedCellSize, cellSize);
+      setResponsiveCellSize(Math.max(30, finalCellSize));
     };
 
     updateCellSize();
@@ -70,37 +59,15 @@ export default function SudokuGame(props: SudokuGameProps) {
     return () => window.removeEventListener('resize', updateCellSize);
   }, [cellSize]);
 
-  const handleGameInit = useCallback((result: { puzzle: Board; solution: Board; id?: number }) => {
-    setSolution(result.solution);
-    setCurrentBoard(copyBoard(result.puzzle));
-    setInitialBoard(copyBoard(result.puzzle));
-    setPuzzleId(result.id);
-    setSelectedCell(null);
-    setErrors(new Set());
-    setGameWon(false);
-    setGameCompleted(false); // Reset for new game
-    setElapsedTime(0);
-    setStartTime(Date.now());
-    setLoading(false);
-    scoreSavedRef.current = false; // Reset for new game
-  }, []);
-
-  const startNewGame = useCallback(async (newDifficulty?: string) => {
-    setLoading(true);
-    const targetDifficulty = (newDifficulty || currentDifficulty) as Difficulty;
-    setCurrentDifficulty(targetDifficulty); // Update current difficulty
-    const result = await generatePuzzle(targetDifficulty);
-    handleGameInit(result);
-  }, [currentDifficulty, handleGameInit]);
-
+  // Initialize game on mount
   useEffect(() => {
     let mounted = true;
 
     const init = async () => {
-      setLoading(true);
-      const result = await generatePuzzle(difficulty as Difficulty);
+      await gameState.initializeGame(difficulty as any);
       if (mounted) {
-        handleGameInit(result);
+        timer.resetTimer();
+        scoreSavedRef.current = false;
       }
     };
 
@@ -109,11 +76,18 @@ export default function SudokuGame(props: SudokuGameProps) {
     return () => {
       mounted = false;
     };
-  }, [difficulty, handleGameInit]);
+  }, [difficulty]);
+
+  // Stop timer when game is completed
+  useEffect(() => {
+    if (gameState.gameCompleted) {
+      timer.stopTimer();
+    }
+  }, [gameState.gameCompleted]);
 
   // Save score when game is won (only once)
   useEffect(() => {
-    if (gameWon && handleCreate && notionData && !scoreSavedRef.current) {
+    if (gameState.gameWon && handleCreate && notionData && !scoreSavedRef.current) {
       console.log('Saving score. UserName:', userName);
       const dbId = getNotionDataPrimaryDbId(notionData);
       if (!dbId) return;
@@ -127,11 +101,11 @@ export default function SudokuGame(props: SudokuGameProps) {
           },
           Time: {
             TYPE: 'number',
-            VALUE: elapsedTime
+            VALUE: timer.elapsedTime
           },
           Difficulty: {
             TYPE: 'select',
-            VALUE: currentDifficulty.charAt(0).toUpperCase() + currentDifficulty.slice(1)
+            VALUE: gameState.currentDifficulty.charAt(0).toUpperCase() + gameState.currentDifficulty.slice(1)
           },
           Date: {
             TYPE: 'rich_text',
@@ -141,72 +115,38 @@ export default function SudokuGame(props: SudokuGameProps) {
       };
 
       handleCreate(scoreData);
-      scoreSavedRef.current = true; // Mark as saved
+      scoreSavedRef.current = true;
       console.log('Score saved to Notion!');
     }
-  }, [gameWon, handleCreate, notionData, elapsedTime, userName, currentDifficulty]);
+  }, [gameState.gameWon, handleCreate, notionData, timer.elapsedTime, userName, gameState.currentDifficulty]);
 
-  // Timer effect - updates every second
+  // Handle number input
+  const handleNumberInput = (num: number) => {
+    gameState.handleNumberInput(num, cellSelection.selectedCell);
+    // No need to do anything special here - gameState will update gameWon/gameCompleted
+  };
+
+  // Keyboard event listener
   useEffect(() => {
-    if (gameCompleted) return; // Stop timer when game has been completed
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!cellSelection.selectedCell) return;
+      cellSelection.handleKeyPress(e, handleNumberInput);
+    };
 
-    const timer = setInterval(() => {
-      setElapsedTime(Math.floor((Date.now() - startTime) / 1000));
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [startTime, gameCompleted]);
-
-  const handleCellClick = useCallback((row: number, col: number) => {
-    setSelectedCell({ row, col });
-  }, []);
-
-  const handleNumberInput = useCallback((num: number) => {
-    if (!selectedCell) return;
-    const { row, col } = selectedCell;
-    if (initialBoard[row][col] !== 0) return;
-
-    const newBoard = copyBoard(currentBoard);
-    const errorKey = `${row}-${col}`;
-    const newErrors = new Set(errors);
-
-    if (num !== 0 && !isValidMove(newBoard, row, col, num)) {
-      newErrors.add(errorKey);
-    } else {
-      newErrors.delete(errorKey);
-    }
-
-    newBoard[row][col] = num;
-    setCurrentBoard(newBoard);
-    setErrors(newErrors);
-
-    if (checkSolution(newBoard, solution)) {
-      // Capture final time before stopping the timer
-      const finalTime = Math.floor((Date.now() - startTime) / 1000);
-      setElapsedTime(finalTime);
-      setGameWon(true);
-      setGameCompleted(true); // Mark game as completed to prevent timer from restarting
-    }
-  }, [selectedCell, initialBoard, currentBoard, errors, solution]);
-
-  const handleKeyPress = useCallback((e: KeyboardEvent) => {
-    if (!selectedCell) return;
-    const num = parseInt(e.key);
-    if (num >= 1 && num <= 9) {
-      handleNumberInput(num);
-    } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
-      handleNumberInput(0);
-    }
-  }, [selectedCell, handleNumberInput]);
-
-  useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [handleKeyPress]);
+  }, [cellSelection.selectedCell, cellSelection.handleKeyPress, handleNumberInput]);
+
+  // Handle new game
+  const handleNewGame = async (newDifficulty?: string) => {
+    await gameState.startNewGame(newDifficulty);
+    timer.resetTimer();
+    scoreSavedRef.current = false;
+  };
 
   const boardSize = responsiveCellSize * 9;
 
-  if (loading) {
+  if (gameState.loading) {
     return (
       <div style={{
         display: 'flex',
@@ -270,7 +210,7 @@ export default function SudokuGame(props: SudokuGameProps) {
       {/* Container for header and game - constrained to game width */}
       <div style={{
         width: '100%',
-        maxWidth: `${responsiveCellSize * 9 + 100}px`, // Grid width + padding for breathing room
+        maxWidth: `${responsiveCellSize * 9 + 100}px`,
         margin: '0 auto',
         display: 'flex',
         flexDirection: 'column',
@@ -278,14 +218,14 @@ export default function SudokuGame(props: SudokuGameProps) {
       }}>
         {/* Header - allow full width for buttons */}
         <div style={{
-          width: '100%', // Allow header to use full available width
+          width: '100%',
           margin: '0 auto',
           position: 'relative',
           zIndex: 10,
           pointerEvents: 'auto'
         }}>
           <Header
-            onNewGame={startNewGame}
+            onNewGame={handleNewGame}
             onLogin={onLogin}
             onLogout={onLogout}
             primaryColor={primaryColor}
@@ -293,15 +233,16 @@ export default function SudokuGame(props: SudokuGameProps) {
             isAuthenticated={isAuthenticated}
             userName={userName}
             userEmail={userEmail}
-            elapsedTime={elapsedTime}
+            elapsedTime={timer.elapsedTime}
             darkMode={darkMode}
             onToggleTheme={onToggleTheme}
-            puzzleId={puzzleId}
-            difficulty={currentDifficulty}
+            puzzleId={gameState.puzzleId}
+            difficulty={gameState.currentDifficulty}
             onShowLeaderboard={() => setShowLeaderboard(true)}
           />
         </div>
 
+        {/* Sudoku Board */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: `repeat(9, ${responsiveCellSize}px)`,
@@ -321,28 +262,27 @@ export default function SudokuGame(props: SudokuGameProps) {
           width: 'fit-content',
           margin: '0 auto'
         }}>
-          {currentBoard.map((row, rowIndex) =>
+          {gameState.currentBoard.map((row, rowIndex) =>
             row.map((cell, colIndex) => {
-              const selectedValue = selectedCell ? currentBoard[selectedCell.row][selectedCell.col] : 0;
+              const selectedValue = cellSelection.selectedCell ? gameState.currentBoard[cellSelection.selectedCell.row][cellSelection.selectedCell.col] : 0;
               const isSameNumber = selectedValue !== 0 && cell === selectedValue;
-              const isInitial = initialBoard[rowIndex]?.[colIndex] !== 0;
-              const isSelected = selectedCell?.row === rowIndex && selectedCell?.col === colIndex;
-              const hasError = errors.has(`${rowIndex}-${colIndex}`);
+              const isInitial = gameState.initialBoard[rowIndex]?.[colIndex] !== 0;
+              const isSelected = cellSelection.selectedCell?.row === rowIndex && cellSelection.selectedCell?.col === colIndex;
+              const hasError = gameState.errors.has(`${rowIndex}-${colIndex}`);
               const isThickRight = (colIndex + 1) % 3 === 0 && colIndex !== 8;
               const isThickBottom = (rowIndex + 1) % 3 === 0 && rowIndex !== 8;
 
-              // Check if cell is in same row, column, or 3x3 box as selected cell
-              const isRelated = selectedCell && !isSelected && (
-                selectedCell.row === rowIndex || // Same row
-                selectedCell.col === colIndex || // Same column
-                (Math.floor(selectedCell.row / 3) === Math.floor(rowIndex / 3) &&
-                  Math.floor(selectedCell.col / 3) === Math.floor(colIndex / 3)) // Same 3x3 box
+              const isRelated = cellSelection.selectedCell && !isSelected && (
+                cellSelection.selectedCell.row === rowIndex ||
+                cellSelection.selectedCell.col === colIndex ||
+                (Math.floor(cellSelection.selectedCell.row / 3) === Math.floor(rowIndex / 3) &&
+                  Math.floor(cellSelection.selectedCell.col / 3) === Math.floor(colIndex / 3))
               );
 
               return (
                 <div
                   key={`${rowIndex}-${colIndex}`}
-                  onClick={() => handleCellClick(rowIndex, colIndex)}
+                  onClick={() => cellSelection.handleCellClick(rowIndex, colIndex)}
                   style={{
                     width: responsiveCellSize,
                     height: responsiveCellSize,
@@ -426,13 +366,13 @@ export default function SudokuGame(props: SudokuGameProps) {
         </div>
 
         <NumberPad
-          selectedCell={selectedCell}
+          selectedCell={cellSelection.selectedCell}
           onNumberInput={handleNumberInput}
           boardSize={responsiveCellSize * 9}
           darkMode={darkMode}
         />
 
-        {gameWon && (
+        {gameState.gameWon && (
           <div style={{
             position: 'fixed',
             top: 0,
@@ -461,7 +401,7 @@ export default function SudokuGame(props: SudokuGameProps) {
             }}>
               {/* Close button */}
               <button
-                onClick={() => setGameWon(false)}
+                onClick={() => gameState.setGameWon(false)}
                 style={{
                   position: 'absolute',
                   top: '16px',
@@ -498,19 +438,19 @@ export default function SudokuGame(props: SudokuGameProps) {
                 color: darkMode ? '#cbd5e1' : '#475569',
                 marginBottom: '8px'
               }}>
-                Time: <span style={{ fontWeight: '700', color: darkMode ? '#fff' : '#0f172a' }}>{Math.floor(elapsedTime / 60)}:{(elapsedTime % 60).toString().padStart(2, '0')}</span>
+                Time: <span style={{ fontWeight: '700', color: darkMode ? '#fff' : '#0f172a' }}>{Math.floor(timer.elapsedTime / 60)}:{(timer.elapsedTime % 60).toString().padStart(2, '0')}</span>
               </p>
               <p style={{
                 fontSize: '16px',
                 color: darkMode ? '#94a3b8' : '#64748b',
                 marginBottom: '32px'
               }}>
-                Difficulty: <span style={{ textTransform: 'capitalize' }}>{currentDifficulty}</span>
+                Difficulty: <span style={{ textTransform: 'capitalize' }}>{gameState.currentDifficulty}</span>
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <button
-                  onClick={() => startNewGame()}
+                  onClick={() => handleNewGame()}
                   style={{
                     padding: '16px 32px',
                     fontSize: '18px',
@@ -535,7 +475,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                     padding: '16px 32px',
                     fontSize: '18px',
                     fontWeight: '600',
-                    background: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(241, 245, 249, 0.8)',
+                    background: darkMode ? 'rgba(30, 41, 59, 0.5)' : 'rgba(241, 245, 249,  0.8)',
                     color: darkMode ? '#e2e8f0' : '#1e293b',
                     border: 'none',
                     borderRadius: '12px',
@@ -556,7 +496,7 @@ export default function SudokuGame(props: SudokuGameProps) {
           <Leaderboard
             darkMode={darkMode}
             onClose={() => setShowLeaderboard(false)}
-            initialDifficulty={currentDifficulty as 'easy' | 'medium' | 'hard'}
+            initialDifficulty={gameState.currentDifficulty as 'easy' | 'medium' | 'hard'}
           />
         )}
 
@@ -573,7 +513,7 @@ export default function SudokuGame(props: SudokuGameProps) {
         }}>
           💡 Click a cell and use keyboard (1-9) or number pad to fill
         </div>
-      </div> {/* Close game container */}
+      </div>
     </div>
   );
 }

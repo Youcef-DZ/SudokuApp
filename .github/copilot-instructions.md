@@ -53,19 +53,31 @@ GameWrapper (AuthProvider)
 ### Local Development
 ```bash
 npm install      # First time only
-npm run dev      # Starts Vite at localhost:5173
+npm run dev      # Starts Vite at localhost:5173 (opens automatically)
 ```
+
+### Deployment
+- **Platform**: Azure Web App (app name: 'Sudoku')
+- **Trigger**: Automatic on push to `main` branch via GitHub Actions
+- **Workflow**: `.github/workflows/main_sudoku.yml`
+- **Process**: Builds with Vite → Copies server files → Deploys to Azure
+- **Production server**: Express server (`server.js`) serves the built `dist/` directory
 
 ### Key Commands
 - **Build**: `npm run build` (outputs to `dist/`)
 - **Preview**: `npm run preview` (test production build)
-- **Fix puzzles**: `node fix-notion-puzzles.js` (generates/updates Notion DB puzzles)
+- **Start server**: `npm start` (runs Express server for production)
+
+### Testing & Linting
+- **No automated tests**: This project does not have a test suite
+- **No linter configured**: TypeScript strict mode in `tsconfig.json` provides type checking
+- **Manual testing required**: Always test changes by running `npm run dev` and verifying in the browser
 
 ### File Modification Rules
 1. **Core logic changes**: Edit `src/framer/` files ONLY
 2. **Authentication changes**: Test both OAuth flow and manual login
 3. **Notion changes**: Verify DB IDs match constants in `Database.tsx` (puzzles: `2a34ffe6`, scores: `2bb4ffe6`)
-4. **Type changes**: Update `src/framer/types/types.ts` - used across all components
+4. **Type changes**: Update `src/framer/shared/types.ts` - used across all components
 
 ## Common Pitfalls
 
@@ -87,6 +99,13 @@ npm run dev      # Starts Vite at localhost:5173
 - **Framer Motion** (animation library, minimal usage)
 - **Descope React SDK** (OAuth + session management)
 - **Notion API** (via custom proxy, no direct integration)
+- **Express** (production server in `server.js`)
+
+## Security Considerations
+- **Descope Project ID**: Hardcoded in `GameWrapper.tsx` as `P35AlPWcTE6gN9hXrEFjboLuqX8T` (public, not a secret)
+- **Notion API**: Accessed via proxy at `https://notion-dgmd-cc.vercel.app/api/query` to avoid exposing API keys
+- **No sensitive data**: All database IDs in code are public read-only identifiers
+- **OAuth flow**: Handled entirely by Descope SDK, no custom token management
 
 ## File Organization
 ```
@@ -96,7 +115,7 @@ src/framer/              # ⚠️ Edit these files
 │   ├── theme.ts         # Centralized styles & colors
 │   └── store.ts         # Custom state management
 ├── game/
-│   ├── GameWrapper.tsx  # Auth wrapper + view routing
+│   ├── GameWrapper.tsx  # Auth wrapper + view routing (includes difficulty selection)
 │   ├── SudokuGame.tsx   # Main game component
 │   └── sudokuLogic.ts   # Pure logic (validation, board copying)
 ├── data/
@@ -104,11 +123,29 @@ src/framer/              # ⚠️ Edit these files
 │   └── NotionHook.tsx   # Vendored Notion SDK (read-only)
 └── components/
     ├── DescopeAuth.tsx  # Auth HOCs (protectedComponent, etc.)
-    ├── DifficultySelect.tsx
     ├── Header.tsx
     ├── Leaderboard.tsx
     └── NumberPad.tsx
 ```
+
+## Common Development Tasks
+
+### Adding a New Component
+1. Create in `src/framer/components/` for UI components
+2. Import types from `src/framer/shared/types.ts`
+3. Use theme values from `src/framer/shared/theme.ts` for consistent styling
+4. Ensure component works in both Vite and Framer environments
+
+### Modifying Game Logic
+1. Edit `src/framer/game/sudokuLogic.ts` for pure logic functions
+2. Update `SudokuGame.tsx` for stateful game behavior
+3. Update type definitions in `src/framer/shared/types.ts` if needed
+
+### Working with Notion Data
+1. Puzzle database ID: `2a34ffe6f70c809fa74dca478af13756`
+2. Scores database ID: `2bb4ffe6f70c809fa74dca478af13756`
+3. Proxy endpoint: `https://notion-dgmd-cc.vercel.app/api/query`
+4. See `Database.tsx` for query patterns
 
 ## Testing Checklist
 Before committing changes:
@@ -119,3 +156,4 @@ Before committing changes:
 - [ ] Verify responsive sizing on mobile viewport
 - [ ] Check dark mode toggle works
 - [ ] Test logout returns to difficulty select
+- [ ] Run `npm run build` to ensure production build succeeds

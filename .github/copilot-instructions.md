@@ -53,7 +53,7 @@ GameWrapper (AuthProvider)
 ### Local Development
 ```bash
 npm install      # First time only
-npm run dev      # Starts Vite at localhost:5173 (opens automatically)
+npm run dev      # Starts Vite at localhost:5173 (configured to open browser automatically)
 ```
 
 ### Deployment

@@ -8,6 +8,11 @@ Hi, I'm Youcef, and today I'm excited to share my final project with you.
 
 ---
 
+## [*] What is sudoku?
+Sudoku is a logic-based number puzzle where you fill a 9×9 grid so that each row, column, and 3×3 box contains the digits 1-9 exactly once.
+
+---
+
 ## [2] What You Created (30 seconds)
 I built a **full-stack Sudoku game** deployed in Framer that using modern react. A complete application with:
 

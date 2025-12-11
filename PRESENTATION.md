@@ -4,12 +4,12 @@
 ---
 
 ## [1] Introduction (15 seconds)
-Hi, I'm Youcef Laidi, and today I'm excited to share my final project with you.
+Hi, I'm Youcef, and today I'm excited to share my final project with you.
 
 ---
 
 ## [2] What You Created (30 seconds)
-I built a **full-stack Sudoku game** deployed in Framer that using modern react code in Framer. It's not just a simple game—it's a complete application with:
+I built a **full-stack Sudoku game** deployed in Framer that using modern react. A complete application with:
 
 - **User authentication** through Descope (Google login)
 - **Real-time puzzle management** through Notion Database
@@ -20,12 +20,12 @@ I built a **full-stack Sudoku game** deployed in Framer that using modern react 
 ## [3] Target Audience (20 seconds)
 This game is designed for:
 
-**Players** who want an engaging, authenticated Sudoku experience with social features like leaderboards—beyond just a simple browser game, this feels like a real web application with persistent user accounts and score history.
+**Players** who want an engaging, authenticated Sudoku experience with social features like leaderboard, simple browser game, this feels like a real web application with persistent user accounts and score history.
 
 ---
 
 ## [4] Motivation & Inspiration (45 seconds)
-My motivation came from wanting to create something that can be expanded beyond this course. I wanted to build a game that feels professional with real authentication and persistent data—not just localStorage—but actual user authentication and a database in the cloud.
+My motivation came from wanting to create a mobile app or a game that can be expanded beyond this course. I wanted to build a game that feels professional with real authentication and persistent data—not just localStorage—but actual user authentication and a database in the cloud.
 
 I was inspired by modern web applications like the NYT Games app. which has sudoku and other games in it.
 

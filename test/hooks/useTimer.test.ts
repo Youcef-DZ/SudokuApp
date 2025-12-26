@@ -8,16 +8,18 @@ describe('useTimer', () => {
     });
 
     afterEach(() => {
+        vi.runOnlyPendingTimers();
         vi.restoreAllMocks();
     });
 
     it('should initialize with 0 elapsed time', () => {
-        const { result } = renderHook(() => useTimer());
+        const { result, unmount } = renderHook(() => useTimer());
         expect(result.current.elapsedTime).toBe(0);
+        unmount();
     });
 
     it('should increment elapsed time every second', () => {
-        const { result } = renderHook(() => useTimer());
+        const { result, unmount } = renderHook(() => useTimer());
 
         expect(result.current.elapsedTime).toBe(0);
 
@@ -27,10 +29,11 @@ describe('useTimer', () => {
         });
 
         expect(result.current.elapsedTime).toBe(3);
+        unmount();
     });
 
     it('should stop timer when stopTimer is called', () => {
-        const { result } = renderHook(() => useTimer());
+        const { result, unmount } = renderHook(() => useTimer());
 
         // Advance 2 seconds
         act(() => {
@@ -51,10 +54,11 @@ describe('useTimer', () => {
 
         // Time should still be 2 (not advanced)
         expect(result.current.elapsedTime).toBe(2);
+        unmount();
     });
 
     it('should reset timer to 0', () => {
-        const { result } = renderHook(() => useTimer());
+        const { result, unmount } = renderHook(() => useTimer());
 
         // Advance 5 seconds
         act(() => {
@@ -69,10 +73,11 @@ describe('useTimer', () => {
         });
 
         expect(result.current.elapsedTime).toBe(0);
+        unmount();
     });
 
     it('should restart timer after stop', () => {
-        const { result } = renderHook(() => useTimer());
+        const { result, unmount } = renderHook(() => useTimer());
 
         // Advance 2 seconds
         act(() => {
@@ -96,6 +101,7 @@ describe('useTimer', () => {
 
         // Should be 3 seconds total
         expect(result.current.elapsedTime).toBe(3);
+        unmount();
     });
 });
 

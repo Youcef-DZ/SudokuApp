@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import GameWrapper from './framer/game/GameWrapper';
+import GameWrapper from './game/GameWrapper';
 import { AuthProvider, useSession } from '@descope/react-sdk';
 import './index.css';
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import GameTimer from '../../src/framer/components/GameTimer.tsx';
+import GameTimer from '../../src/components/GameTimer.tsx';
 
 describe('GameTimer', () => {
     it('should render timer with formatted time', () => {

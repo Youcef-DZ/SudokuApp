@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import ThemeToggle from '../../src/framer/components/ThemeToggle.tsx';
+import ThemeToggle from '../../src/components/ThemeToggle.tsx';
 
 describe('ThemeToggle', () => {
     it('should render with light mode icon when darkMode is false', () => {

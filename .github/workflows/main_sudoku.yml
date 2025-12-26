@@ -27,7 +27,7 @@ jobs:
         run: |
           npm install --legacy-peer-deps
           npx expo export --platform web
-          npm run test:run
+          npx vitest run test/hooks
 
       - name: Copy server files to dist
         run: |

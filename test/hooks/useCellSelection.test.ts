@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useCellSelection } from '../../src/framer/game/hooks/useCellSelection.ts';
+import { useCellSelection } from '../../src/game/hooks/useCellSelection.ts';
 
 describe('useCellSelection', () => {
     it('should initialize with no cell selected', () => {

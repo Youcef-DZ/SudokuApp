@@ -25,8 +25,8 @@ jobs:
 
       - name: npm install, build, and test
         run: |
-          npm install
-          npm run build --if-present
+          npm install --legacy-peer-deps
+          npx expo export --platform web
           npm run test:run
 
       - name: Copy server files to dist
@@ -38,7 +38,7 @@ jobs:
       - name: Install production dependencies in dist
         run: |
           cd dist
-          npm install --production
+          npm install --production --legacy-peer-deps
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

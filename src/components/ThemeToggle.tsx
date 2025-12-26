@@ -1,5 +1,8 @@
 import React from 'react';
-import { getTheme, themeToggleButtonStyle } from '../shared/theme.ts';
+import { Pressable } from 'react-native';
+import styled from 'styled-components/native';
+// import * as Haptics from 'expo-haptics'; // Breaks React Native Web
+import { getTheme } from '../shared/theme';
 
 interface ThemeToggleProps {
     darkMode: boolean;
@@ -7,32 +10,39 @@ interface ThemeToggleProps {
     responsiveCellSize?: number;
 }
 
+// Simplified without Reanimated
+
+const ToggleButton = styled(Pressable) <{ darkMode: boolean; cellSize: number }>`
+  padding: ${props => Math.max(4, props.cellSize * 0.12)}px ${props => Math.max(12, props.cellSize * 0.3)}px;
+  border-radius: 12px;
+  background-color: ${props => props.darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(124, 58, 237, 0.15)'};
+  border-width: 1px;
+  border-color: ${props => props.darkMode ? 'rgba(251, 191, 36, 0.3)' : 'rgba(124, 58, 237, 0.3)'};
+  align-items: center;
+  justify-content: center;
+`;
+
+const ButtonText = styled.Text<{ cellSize: number }>`
+  font-size: ${props => Math.max(16, props.cellSize * 0.36)}px;
+`;
+
 export default function ThemeToggle({ darkMode, onToggle, responsiveCellSize = 50 }: ThemeToggleProps) {
     const theme = getTheme(darkMode);
 
+    const handlePress = () => {
+        // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onToggle();
+    };
+
     return (
-        <button
-            onClick={onToggle}
-            style={{
-                ...themeToggleButtonStyle(theme),
-                padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
-                fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`
-            }}
-            onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px) scale(1.05) rotate(15deg)';
-                e.currentTarget.style.boxShadow = darkMode
-                    ? '0 4px 16px rgba(251, 191, 36, 0.4)'
-                    : '0 4px 16px rgba(124, 58, 237, 0.3)';
-            }}
-            onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1) rotate(0deg)';
-                e.currentTarget.style.boxShadow = darkMode
-                    ? '0 2px 8px rgba(251, 191, 36, 0.2)'
-                    : '0 2px 8px rgba(124, 58, 237, 0.15)';
-            }}
-            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        <ToggleButton
+            onPress={handlePress}
+            darkMode={darkMode}
+            cellSize={responsiveCellSize}
         >
-            {darkMode ? '☀️' : '🌙'}
-        </button>
+            <ButtonText cellSize={responsiveCellSize}>
+                {darkMode ? '☀️' : '🌙'}
+            </ButtonText>
+        </ToggleButton>
     );
 }

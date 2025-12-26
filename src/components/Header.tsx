@@ -1,205 +1,266 @@
 import React from 'react';
-import { getTheme, createGradientTextStyle } from '../shared/theme.ts';
-import ThemeToggle from './ThemeToggle.tsx';
-import GameTimer from './GameTimer.tsx';
-import UserProfile from './UserProfile.tsx';
-import NewGameButton from './NewGameButton.tsx';
+import { View, Text, Pressable } from 'react-native';
+import styled from 'styled-components/native';
+import { LinearGradient } from 'expo-linear-gradient';
+// import * as Haptics from 'expo-haptics'; // Breaks React Native Web
+import { getTheme } from '../shared/theme';
+import ThemeToggle from './ThemeToggle';
+import GameTimer from './GameTimer';
 
 interface GameHeaderProps {
-  onNewGame?: (difficulty?: string) => void;
-  onLogin?: () => void;
-  onLogout?: () => void;
-  primaryColor?: string;
-  responsiveCellSize?: number;
-  isAuthenticated?: boolean;
-  userName?: string;
-  userEmail?: string;
-  elapsedTime?: number; // in seconds
-  darkMode?: boolean;
-  onToggleTheme?: () => void;
-  title?: string;
-  showTimer?: boolean;
-  showNewGameButton?: boolean;
-  showDivider?: boolean;
-  puzzleId?: number;
-  difficulty?: string;
-  onShowLeaderboard?: () => void;
+    onNewGame?: (difficulty?: string) => void;
+    onLogin?: () => void;
+    onLogout?: () => void;
+    primaryColor?: string;
+    responsiveCellSize?: number;
+    isAuthenticated?: boolean;
+    userName?: string;
+    userEmail?: string;
+    elapsedTime?: number;
+    darkMode?: boolean;
+    onToggleTheme?: () => void;
+    title?: string;
+    showTimer?: boolean;
+    showNewGameButton?: boolean;
+    showDivider?: boolean;
+    puzzleId?: number;
+    difficulty?: string;
+    onShowLeaderboard?: () => void;
 }
 
+const Container = styled.View`
+  padding: 16px 20px;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+
+const GameContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-horizontal: 4px;
+  min-height: 60px;
+`;
+
+const LeftSection = styled.View`
+  flex: 0.8;
+  align-items: flex-start;
+`;
+
+const CenterSection = styled.View`
+  flex: 1.4;
+  align-items: center;
+`;
+
+const RightSection = styled.View`
+  flex: 0.8;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+`;
+
+const Title = styled.Text<{ darkMode: boolean }>`
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: 0.5px;
+`;
+
+
+const NewGameButton = styled(Pressable) <{ cellSize: number; darkMode: boolean }>`
+  padding: 0px 12px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: ${props => props.darkMode ? 'rgba(34, 197, 94, 0.15)' : 'rgba(22, 163, 74, 0.15)'};
+  border-width: 2px;
+  border-color: ${props => props.darkMode ? 'rgba(34, 197, 94, 0.4)' : 'rgba(22, 163, 74, 0.3)'};
+  align-items: center;
+  justify-content: center;
+`;
+
+const NewGameText = styled.Text<{ cellSize: number; darkMode: boolean }>`
+  font-size: ${props => Math.max(14, props.cellSize * 0.32)}px;
+  font-weight: 600;
+  color: ${props => props.darkMode ? '#4ade80' : '#16a34a'};
+`;
+
+const LeaderboardButton = styled(Pressable) <{ cellSize: number; darkMode: boolean }>`
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: ${props => props.darkMode ? 'rgba(251, 191, 36, 0.15)' : 'rgba(124, 58, 237, 0.15)'};
+  border-width: 2px;
+  border-color: ${props => props.darkMode ? 'rgba(251, 191, 36, 0.4)' : 'rgba(124, 58, 237, 0.3)'};
+  align-items: center;
+  justify-content: center;
+`;
+
+const ButtonEmoji = styled.Text<{ cellSize: number }>`
+  font-size: ${props => Math.max(16, props.cellSize * 0.36)}px;
+`;
+
+
+const LoginButton = styled(Pressable) <{ cellSize: number; darkMode: boolean }>`
+  padding: 0px 12px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: ${props => props.darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(37, 99, 235, 0.15)'};
+  border-width: 2px;
+  border-color: ${props => props.darkMode ? 'rgba(59, 130, 246, 0.4)' : 'rgba(37, 99, 235, 0.3)'};
+  align-items: center;
+  justify-content: center;
+`;
+
+const LoginText = styled.Text<{ cellSize: number; darkMode: boolean }>`
+  font-size: ${props => Math.max(14, props.cellSize * 0.32)}px;
+  font-weight: 600;
+  color: ${props => props.darkMode ? '#60a5fa' : '#2563eb'};
+`;
+
+const UserText = styled.Text<{ cellSize: number; darkMode: boolean }>`  
+  font-size: ${props => Math.max(14, props.cellSize * 0.32)}px;
+  font-weight: 600;
+  color: ${props => props.darkMode ? '#a5f3fc' : '#0891b2'};
+`;
+
 export default function GameHeader({
-  onNewGame,
-  onLogin,
-  onLogout,
-  responsiveCellSize = 50,
-  isAuthenticated = false,
-  userName,
-  userEmail,
-  elapsedTime = 0,
-  darkMode = false,
-  onToggleTheme,
-  title,
-  showTimer = true,
-  showNewGameButton = true,
-  puzzleId,
-  difficulty,
-  onShowLeaderboard
+    onNewGame,
+    onLogin,
+    onLogout,
+    responsiveCellSize = 50,
+    isAuthenticated = false,
+    userName,
+    userEmail,
+    elapsedTime = 0,
+    darkMode = false,
+    onToggleTheme,
+    title,
+    showTimer = true,
+    showNewGameButton = true,
+    puzzleId,
+    difficulty,
+    onShowLeaderboard
 }: GameHeaderProps) {
-  const theme = getTheme(darkMode);
+    const theme = getTheme(darkMode);
 
-  // Simple layout for pages without game controls (like difficulty select)
-  if (!showTimer && !showNewGameButton && title) {
+    // Simple layout for pages without game controls
+    if (!showTimer && !showNewGameButton && title) {
+        return (
+            <Container>
+                <LinearGradient
+                    colors={theme.gradients.primary}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.1 }}
+                />
+                <Title darkMode={darkMode}>{title}</Title>
+                <RightSection>
+                    {onToggleTheme && (
+                        <ThemeToggle
+                            darkMode={darkMode}
+                            onToggle={onToggleTheme}
+                            responsiveCellSize={responsiveCellSize}
+                        />
+                    )}
+                    {isAuthenticated ? (
+                        <Pressable onPress={onLogout}>
+                            <UserText cellSize={responsiveCellSize} darkMode={darkMode}>
+                                {userName || userEmail}
+                            </UserText>
+                        </Pressable>
+                    ) : (
+                        <LoginButton
+                            cellSize={responsiveCellSize}
+                            darkMode={darkMode}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                onLogin?.();
+                            }}
+                        >
+                            <LoginText cellSize={responsiveCellSize} darkMode={darkMode}>Login</LoginText>
+                        </LoginButton>
+                    )}
+                </RightSection>
+            </Container>
+        );
+    }
+
+    // Full game layout
     return (
-      <>
-        <div style={{
-          padding: '16px 20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: '100%',
-          boxSizing: 'border-box'
-        }}>
-          {/* Title - Left */}
-          <div style={{
-            fontWeight: '700',
-            fontSize: '24px',
-            ...createGradientTextStyle(theme),
-            letterSpacing: '0.5px',
-            display: 'inline-block'
-          }}>
-            {title}
-          </div>
+        <GameContainer>
+            <LeftSection>
+                {showNewGameButton && onNewGame && (
+                    <NewGameButton
+                        cellSize={responsiveCellSize}
+                        darkMode={darkMode}
+                        onPress={() => {
+                            // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            onNewGame();
+                        }}
+                    >
+                        <NewGameText cellSize={responsiveCellSize} darkMode={darkMode}>
+                            New Game
+                        </NewGameText>
+                    </NewGameButton>
+                )}
+            </LeftSection>
 
-          {/* Right Side Buttons */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            {onToggleTheme && (
-              <ThemeToggle
-                darkMode={darkMode}
-                onToggle={onToggleTheme}
-                responsiveCellSize={responsiveCellSize}
-              />
-            )}
-            <UserProfile
-              isAuthenticated={isAuthenticated}
-              userName={userName}
-              userEmail={userEmail}
-              onLogin={onLogin}
-              onLogout={onLogout}
-              responsiveCellSize={responsiveCellSize}
-              darkMode={darkMode}
-            />
-          </div>
-        </div>
-      </>
+            <CenterSection>
+                {showTimer && (
+                    <GameTimer
+                        elapsedTime={elapsedTime}
+                        puzzleId={puzzleId}
+                        difficulty={difficulty}
+                        responsiveCellSize={responsiveCellSize}
+                        darkMode={darkMode}
+                    />
+                )}
+            </CenterSection>
+
+            <RightSection>
+                {onShowLeaderboard && (
+                    <LeaderboardButton
+                        cellSize={responsiveCellSize}
+                        darkMode={darkMode}
+                        onPress={() => {
+                            // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                            onShowLeaderboard();
+                        }}
+                    >
+                        <ButtonEmoji cellSize={responsiveCellSize}>🏆</ButtonEmoji>
+                    </LeaderboardButton>
+                )}
+                {onToggleTheme && (
+                    <ThemeToggle
+                        darkMode={darkMode}
+                        onToggle={onToggleTheme}
+                        responsiveCellSize={responsiveCellSize}
+                    />
+                )}
+                {isAuthenticated ? (
+                    <Pressable onPress={onLogout}>
+                        <UserText cellSize={responsiveCellSize} darkMode={darkMode}>
+                            {userName || 'User'}
+                        </UserText>
+                    </Pressable>
+                ) : (
+                    onLogin && (
+                        <LoginButton
+                            cellSize={responsiveCellSize}
+                            darkMode={darkMode}
+                            onPress={() => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                onLogin();
+                            }}
+                        >
+                            <LoginText cellSize={responsiveCellSize} darkMode={darkMode}>Login</LoginText>
+                        </LoginButton>
+                    )
+                )}
+            </RightSection>
+        </GameContainer>
     );
-  }
-
-  // Full game layout with timer and controls
-  return (
-    <>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'auto 1fr auto',
-        alignItems: 'center',
-        width: '100%',
-        gap: '16px'
-      }}>
-        {/* Left: New Game Button */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          {showNewGameButton && onNewGame && (
-            <NewGameButton
-              onNewGame={onNewGame}
-              responsiveCellSize={responsiveCellSize}
-              darkMode={darkMode}
-            />
-          )}
-        </div>
-
-        {/* Center: Puzzle Info and Timer */}
-        {showTimer && (
-          <GameTimer
-            elapsedTime={elapsedTime}
-            puzzleId={puzzleId}
-            difficulty={difficulty}
-            responsiveCellSize={responsiveCellSize}
-            darkMode={darkMode}
-          />
-        )}
-
-        {/* Right: User Settings */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px'
-        }}>
-          {/* Leaderboard Button */}
-          {onShowLeaderboard && (
-            <button
-              onClick={onShowLeaderboard}
-              style={{
-                padding: `${Math.max(4, responsiveCellSize * 0.12)}px ${Math.max(12, responsiveCellSize * 0.3)}px`,
-                fontSize: `${Math.max(16, responsiveCellSize * 0.36)}px`,
-                borderRadius: theme.borderRadius.md,
-                border: darkMode
-                  ? '2px solid rgba(251, 191, 36, 0.4)'
-                  : '2px solid rgba(124, 58, 237, 0.3)',
-                background: darkMode
-                  ? 'linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%)'
-                  : 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%)',
-                color: darkMode ? '#fbbf24' : '#7c3aed',
-                cursor: 'pointer',
-                transition: theme.transitions.normal,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '44px',
-                height: '44px',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                e.currentTarget.style.boxShadow = darkMode
-                  ? '0 4px 16px rgba(251, 191, 36, 0.4)'
-                  : '0 4px 16px rgba(124, 58, 237, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = darkMode
-                  ? '0 2px 8px rgba(251, 191, 36, 0.2)'
-                  : '0 2px 8px rgba(124, 58, 237, 0.15)';
-              }}
-              title="Leaderboard"
-            >
-              🏆
-            </button>
-          )}
-
-          {/* Theme Toggle Button */}
-          {onToggleTheme && (
-            <ThemeToggle
-              darkMode={darkMode}
-              onToggle={onToggleTheme}
-              responsiveCellSize={responsiveCellSize}
-            />
-          )}
-
-          {/* Auth Section */}
-          <UserProfile
-            isAuthenticated={isAuthenticated}
-            userName={userName}
-            userEmail={userEmail}
-            onLogin={onLogin}
-            onLogout={onLogout}
-            responsiveCellSize={responsiveCellSize}
-            darkMode={darkMode}
-          />
-        </div >
-      </div >
-    </>
-  );
 }

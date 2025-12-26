@@ -1,5 +1,9 @@
 import React from 'react';
-import { getTheme } from '../shared/theme.ts';
+import { View, Text } from 'react-native';
+import styled from 'styled-components/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
+import { getTheme } from '../shared/theme';
 
 interface GameTimerProps {
     elapsedTime: number;
@@ -20,6 +24,41 @@ function formatTime(seconds: number): string {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+const Container = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+`;
+
+const InfoContainer = styled.View<{ cellSize: number; darkMode: boolean }>`
+  padding: 0px 12px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  justify-content: center;
+`;
+
+const InfoText = styled.Text<{ cellSize: number; darkMode: boolean }>`
+  font-size: ${props => Math.max(12, props.cellSize * 0.3)}px;
+  color: ${props => props.darkMode ? '#a5b4fc' : '#2563eb'};
+  font-weight: 600;
+`;
+
+const TimerContainer = styled.View<{ cellSize: number }>`
+  padding: 0px 12px;
+  height: 44px;
+  border-radius: 6px;
+  overflow: hidden;
+  justify-content: center;
+`;
+
+const TimerText = styled.Text<{ cellSize: number; darkMode: boolean }>`
+  font-size: ${props => Math.max(13, props.cellSize * 0.32)}px;
+  color: ${props => props.darkMode ? '#f0abfc' : '#c026d3'};
+  font-weight: 700;
+`;
+
 export default function GameTimer({
     elapsedTime,
     puzzleId,
@@ -30,50 +69,52 @@ export default function GameTimer({
     const theme = getTheme(darkMode);
 
     return (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px'
-        }}>
+        <Container>
             {/* Puzzle Info */}
             {(difficulty || puzzleId) && (
-                <div style={{
-                    fontSize: `${Math.max(12, responsiveCellSize * 0.3)}px`,
-                    color: darkMode ? '#a5b4fc' : '#2563eb',
-                    fontWeight: '600',
-                    background: theme.gradients.logo,
-                    padding: '4px 12px',
-                    borderRadius: '6px',
-                    border: '1px solid transparent',
-                    backdropFilter: 'blur(8px)',
-                    WebkitBackdropFilter: 'blur(8px)',
-                    whiteSpace: 'nowrap'
-                }}>
-                    {difficulty && <span style={{ textTransform: 'capitalize' }}>{difficulty}</span>}
-                    {difficulty && puzzleId && <span> • </span>}
-                    {puzzleId && <span>#{puzzleId}</span>}
-                </div>
+                <InfoContainer cellSize={responsiveCellSize} darkMode={darkMode}>
+                    <LinearGradient
+                        colors={theme.gradients.primary}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 1 }}
+                        style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            opacity: 0.15,
+                        }}
+                    />
+                    <InfoText cellSize={responsiveCellSize} darkMode={darkMode}>
+                        {difficulty && <Text style={{ textTransform: 'capitalize' }}>{difficulty}</Text>}
+                        {difficulty && puzzleId && <Text> • </Text>}
+                        {puzzleId && <Text>#{puzzleId}</Text>}
+                    </InfoText>
+                </InfoContainer>
             )}
 
             {/* Timer */}
-            <div style={{
-                fontSize: `${Math.max(13, responsiveCellSize * 0.32)}px`,
-                color: darkMode ? '#f0abfc' : '#c026d3',
-                fontWeight: '700',
-                background: darkMode
-                    ? 'linear-gradient(135deg, rgba(244, 114, 182, 0.15) 0%, rgba(192, 38, 211, 0.15) 100%)'
-                    : 'linear-gradient(135deg, rgba(244, 114, 182, 0.1) 0%, rgba(192, 38, 211, 0.1) 100%)',
-                padding: '4px 12px',
-                borderRadius: '6px',
-                border: '1px solid transparent',
-                backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                whiteSpace: 'nowrap'
-            }}>
-                {<span>⏱︎ </span>}
-                {formatTime(elapsedTime)}
-            </div>
-        </div>
+            <TimerContainer cellSize={responsiveCellSize}>
+                <LinearGradient
+                    colors={darkMode
+                        ? ['rgba(244, 114, 182, 0.15)', 'rgba(192, 38, 211, 0.15)']
+                        : ['rgba(244, 114, 182, 0.1)', 'rgba(192, 38, 211, 0.1)']
+                    }
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                    }}
+                />
+                <TimerText cellSize={responsiveCellSize} darkMode={darkMode}>
+                    ⏱︎ {formatTime(elapsedTime)}
+                </TimerText>
+            </TimerContainer>
+        </Container>
     );
 }

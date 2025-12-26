@@ -1,0 +1,53 @@
+{
+    "expo": {
+        "name": "Sudoku",
+        "slug": "sudoku-multiplatform",
+        "version": "1.0.0",
+        "orientation": "portrait",
+        "userInterfaceStyle": "automatic",
+        "platforms": [
+            "ios",
+            "android",
+            "web"
+        ],
+        "splash": {
+            "image": "./assets/splash.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#9B59FF"
+        },
+        "updates": {
+            "fallbackToCacheTimeout": 0
+        },
+        "assetBundlePatterns": [
+            "**/*"
+        ],
+        "ios": {
+            "supportsTablet": true,
+            "bundleIdentifier": "com.sudoku.multiplatform"
+        },
+        "android": {
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/adaptive-icon.png",
+                "backgroundColor": "#9B59FF"
+            },
+            "package": "com.sudoku.multiplatform"
+        },
+        "web": {
+            "favicon": "./assets/favicon.png",
+            "bundler": "metro"
+        },
+        "plugins": [
+            [
+                "expo-build-properties",
+                {
+                    "ios": {
+                        "newArchEnabled": false
+                    },
+                    "android": {
+                        "newArchEnabled": false
+                    }
+                }
+            ]
+        ]
+    }
+}

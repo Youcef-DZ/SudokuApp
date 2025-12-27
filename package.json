@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "Sudoku game compatible with local development",
   "scripts": {
-    "start": "expo start",
+    "start": "node server.js",
+    "dev:expo": "expo start",
     "ios": "expo start --ios",
     "android": "expo start --android",
     "web": "expo start --web",

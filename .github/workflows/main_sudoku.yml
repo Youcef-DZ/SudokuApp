@@ -32,14 +32,13 @@ jobs:
       - name: Copy server files to dist
         run: |
           cp server.js dist/
-          cp package.json dist/
-          cp package-lock.json dist/ || true
+          cp package.production.json dist/package.json
           cp web.config dist/
 
       - name: Install production dependencies in dist
         run: |
           cd dist
-          npm install --production --legacy-peer-deps
+          npm install --omit=dev
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

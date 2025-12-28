@@ -546,9 +546,11 @@ export default function SudokuGame(props: SudokuGameProps) {
                                         })}
 
                                     {scores.filter(score => scoreFilter === 'all' || score.difficulty === scoreFilter).length === 0 && (
-                                        <WinText darkMode={darkMode} style={{ textAlign: 'center', marginTop: 20 }}>
-                                            No scores yet. Be the first!
-                                        </WinText>
+                                        <View key="empty-state">
+                                            <WinText darkMode={darkMode} style={{ textAlign: 'center', marginTop: 20 }}>
+                                                No scores yet. Be the first!
+                                            </WinText>
+                                        </View>
                                     )}
                                 </LeaderboardScroll>
                             </>

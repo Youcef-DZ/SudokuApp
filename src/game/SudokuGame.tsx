@@ -327,7 +327,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                 }}
                 showsVerticalScrollIndicator={false}
             >
-                <View style={{ width: '100%', alignItems: 'center' }}>
+                <View key="header-section" style={{ width: '100%', alignItems: 'center' }}>
                     <Header
                         onNewGame={onNewGame}
                         onLogin={onLogin}
@@ -344,7 +344,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                         onShowLeaderboard={() => setShowLeaderboard(true)}
                     />
 
-                    <View style={{ marginTop: 20, alignItems: 'center' }}>
+                    <View key="gameboard-section" style={{ marginTop: 20, alignItems: 'center' }}>
                         <GameBoard boardSize={boardSize} darkMode={darkMode}>
                             {gameState.currentBoard.map((row, rowIndex) => (
                                 <Row key={rowIndex}>
@@ -398,7 +398,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                         </GameBoard>
                     </View>
 
-                    <View style={{ marginTop: 20 }}>
+                    <View key="numberpad-section" style={{ marginTop: 20 }}>
                         <NumberPad
                             selectedCell={cellSelection.selectedCell}
                             onNumberInput={handleNumberInput}
@@ -407,7 +407,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                         />
                     </View>
 
-                    <HintText cellSize={responsiveCellSize} darkMode={darkMode}>
+                    <HintText key="hint-text" cellSize={responsiveCellSize} darkMode={darkMode}>
                         💡 Tap a cell and use the number pad to fill
                     </HintText>
                 </View>

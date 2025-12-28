@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, ScrollView, Pressable, Modal, Dimensions, Platform } from 'react-native';
+import { useState, useEffect, useRef } from 'react';
+import { View, ScrollView, Pressable, Modal, Dimensions } from 'react-native';
 import styled from 'styled-components/native';
-import { LinearGradient } from 'expo-linear-gradient';
 // import * as Haptics from 'expo-haptics'; // Breaks React Native Web
 import type { SudokuGameProps } from '../shared/types.ts';
 import NumberPad from '../components/NumberPad';
 import Header from '../components/Header';
-import { getTheme } from '../shared/theme';
 import { useGameState } from './hooks/useGameState.ts';
 import { useCellSelection } from './hooks/useCellSelection.ts';
 import { useTimer } from './hooks/useTimer.ts';
+import { fetchScoresFromNotion, type ScoreData } from '../data/Database.tsx';
 
 const Container = styled.View<{ darkMode: boolean }>`
   flex: 1;
@@ -169,12 +168,68 @@ const HintText = styled.Text<{ cellSize: number; darkMode: boolean }>`
   margin-top: 20px;
 `;
 
+const LeaderboardScroll = styled.ScrollView<{ darkMode: boolean }>`
+  max-height: 300px;
+  width: 100%;
+  margin: 16px 0;
+`;
+
+const ScoreRow = styled.View<{ darkMode: boolean; isHeader?: boolean }>`
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom-width: 1px;
+  border-bottom-color: ${props => props.darkMode ? 'rgba(71, 85, 105, 0.5)' : 'rgba(226, 232, 240, 0.8)'};
+  background-color: ${props => props.isHeader
+        ? (props.darkMode ? 'rgba(51, 65, 85, 0.5)' : 'rgba(241, 245, 249, 0.8)')
+        : 'transparent'
+    };
+`;
+
+const ScoreText = styled.Text<{ darkMode: boolean; bold?: boolean; flex?: number }>`
+  font-size: 14px;
+  color: ${props => props.darkMode ? '#e2e8f0' : '#334155'};
+  font-weight: ${props => props.bold ? '600' : '400'};
+  flex: ${props => props.flex || 1};
+`;
+
+const FilterRow = styled.View`
+  flex-direction: row;
+  gap: 8px;
+  margin-bottom: 16px;
+  justify-content: center;
+`;
+
+const FilterButton = styled(Pressable) <{ active: boolean; darkMode: boolean }>`
+  padding: 8px 16px;
+  border-radius: 8px;
+  background-color: ${props => props.active
+        ? (props.darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.2)')
+        : (props.darkMode ? 'rgba(51, 65, 85, 0.5)' : 'rgba(241, 245, 249, 0.8)')
+    };
+  border-width: 2px;
+  border-color: ${props => props.active
+        ? (props.darkMode ? 'rgba(99, 102, 241, 0.6)' : 'rgba(99, 102, 241, 0.4)')
+        : 'transparent'
+    };
+`;
+
+const FilterText = styled.Text<{ active: boolean; darkMode: boolean }>`
+  font-size: 14px;
+  font-weight: ${props => props.active ? '600' : '500'};
+  color: ${props => props.active
+        ? (props.darkMode ? '#a5b4fc' : '#6366f1')
+        : (props.darkMode ? '#94a3b8' : '#64748b')
+    };
+`;
+
 export default function SudokuGame(props: SudokuGameProps) {
     const {
         difficulty = 'medium',
         cellSize = 50,
         onLogin,
         onLogout,
+        onNewGame,
         isAuthenticated = false,
         userName,
         userEmail,
@@ -182,12 +237,14 @@ export default function SudokuGame(props: SudokuGameProps) {
         onToggleTheme
     } = props;
 
-    const theme = getTheme(darkMode);
     const gameState = useGameState(difficulty);
     const cellSelection = useCellSelection();
     const timer = useTimer();
 
     const [showLeaderboard, setShowLeaderboard] = useState(false);
+    const [scores, setScores] = useState<ScoreData[]>([]);
+    const [loadingScores, setLoadingScores] = useState(false);
+    const [scoreFilter, setScoreFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
     const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
     const scoreSavedRef = useRef(false);
 
@@ -225,15 +282,25 @@ export default function SudokuGame(props: SudokuGameProps) {
         }
     }, [gameState.gameCompleted]);
 
+    // Fetch scores when leaderboard is opened
+    useEffect(() => {
+        if (showLeaderboard && scores.length === 0) {
+            setLoadingScores(true);
+            fetchScoresFromNotion()
+                .then(data => {
+                    setScores(data);
+                    setLoadingScores(false);
+                })
+                .catch(err => {
+                    console.error('Failed to fetch scores:', err);
+                    setLoadingScores(false);
+                });
+        }
+    }, [showLeaderboard]);
+
     const handleNumberInput = (num: number) => {
         // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         gameState.handleNumberInput(num, cellSelection.selectedCell);
-    };
-
-    const handleNewGame = async (newDifficulty?: string) => {
-        await gameState.startNewGame(newDifficulty);
-        timer.resetTimer();
-        scoreSavedRef.current = false;
     };
 
     const handleCellPress = (row: number, col: number) => {
@@ -262,7 +329,7 @@ export default function SudokuGame(props: SudokuGameProps) {
             >
                 <View style={{ width: '100%', alignItems: 'center' }}>
                     <Header
-                        onNewGame={handleNewGame}
+                        onNewGame={onNewGame}
                         onLogin={onLogin}
                         onLogout={onLogout}
                         responsiveCellSize={responsiveCellSize}
@@ -368,7 +435,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                             darkMode={darkMode}
                             onPress={() => {
                                 gameState.setGameWon(false);
-                                handleNewGame();
+                                onNewGame?.();
                             }}
                         >
                             <WinButtonText primary darkMode={darkMode}>
@@ -385,6 +452,115 @@ export default function SudokuGame(props: SudokuGameProps) {
                         >
                             <WinButtonText darkMode={darkMode}>
                                 View Leaderboard 🏆
+                            </WinButtonText>
+                        </WinButton>
+                    </WinContent>
+                </WinContainer>
+            </WinModal>
+
+            {/* Leaderboard Modal */}
+            <WinModal
+                visible={showLeaderboard}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowLeaderboard(false)}
+            >
+                <WinContainer darkMode={darkMode}>
+                    <WinContent darkMode={darkMode}>
+                        <WinTitle>🏆 Leaderboard</WinTitle>
+
+                        {/* Difficulty Filter */}
+                        <FilterRow>
+                            <FilterButton
+                                active={scoreFilter === 'all'}
+                                darkMode={darkMode}
+                                onPress={() => setScoreFilter('all')}
+                            >
+                                <FilterText active={scoreFilter === 'all'} darkMode={darkMode}>
+                                    All
+                                </FilterText>
+                            </FilterButton>
+                            <FilterButton
+                                active={scoreFilter === 'easy'}
+                                darkMode={darkMode}
+                                onPress={() => setScoreFilter('easy')}
+                            >
+                                <FilterText active={scoreFilter === 'easy'} darkMode={darkMode}>
+                                    Easy
+                                </FilterText>
+                            </FilterButton>
+                            <FilterButton
+                                active={scoreFilter === 'medium'}
+                                darkMode={darkMode}
+                                onPress={() => setScoreFilter('medium')}
+                            >
+                                <FilterText active={scoreFilter === 'medium'} darkMode={darkMode}>
+                                    Medium
+                                </FilterText>
+                            </FilterButton>
+                            <FilterButton
+                                active={scoreFilter === 'hard'}
+                                darkMode={darkMode}
+                                onPress={() => setScoreFilter('hard')}
+                            >
+                                <FilterText active={scoreFilter === 'hard'} darkMode={darkMode}>
+                                    Hard
+                                </FilterText>
+                            </FilterButton>
+                        </FilterRow>
+
+                        {loadingScores ? (
+                            <WinText darkMode={darkMode} style={{ marginTop: 20, marginBottom: 20 }}>
+                                Loading scores...
+                            </WinText>
+                        ) : (
+                            <>
+                                {/* Header Row */}
+                                <ScoreRow darkMode={darkMode} isHeader>
+                                    <ScoreText darkMode={darkMode} bold flex={0.8}>#</ScoreText>
+                                    <ScoreText darkMode={darkMode} bold flex={2}>Player</ScoreText>
+                                    <ScoreText darkMode={darkMode} bold flex={1.5}>Time</ScoreText>
+                                    <ScoreText darkMode={darkMode} bold flex={1.2}>Level</ScoreText>
+                                </ScoreRow>
+
+                                <LeaderboardScroll darkMode={darkMode}>
+                                    {scores
+                                        .filter(score => scoreFilter === 'all' || score.difficulty === scoreFilter)
+                                        .sort((a, b) => a.time - b.time)
+                                        .slice(0, 20)
+                                        .map((score, index) => {
+                                            const minutes = Math.floor(score.time / 60);
+                                            const seconds = score.time % 60;
+                                            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+                                            return (
+                                                <ScoreRow key={score.id} darkMode={darkMode}>
+                                                    <ScoreText darkMode={darkMode} flex={0.8}>{index + 1}</ScoreText>
+                                                    <ScoreText darkMode={darkMode} flex={2}>{score.userName}</ScoreText>
+                                                    <ScoreText darkMode={darkMode} flex={1.5}>{timeStr}</ScoreText>
+                                                    <ScoreText darkMode={darkMode} flex={1.2}>
+                                                        {score.difficulty.charAt(0).toUpperCase() + score.difficulty.slice(1)}
+                                                    </ScoreText>
+                                                </ScoreRow>
+                                            );
+                                        })}
+
+                                    {scores.filter(score => scoreFilter === 'all' || score.difficulty === scoreFilter).length === 0 && (
+                                        <WinText darkMode={darkMode} style={{ textAlign: 'center', marginTop: 20 }}>
+                                            No scores yet. Be the first!
+                                        </WinText>
+                                    )}
+                                </LeaderboardScroll>
+                            </>
+                        )}
+
+                        <WinButton
+                            primary
+                            darkMode={darkMode}
+                            onPress={() => setShowLeaderboard(false)}
+                        >
+                            <WinButtonText primary darkMode={darkMode}>
+                                Close
                             </WinButtonText>
                         </WinButton>
                     </WinContent>

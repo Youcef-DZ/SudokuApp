@@ -35,6 +35,7 @@ export interface SudokuGameProps {
   cellSize?: number;
   onLogin?: () => void;
   onLogout?: () => void;
+  onNewGame?: () => void;
   isAuthenticated?: boolean;
   userName?: string;
   userEmail?: string;

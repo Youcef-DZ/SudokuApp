@@ -1,9 +1,8 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, Pressable, Modal } from 'react-native';
+import { useState, useCallback } from 'react';
+import { Pressable, Modal } from 'react-native';
 import styled from 'styled-components/native';
 // Descope not compatible with React Native web yet - removed
 import SudokuGame from './SudokuGame';
-import { getTheme } from '../shared/theme';
 import type { Difficulty } from '../shared/types.ts';
 
 interface GameWrapperProps {
@@ -94,6 +93,7 @@ export default function GameWrapper(props: GameWrapperProps) {
     }, []);
 
     const handleNewGame = useCallback(() => {
+        // Show difficulty selection popup when New Game is clicked
         setShowDifficultyPopup(true);
     }, []);
 
@@ -101,6 +101,7 @@ export default function GameWrapper(props: GameWrapperProps) {
         <Container darkMode={darkMode}>
             {selectedDifficulty && (
                 <SudokuGame
+                    key={selectedDifficulty} // Force remount when difficulty changes
                     difficulty={selectedDifficulty}
                     isAuthenticated={isAuthenticated}
                     userName={userName}
@@ -108,6 +109,7 @@ export default function GameWrapper(props: GameWrapperProps) {
                     darkMode={darkMode}
                     onToggleTheme={toggleTheme}
                     onLogin={onLoginOverride}
+                    onNewGame={handleNewGame} // Pass the handleNewGame that shows popup
                     onLogout={onLogoutOverride || (() => {
                         setSelectedDifficulty(null);
                         setShowDifficultyPopup(true);

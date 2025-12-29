@@ -133,10 +133,19 @@ app.get('/api/puzzles/random', async (req, res) => {
   }
 });
 
-// Serve static files
+// Serve static files with smart caching strategy
 app.use(express.static(staticDir, {
-  maxAge: '0',
-  etag: true
+  etag: true,
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('index.html')) {
+      // index.html: No Cache (Always check for updates)
+      res.setHeader('Cache-Control', 'no-cache');
+    } else {
+      // Assets (JS/CSS/Images): Aggressive Cache (1 year)
+      // Expo generates hashed filenames for assets, so they are unique.
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+  }
 }));
 
 // Handle client-side routing - send all requests to index.html
@@ -153,7 +162,13 @@ app.get('*', (req, res) => {
 });
 
 const port = process.env.PORT || 8080;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-  console.log(`Visit http://localhost:${port}`);
-});
+
+// Only listen if running directly (not required as a module)
+if (require.main === module) {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    console.log(`Visit http://localhost:${port}`);
+  });
+}
+
+module.exports = app;

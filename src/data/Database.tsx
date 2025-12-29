@@ -82,7 +82,8 @@ export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): P
     }
 
     const data = await response.json();
-    console.log('[Database] Puzzle data received. Puzzle length:', data.puzzle?.length);
+    console.log('[Database] Puzzle data received. Keys:', Object.keys(data));
+    console.log('[Database] Puzzle field type:', typeof data.puzzle, 'IsArray:', Array.isArray(data.puzzle));
 
     // Helper to ensure 9x9 grid
     const toGrid = (arr: any[]) => {

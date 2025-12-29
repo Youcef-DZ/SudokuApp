@@ -60,8 +60,9 @@ export function useGameState(initialDifficulty: string): UseGameStateReturn {
             const result = await generatePuzzle(difficulty);
             console.log('[useGameState] generatePuzzle result:', result ? 'Received data' : 'NULL');
 
-            if (!result || !result.puzzle || !Array.isArray(result.puzzle)) {
-                throw new Error('Received invalid puzzle data from server');
+            if (!result || !result.puzzle || !Array.isArray(result.puzzle) || result.puzzle.length !== 9) {
+                console.error('[useGameState] Invalid data:', JSON.stringify(result).slice(0, 100));
+                throw new Error(`Received invalid puzzle data (Rows: ${result?.puzzle?.length})`);
             }
 
             handleGameInit(result);

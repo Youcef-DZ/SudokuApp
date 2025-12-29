@@ -135,7 +135,7 @@ app.get('/api/puzzles/random', async (req, res) => {
 
 // Serve static files
 app.use(express.static(staticDir, {
-  maxAge: '1d',
+  maxAge: '0',
   etag: true
 }));
 

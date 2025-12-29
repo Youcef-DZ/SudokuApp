@@ -1,8 +1,6 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import { Text } from 'react-native';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 import { getTheme } from '../shared/theme';
 
 interface GameTimerProps {
@@ -74,7 +72,7 @@ export default function GameTimer({
             {(difficulty || puzzleId) && (
                 <InfoContainer cellSize={responsiveCellSize} darkMode={darkMode}>
                     <LinearGradient
-                        colors={theme.gradients.primary}
+                        colors={theme.gradients.primary as any}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
                         style={{

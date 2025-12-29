@@ -1,8 +1,7 @@
-import React from 'react';
-import { View, Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
 import styled from 'styled-components/native';
 // import * as Haptics from 'expo-haptics'; // Breaks React Native Web
-import { getTheme } from '../shared/theme';
+
 
 interface NumberPadProps {
     selectedCell: { row: number; col: number } | null;
@@ -21,7 +20,7 @@ const Container = styled.View<{ boardSize: number }>`
   justify-content: center;
 `;
 
-const NumberButton = styled(Pressable) <{ disabled: boolean; darkMode: boolean }>`
+const NumberButton = styled(Pressable) <{ disabled: boolean; darkMode: boolean; boardSize: number }>`
   width: ${props => (props.boardSize - 60) / 5}px;
   height: 50px;
   margin: 5px;
@@ -39,7 +38,7 @@ const NumberButton = styled(Pressable) <{ disabled: boolean; darkMode: boolean }
   justify-content: center;
 `;
 
-const ClearButton = styled(Pressable) <{ disabled: boolean; darkMode: boolean }>`
+const ClearButton = styled(Pressable) <{ disabled: boolean; darkMode: boolean; boardSize: number }>`
   width: ${props => (props.boardSize - 60) / 5}px;
   height: 50px;
   margin: 5px;
@@ -130,8 +129,6 @@ export default function NumberPad({
     boardSize,
     darkMode = false
 }: NumberPadProps) {
-    const theme = getTheme(darkMode);
-
     return (
         <Container boardSize={boardSize}>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((num) => (

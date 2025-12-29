@@ -1,5 +1,4 @@
-import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { Pressable } from 'react-native';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 // import * as Haptics from 'expo-haptics'; // Breaks React Native Web
@@ -151,7 +150,7 @@ export default function GameHeader({
         return (
             <Container>
                 <LinearGradient
-                    colors={theme.gradients.primary}
+                    colors={theme.gradients.primary as any}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.1 }}
@@ -176,7 +175,7 @@ export default function GameHeader({
                             cellSize={responsiveCellSize}
                             darkMode={darkMode}
                             onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                 onLogin?.();
                             }}
                         >
@@ -252,7 +251,7 @@ export default function GameHeader({
                             cellSize={responsiveCellSize}
                             darkMode={darkMode}
                             onPress={() => {
-                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                                 onLogin();
                             }}
                         >

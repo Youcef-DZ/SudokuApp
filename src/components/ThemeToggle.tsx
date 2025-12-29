@@ -1,8 +1,7 @@
-import React from 'react';
 import { Pressable } from 'react-native';
 import styled from 'styled-components/native';
 // import * as Haptics from 'expo-haptics'; // Breaks React Native Web
-import { getTheme } from '../shared/theme';
+
 
 interface ThemeToggleProps {
     darkMode: boolean;
@@ -27,8 +26,6 @@ const ButtonText = styled.Text<{ cellSize: number }>`
 `;
 
 export default function ThemeToggle({ darkMode, onToggle, responsiveCellSize = 50 }: ThemeToggleProps) {
-    const theme = getTheme(darkMode);
-
     const handlePress = () => {
         // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         onToggle();

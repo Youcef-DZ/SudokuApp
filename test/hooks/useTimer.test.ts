@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 import { useTimer, formatTime } from '../../src/game/hooks/useTimer.ts';
 
 describe('useTimer', () => {

@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 import { useGameState } from '../../src/game/hooks/useGameState';
 import * as SudokuLogic from '../../src/game/sudokuLogic';
 

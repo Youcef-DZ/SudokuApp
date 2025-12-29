@@ -38,6 +38,8 @@ else {
   staticDir = publicPath;
 }
 
+const isProduction = staticDir === __dirname;
+
 console.log('Starting server...');
 console.log('Environment:', isProduction ? 'Production' : 'Development');
 console.log('Serving static files from:', staticDir);

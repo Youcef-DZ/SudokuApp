@@ -269,9 +269,6 @@ export default function SudokuGame(props: SudokuGameProps) {
 
     const boardSize = responsiveCellSize * 9;
 
-    // DEBUG: Log render state
-    console.log('[SudokuGame] Rendering. Loading:', gameState.loading, 'Error:', gameState.initializationError, 'BoardSize:', gameState.currentBoard?.length);
-
     if (gameState.loading) {
         return (
             <LoadingContainer darkMode={darkMode}>
@@ -306,9 +303,6 @@ export default function SudokuGame(props: SudokuGameProps) {
                 }}
                 showsVerticalScrollIndicator={false}
             >
-                <Text style={{ position: 'absolute', top: 0, right: 0, fontSize: 10, color: 'gray', opacity: 0.5 }}>
-                    Status: {gameState.loading ? 'Loading' : (gameState.initializationError ? 'Error' : 'Playing')}
-                </Text>
                 <View key="header-section" style={{ width: '100%', alignItems: 'center' }}>
                     <Header
                         onNewGame={onNewGame}

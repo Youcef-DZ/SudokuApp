@@ -68,6 +68,15 @@ const Title = styled.Text<{ darkMode: boolean }>`
   letter-spacing: 0.5px;
 `;
 
+const VersionText = styled.Text<{ darkMode: boolean }>`
+  font-size: 10px;
+  color: ${props => props.darkMode ? '#64748b' : '#94a3b8'};
+  position: absolute;
+  bottom: -4px;
+  right: -5px;
+  font-weight: 700;
+`;
+
 
 const NewGameButton = styled(Pressable) <{ cellSize: number; darkMode: boolean }>`
   padding: 0px 12px;
@@ -155,7 +164,10 @@ export default function GameHeader({
                     end={{ x: 1, y: 0 }}
                     style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.1 }}
                 />
-                <Title darkMode={darkMode}>{title}</Title>
+                <TitleContainer>
+                    <Title darkMode={darkMode}>Sudoku</Title>
+                    <VersionText darkMode={darkMode}>v1.1</VersionText>
+                </TitleContainer>
                 <RightSection>
                     {onToggleTheme && (
                         <ThemeToggle

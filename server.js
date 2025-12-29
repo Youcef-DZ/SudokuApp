@@ -156,6 +156,10 @@ app.get('*', (req, res) => {
 
   if (fs.existsSync(indexPath)) {
     console.log('Serving index.html for route:', req.path);
+    // Explicitly set headers for the catch-all route too
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     res.sendFile(indexPath);
   } else {
     console.error('index.html not found at:', indexPath);

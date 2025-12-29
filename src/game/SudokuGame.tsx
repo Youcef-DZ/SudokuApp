@@ -328,6 +328,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                                         return (
                                             <Cell
                                                 key={`${rowIndex}-${colIndex}`}
+                                                testID={`cell-${rowIndex}-${colIndex}`}
                                                 onPress={() => handleCellPress(rowIndex, colIndex)}
                                                 cellSize={responsiveCellSize}
                                                 isSelected={isSelected}

@@ -1,15 +1,14 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react-hooks';
 import { useTimer, formatTime } from '../../src/game/hooks/useTimer.ts';
 
 describe('useTimer', () => {
     beforeEach(() => {
-        vi.useFakeTimers();
+        jest.useFakeTimers();
     });
 
     afterEach(() => {
-        vi.runOnlyPendingTimers();
-        vi.restoreAllMocks();
+        jest.runOnlyPendingTimers();
+        jest.restoreAllMocks();
     });
 
     it('should initialize with 0 elapsed time', () => {
@@ -25,7 +24,7 @@ describe('useTimer', () => {
 
         // Fast-forward 3 seconds
         act(() => {
-            vi.advanceTimersByTime(3000);
+            jest.advanceTimersByTime(3000);
         });
 
         expect(result.current.elapsedTime).toBe(3);
@@ -37,7 +36,7 @@ describe('useTimer', () => {
 
         // Advance 2 seconds
         act(() => {
-            vi.advanceTimersByTime(2000);
+            jest.advanceTimersByTime(2000);
         });
 
         expect(result.current.elapsedTime).toBe(2);
@@ -49,7 +48,7 @@ describe('useTimer', () => {
 
         // Advance another 3 seconds
         act(() => {
-            vi.advanceTimersByTime(3000);
+            jest.advanceTimersByTime(3000);
         });
 
         // Time should still be 2 (not advanced)
@@ -62,7 +61,7 @@ describe('useTimer', () => {
 
         // Advance 5 seconds
         act(() => {
-            vi.advanceTimersByTime(5000);
+            jest.advanceTimersByTime(5000);
         });
 
         expect(result.current.elapsedTime).toBe(5);
@@ -81,7 +80,7 @@ describe('useTimer', () => {
 
         // Advance 2 seconds
         act(() => {
-            vi.advanceTimersByTime(2000);
+            jest.advanceTimersByTime(2000);
         });
 
         // Stop timer
@@ -96,7 +95,7 @@ describe('useTimer', () => {
 
         // Advance 1 more second
         act(() => {
-            vi.advanceTimersByTime(1000);
+            jest.advanceTimersByTime(1000);
         });
 
         // Should be 3 seconds total

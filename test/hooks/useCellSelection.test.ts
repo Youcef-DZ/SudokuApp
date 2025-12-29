@@ -1,5 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react-hooks';
 import { useCellSelection } from '../../src/game/hooks/useCellSelection.ts';
 
 describe('useCellSelection', () => {
@@ -36,7 +35,7 @@ describe('useCellSelection', () => {
 
     it('should call onNumberInput with correct number when number key is pressed', () => {
         const { result } = renderHook(() => useCellSelection());
-        const mockOnNumberInput = vi.fn();
+        const mockOnNumberInput = jest.fn();
 
         const event = new KeyboardEvent('keydown', { key: '5' });
 
@@ -49,7 +48,7 @@ describe('useCellSelection', () => {
 
     it('should call onNumberInput with 0 when Backspace is pressed', () => {
         const { result } = renderHook(() => useCellSelection());
-        const mockOnNumberInput = vi.fn();
+        const mockOnNumberInput = jest.fn();
 
         const event = new KeyboardEvent('keydown', { key: 'Backspace' });
 
@@ -62,7 +61,7 @@ describe('useCellSelection', () => {
 
     it('should call onNumberInput with 0 when Delete is pressed', () => {
         const { result } = renderHook(() => useCellSelection());
-        const mockOnNumberInput = vi.fn();
+        const mockOnNumberInput = jest.fn();
 
         const event = new KeyboardEvent('keydown', { key: 'Delete' });
 
@@ -75,7 +74,7 @@ describe('useCellSelection', () => {
 
     it('should not call onNumberInput for invalid keys', () => {
         const { result } = renderHook(() => useCellSelection());
-        const mockOnNumberInput = vi.fn();
+        const mockOnNumberInput = jest.fn();
 
         const event = new KeyboardEvent('keydown', { key: 'a' });
 
@@ -88,7 +87,7 @@ describe('useCellSelection', () => {
 
     it('should accept number keys 1-9', () => {
         const { result } = renderHook(() => useCellSelection());
-        const mockOnNumberInput = vi.fn();
+        const mockOnNumberInput = jest.fn();
 
         for (let i = 1; i <= 9; i++) {
             const event = new KeyboardEvent('keydown', { key: i.toString() });

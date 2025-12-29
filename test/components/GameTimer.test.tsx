@@ -1,44 +1,42 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import GameTimer from '../../src/components/GameTimer.tsx';
+import { render } from '@testing-library/react-native';
+import GameTimer from '../../src/components/GameTimer';
 
 describe('GameTimer', () => {
     it('should render timer with formatted time', () => {
-        render(<GameTimer elapsedTime={125} darkMode={false} />);
+        const { getByText } = render(<GameTimer elapsedTime={125} darkMode={false} />);
 
-        const timer = screen.getByText('⏱︎');
-        expect(timer).toBeInTheDocument();
-        expect(screen.getByText('2:05')).toBeInTheDocument();
+        expect(getByText(/⏱︎/)).toBeTruthy();
+        expect(getByText(/2:05/)).toBeTruthy();
     });
 
     it('should display puzzle ID when provided', () => {
-        render(<GameTimer elapsedTime={0} puzzleId={42} darkMode={false} />);
+        const { getByText } = render(<GameTimer elapsedTime={0} puzzleId={42} darkMode={false} />);
 
-        expect(screen.getByText('#42')).toBeInTheDocument();
+        expect(getByText(/#42/)).toBeTruthy();
     });
 
     it('should display difficulty when provided', () => {
-        render(<GameTimer elapsedTime={0} difficulty="medium" darkMode={false} />);
+        const { getByText } = render(<GameTimer elapsedTime={0} difficulty="medium" darkMode={false} />);
 
-        expect(screen.getByText('medium')).toBeInTheDocument();
+        expect(getByText(/medium/i)).toBeTruthy();
     });
 
     it('should display both difficulty and puzzle ID with separator', () => {
-        render(<GameTimer elapsedTime={0} difficulty="hard" puzzleId={10} darkMode={false} />);
+        const { getByText } = render(<GameTimer elapsedTime={0} difficulty="hard" puzzleId={10} darkMode={false} />);
 
-        expect(screen.getByText('hard')).toBeInTheDocument();
-        expect(screen.getByText('#10')).toBeInTheDocument();
-        expect(screen.getByText('•')).toBeInTheDocument();
+        expect(getByText(/hard/i)).toBeTruthy();
+        expect(getByText(/#10/)).toBeTruthy();
+        expect(getByText(/•/)).toBeTruthy();
     });
 
     it('should format time correctly for different durations', () => {
-        const { rerender } = render(<GameTimer elapsedTime={0} darkMode={false} />);
-        expect(screen.getByText('0:00')).toBeInTheDocument();
+        const { getByText, rerender } = render(<GameTimer elapsedTime={0} darkMode={false} />);
+        expect(getByText(/0:00/)).toBeTruthy();
 
         rerender(<GameTimer elapsedTime={65} darkMode={false} />);
-        expect(screen.getByText('1:05')).toBeInTheDocument();
+        expect(getByText(/1:05/)).toBeTruthy();
 
         rerender(<GameTimer elapsedTime={3661} darkMode={false} />);
-        expect(screen.getByText('1:01:01')).toBeInTheDocument();
+        expect(getByText(/1:01:01/)).toBeTruthy();
     });
 });

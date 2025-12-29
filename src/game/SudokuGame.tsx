@@ -277,6 +277,23 @@ export default function SudokuGame(props: SudokuGameProps) {
         );
     }
 
+    if (gameState.initializationError) {
+        return (
+            <LoadingContainer darkMode={darkMode}>
+                <LoadingText darkMode={darkMode} style={{ color: '#ef4444', marginBottom: 20 }}>
+                    Error: {gameState.initializationError}
+                </LoadingText>
+                <WinButton
+                    darkMode={darkMode}
+                    onPress={() => gameState.initializeGame(difficulty as any)}
+                    primary
+                >
+                    <WinButtonText darkMode={darkMode} primary>Retry</WinButtonText>
+                </WinButton>
+            </LoadingContainer>
+        );
+    }
+
     return (
         <Container darkMode={darkMode}>
             <ScrollView

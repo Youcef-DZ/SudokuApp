@@ -13,6 +13,7 @@ interface UseGameStateReturn {
     loading: boolean;
     puzzleId: number | undefined;
     currentDifficulty: string;
+    initializationError: string | null;
 
     // Actions
     handleNumberInput: (num: number, selectedCell: { row: number; col: number } | null) => boolean;
@@ -35,6 +36,8 @@ export function useGameState(initialDifficulty: string): UseGameStateReturn {
     const [puzzleId, setPuzzleId] = useState<number | undefined>(undefined);
     const [currentDifficulty, setCurrentDifficulty] = useState<string>(initialDifficulty);
 
+    const [initializationError, setInitializationError] = useState<string | null>(null);
+
     const handleGameInit = useCallback((result: { puzzle: Board; solution: Board; id?: number }) => {
         setSolution(result.solution);
         setCurrentBoard(copyBoard(result.puzzle));
@@ -44,26 +47,36 @@ export function useGameState(initialDifficulty: string): UseGameStateReturn {
         setGameWon(false);
         setGameCompleted(false);
         setLoading(false);
+        setInitializationError(null);
     }, []);
 
     const initializeGame = useCallback(async (difficulty: Difficulty) => {
         try {
             setLoading(true);
+            setInitializationError(null);
             setCurrentDifficulty(difficulty);
             const result = await generatePuzzle(difficulty);
             handleGameInit(result);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to initialize game:', error);
-            setLoading(false); // Ensure loading stops on error
+            setInitializationError(error.message || 'Failed to load puzzle');
+            setLoading(false);
         }
     }, [handleGameInit]);
 
     const startNewGame = useCallback(async (newDifficulty?: string) => {
-        setLoading(true);
-        const targetDifficulty = (newDifficulty || currentDifficulty) as Difficulty;
-        setCurrentDifficulty(targetDifficulty);
-        const result = await generatePuzzle(targetDifficulty);
-        handleGameInit(result);
+        try {
+            setLoading(true);
+            setInitializationError(null);
+            const targetDifficulty = (newDifficulty || currentDifficulty) as Difficulty;
+            setCurrentDifficulty(targetDifficulty);
+            const result = await generatePuzzle(targetDifficulty);
+            handleGameInit(result);
+        } catch (error: any) {
+            console.error('Failed to start new game:', error);
+            setInitializationError(error.message || 'Failed to load puzzle');
+            setLoading(false);
+        }
     }, [currentDifficulty, handleGameInit]);
 
     const handleNumberInput = useCallback((num: number, selectedCell: { row: number; col: number } | null): boolean => {
@@ -103,6 +116,7 @@ export function useGameState(initialDifficulty: string): UseGameStateReturn {
         gameWon,
         gameCompleted,
         loading,
+        initializationError,
         puzzleId,
         currentDifficulty,
         handleNumberInput,

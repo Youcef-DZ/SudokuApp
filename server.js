@@ -20,18 +20,21 @@ const database = cosmosClient.database('SudokuDB');
 const container = database.container('Scores');
 
 // Determine the correct static directory
-// In development: serve from dist/ if it exists (post-build), otherwise serve from public/
-// In production (Azure): serve from root (files are copied there)
 const distPath = path.join(__dirname, 'dist');
 const publicPath = path.join(__dirname, 'public');
-const isProduction = fs.existsSync(path.join(__dirname, 'web.config')); // Azure has web.config in root
 
 let staticDir;
-if (isProduction) {
+
+// Priority 1: Current directory (Azure Production - where all files are flat)
+if (fs.existsSync(path.join(__dirname, 'index.html'))) {
   staticDir = __dirname;
-} else if (fs.existsSync(path.join(distPath, 'index.html'))) {
+}
+// Priority 2: dist/ directory (Local Development - Post Build)
+else if (fs.existsSync(path.join(distPath, 'index.html'))) {
   staticDir = distPath;
-} else {
+}
+// Priority 3: public/ directory (Local Development - Pre Build / Fallback)
+else {
   staticDir = publicPath;
 }
 

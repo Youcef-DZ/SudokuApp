@@ -11,7 +11,20 @@ const app = express();
 app.use(cors()); // Enable CORS for React Native
 app.use(express.json());
 
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`[Server] ${req.method} ${req.path}`);
+  next();
+});
+
+// Debug Environment (Masked)
+console.log('[Server] Cosmos Endpoint set:', !!process.env.COSMOS_ENDPOINT);
+console.log('[Server] Cosmos Key set:', !!process.env.COSMOS_KEY);
+
 // Initialize Cosmos DB client
+if (!process.env.COSMOS_ENDPOINT || !process.env.COSMOS_KEY) {
+  console.error('[Server] CRITICAL: Missing Cosmos DB credentials!');
+}
 const cosmosClient = new CosmosClient({
   endpoint: process.env.COSMOS_ENDPOINT,
   key: process.env.COSMOS_KEY

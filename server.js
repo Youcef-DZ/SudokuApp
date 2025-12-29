@@ -20,13 +20,23 @@ const database = cosmosClient.database('SudokuDB');
 const container = database.container('Scores');
 
 // Determine the correct static directory
-// In development: serve from dist/ after expo export
+// In development: serve from dist/ if it exists (post-build), otherwise serve from public/
 // In production (Azure): serve from root (files are copied there)
-const isDevelopment = fs.existsSync(path.join(__dirname, 'dist', 'index.html'));
-const staticDir = isDevelopment ? path.join(__dirname, 'dist') : __dirname;
+const distPath = path.join(__dirname, 'dist');
+const publicPath = path.join(__dirname, 'public');
+const isProduction = fs.existsSync(path.join(__dirname, 'web.config')); // Azure has web.config in root
+
+let staticDir;
+if (isProduction) {
+  staticDir = __dirname;
+} else if (fs.existsSync(path.join(distPath, 'index.html'))) {
+  staticDir = distPath;
+} else {
+  staticDir = publicPath;
+}
 
 console.log('Starting server...');
-console.log('Environment:', isDevelopment ? 'Development' : 'Production');
+console.log('Environment:', isProduction ? 'Production' : 'Development');
 console.log('Serving static files from:', staticDir);
 console.log('Files in directory:', fs.readdirSync(staticDir).filter(f => !f.startsWith('node_modules')).slice(0, 10));
 

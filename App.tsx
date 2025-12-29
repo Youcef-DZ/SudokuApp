@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, Text } from 'react-native';
 import { ThemeProvider } from 'styled-components/native';
 import { theme } from './src/shared/theme';
 import GameWrapper from './src/game/GameWrapper';

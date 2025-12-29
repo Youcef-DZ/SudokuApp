@@ -13,7 +13,11 @@ app.use(express.json());
 
 // Request logging middleware
 app.use((req, res, next) => {
-  console.log(`[Server] ${req.method} ${req.path}`);
+  const start = Date.now();
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`[Server] ${req.method} ${req.path} ${res.statusCode} (${duration}ms)`);
+  });
   next();
 });
 

@@ -138,8 +138,10 @@ app.use(express.static(staticDir, {
   etag: true,
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('index.html')) {
-      // index.html: No Cache (Always check for updates)
-      res.setHeader('Cache-Control', 'no-cache');
+      // index.html: No Store (Never cache, always download fresh)
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
     } else {
       // Assets (JS/CSS/Images): Aggressive Cache (1 year)
       // Expo generates hashed filenames for assets, so they are unique.

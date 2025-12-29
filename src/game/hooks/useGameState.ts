@@ -47,10 +47,15 @@ export function useGameState(initialDifficulty: string): UseGameStateReturn {
     }, []);
 
     const initializeGame = useCallback(async (difficulty: Difficulty) => {
-        setLoading(true);
-        setCurrentDifficulty(difficulty);
-        const result = await generatePuzzle(difficulty);
-        handleGameInit(result);
+        try {
+            setLoading(true);
+            setCurrentDifficulty(difficulty);
+            const result = await generatePuzzle(difficulty);
+            handleGameInit(result);
+        } catch (error) {
+            console.error('Failed to initialize game:', error);
+            setLoading(false); // Ensure loading stops on error
+        }
     }, [handleGameInit]);
 
     const startNewGame = useCallback(async (newDifficulty?: string) => {

@@ -44,9 +44,9 @@ export const fetchPuzzlesFromNotion = async (): Promise<PuzzleData[]> => {
   if (puzzleCache) return puzzleCache;
 
   try {
-    const response = await fetch(`${API_BASE_URL} /api/puzzles`);
+    const response = await fetch(`${API_BASE_URL}/api/puzzles`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch puzzles: ${response.statusText} `);
+      throw new Error(`Failed to fetch puzzles: ${response.statusText}`);
     }
 
     const data = await response.json();
@@ -69,9 +69,9 @@ export const fetchPuzzlesFromNotion = async (): Promise<PuzzleData[]> => {
 
 export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): Promise<PuzzleData | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL} /api/puzzles / random ? difficulty = ${difficulty} `);
+    const response = await fetch(`${API_BASE_URL}/api/puzzles/random?difficulty=${difficulty}`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch puzzle: ${response.statusText} `);
+      throw new Error(`Failed to fetch puzzle: ${response.statusText}`);
     }
 
     const data = await response.json();

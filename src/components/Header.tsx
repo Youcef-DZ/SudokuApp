@@ -62,6 +62,12 @@ const RightSection = styled.View`
   gap: 12px;
 `;
 
+const TitleContainer = styled.View`
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+`;
+
 const Title = styled.Text<{ darkMode: boolean }>`
   font-weight: 700;
   font-size: 24px;

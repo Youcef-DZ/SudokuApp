@@ -1,7 +1,5 @@
-const SCORES_DB_ID = '2bb4ffe6f70c80dfb0b8d0f4f06ce125';
-const PUZZLES_DB_ID = '2a34ffe6f70c809fa74dca478af13756';
-const NOTION_API_URL = `https://notion-dgmd-cc.vercel.app/api/query?d=${PUZZLES_DB_ID}&r=true&n=a`;
-const SCORES_API_URL = `https://notion-dgmd-cc.vercel.app/api/query?d=${SCORES_DB_ID}&r=true&n=a`;
+// Cosmos DB is now used for all data
+// Puzzles and Scores are fetched via /api endpoints in server.js
 
 export interface PuzzleData {
   id: number;
@@ -18,100 +16,55 @@ export interface ScoreData {
   date: string;
 }
 
-const stringToBoard = (str: string): number[][] => {
-  const board: number[][] = [];
-  for (let i = 0; i < 9; i++) {
-    const row: number[] = [];
-    for (let j = 0; j < 9; j++) {
-      const char = str[i * 9 + j];
-      row.push(parseInt(char));
-    }
-    board.push(row);
-  }
-  return board;
-};
-
 let puzzleCache: PuzzleData[] | null = null;
 
 export const fetchPuzzlesFromNotion = async (): Promise<PuzzleData[]> => {
   if (puzzleCache) return puzzleCache;
 
   try {
-    const response = await fetch(NOTION_API_URL);
+    const response = await fetch('/api/puzzles');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch puzzles: ${response.statusText}`);
+    }
+
     const data = await response.json();
 
-    if (data.QUERY_RESPONSE_KEY_SUCCESS) {
-      const blocks = data.QUERY_RESPONSE_KEY_RESULT.PRIMARY_DATABASE.BLOCKS;
-      const fetchedPuzzles = blocks.map((block: any) => ({
-        id: parseInt(block.PROPERTIES.ID.VALUE),
-        difficulty: block.PROPERTIES.Difficulty.VALUE as 'easy' | 'medium' | 'hard',
-        puzzle: stringToBoard(block.PROPERTIES.Puzzle.VALUE),
-        solution: stringToBoard(block.PROPERTIES.Solution.VALUE)
-      }));
-      puzzleCache = fetchedPuzzles;
-      return fetchedPuzzles;
-    }
-  } catch (error) {
-    console.error('Failed to fetch puzzles from Notion:', error);
-  }
+    // Convert Cosmos DB format to PuzzleData format
+    const fetchedPuzzles = data.map((item: any) => ({
+      id: item.puzzleId, // Use numeric ID
+      difficulty: item.difficulty as 'easy' | 'medium' | 'hard',
+      puzzle: item.puzzle,
+      solution: item.solution
+    }));
 
-  return [];
+    puzzleCache = fetchedPuzzles;
+    return fetchedPuzzles;
+  } catch (error) {
+    console.error('Failed to fetch puzzles from Cosmos DB:', error);
+    return [];
+  }
 };
 
 export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): Promise<PuzzleData | null> => {
-  const puzzles = await fetchPuzzlesFromNotion();
-  const filtered = puzzles.filter(p => p.difficulty === difficulty);
-  if (filtered.length === 0) return null;
-  const randomIndex = Math.floor(Math.random() * filtered.length);
-  return filtered[randomIndex];
-};
-
-export const fetchScoresFromNotion = async (): Promise<ScoreData[]> => {
   try {
-    const response = await fetch(SCORES_API_URL);
+    const response = await fetch(`/api/puzzles/random?difficulty=${difficulty}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch puzzle: ${response.statusText}`);
+    }
+
     const data = await response.json();
 
-    if (data.QUERY_RESPONSE_KEY_SUCCESS) {
-      const blocks = data.QUERY_RESPONSE_KEY_RESULT.PRIMARY_DATABASE.BLOCKS;
-      return blocks.map((block: any) => ({
-        id: block.ID,
-        userName: block.PROPERTIES.Name.VALUE,
-        time: block.PROPERTIES.Time.VALUE,
-        difficulty: block.PROPERTIES.Difficulty.VALUE.toLowerCase(),
-        date: block.PROPERTIES.Date.VALUE
-      }));
-    }
+    return {
+      id: data.puzzleId,
+      difficulty: data.difficulty,
+      puzzle: data.puzzle,
+      solution: data.solution
+    };
   } catch (error) {
-    console.error('Failed to fetch scores from Notion:', error);
+    console.error('Failed to fetch random puzzle:', error);
+    return null;
   }
-
-  return [];
 };
 
-import { createStore } from "../shared/store"
-import { useNotionData } from "./NotionHook.tsx"
-import { useEffect } from "react"
-
-// Store for scores database (only need this for writing)
-export interface ScoresStoreState {
-  handleCreate?: any;
-  notionData?: any;
-}
-
-export const useScoresStore = createStore({} as ScoresStoreState)
-
-export default function ScoresDb() {
-  const [, setStore] = useScoresStore()
-
-  // Scores database hook
-  const scoresHook = useNotionData(SCORES_API_URL)
-
-  useEffect(() => {
-    setStore({
-      handleCreate: scoresHook.handleCreate,
-      notionData: scoresHook.notionData,
-    })
-  }, [scoresHook.handleCreate, scoresHook.notionData])
-
-  return <div style={{ display: 'none' }}></div>
-}
+// Scores are fetched via /api/scores endpoint
+// See SudokuGame.tsx for usage

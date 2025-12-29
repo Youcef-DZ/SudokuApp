@@ -2,6 +2,7 @@
   "name": "sudoku",
   "version": "1.0.0",
   "description": "Sudoku game compatible with local development",
+  "proxy": "http://localhost:8080",
   "scripts": {
     "start": "node server.js",
     "dev:expo": "expo start",
@@ -22,6 +23,7 @@
     "pre-deploy": "npm run validate && npx expo export --platform web"
   },
   "dependencies": {
+    "@azure/cosmos": "^4.9.0",
     "@descope/react-sdk": "^2.23.4",
     "@expo/vector-icons": "^15.0.3",
     "@react-native-async-storage/async-storage": "^2.2.0",
@@ -29,6 +31,7 @@
     "@react-navigation/stack": "^7.6.13",
     "@types/styled-components": "^5.1.36",
     "babel-preset-expo": "^54.0.9",
+    "dotenv": "^17.2.3",
     "expo": "^54.0.30",
     "expo-blur": "^15.0.8",
     "expo-build-properties": "^1.0.10",

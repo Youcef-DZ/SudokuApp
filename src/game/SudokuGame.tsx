@@ -10,7 +10,7 @@ import Leaderboard from '../components/Leaderboard';
 import { useGameState } from './hooks/useGameState.ts';
 import { useCellSelection } from './hooks/useCellSelection.ts';
 import { useTimer } from './hooks/useTimer.ts';
-import { fetchScoresFromNotion, type ScoreData } from '../data/Database.tsx';
+import type { ScoreData } from '../data/Database.tsx';
 
 const Container = styled.View<{ darkMode: boolean }>`
   flex: 1;
@@ -233,7 +233,8 @@ export default function SudokuGame(props: SudokuGameProps) {
     useEffect(() => {
         if (showLeaderboard && scores.length === 0) {
             setLoadingScores(true);
-            fetchScoresFromNotion()
+            fetch('/api/scores')
+                .then(res => res.json())
                 .then(data => {
                     setScores(data);
                     setLoadingScores(false);

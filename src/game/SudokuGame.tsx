@@ -229,11 +229,22 @@ export default function SudokuGame(props: SudokuGameProps) {
         }
     }, [gameState.gameCompleted]);
 
+    // API Base URL for mobile development
+    const getApiBaseUrl = () => {
+        if (typeof window !== 'undefined' && typeof window.location !== 'undefined') {
+            if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                return '';
+            }
+        }
+        return process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
+    };
+    const API_BASE_URL = getApiBaseUrl();
+
     // Fetch scores when leaderboard is opened
     useEffect(() => {
         if (showLeaderboard && scores.length === 0) {
             setLoadingScores(true);
-            fetch('/api/scores')
+            fetch(`${API_BASE_URL}/api/scores`)
                 .then(res => res.json())
                 .then(data => {
                     setScores(data);

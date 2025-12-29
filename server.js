@@ -2,11 +2,13 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { CosmosClient } = require('@azure/cosmos');
+const cors = require('cors');
 require('dotenv').config({ path: '.env.local' });
 
 const app = express();
 
 // Middleware
+app.use(cors()); // Enable CORS for React Native
 app.use(express.json());
 
 // Initialize Cosmos DB client

@@ -170,61 +170,6 @@ const HintText = styled.Text<{ cellSize: number; darkMode: boolean }>`
   margin-top: 20px;
 `;
 
-const LeaderboardScroll = styled.ScrollView<{ darkMode: boolean }>`
-  max-height: 300px;
-  width: 100%;
-  margin: 16px 0;
-`;
-
-const ScoreRow = styled.View<{ darkMode: boolean; isHeader?: boolean }>`
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 12px;
-  border-bottom-width: 1px;
-  border-bottom-color: ${props => props.darkMode ? 'rgba(71, 85, 105, 0.5)' : 'rgba(226, 232, 240, 0.8)'};
-  background-color: ${props => props.isHeader
-        ? (props.darkMode ? 'rgba(51, 65, 85, 0.5)' : 'rgba(241, 245, 249, 0.8)')
-        : 'transparent'
-    };
-`;
-
-const ScoreText = styled.Text<{ darkMode: boolean; bold?: boolean; flex?: number }>`
-  font-size: 14px;
-  color: ${props => props.darkMode ? '#e2e8f0' : '#334155'};
-  font-weight: ${props => props.bold ? '600' : '400'};
-  flex: ${props => props.flex || 1};
-`;
-
-const FilterRow = styled.View`
-  flex-direction: row;
-  gap: 8px;
-  margin-bottom: 16px;
-  justify-content: center;
-`;
-
-const FilterButton = styled(Pressable) <{ active: boolean; darkMode: boolean }>`
-  padding: 8px 16px;
-  border-radius: 8px;
-  background-color: ${props => props.active
-        ? (props.darkMode ? 'rgba(99, 102, 241, 0.3)' : 'rgba(99, 102, 241, 0.2)')
-        : (props.darkMode ? 'rgba(51, 65, 85, 0.5)' : 'rgba(241, 245, 249, 0.8)')
-    };
-  border-width: 2px;
-  border-color: ${props => props.active
-        ? (props.darkMode ? 'rgba(99, 102, 241, 0.6)' : 'rgba(99, 102, 241, 0.4)')
-        : 'transparent'
-    };
-`;
-
-const FilterText = styled.Text<{ active: boolean; darkMode: boolean }>`
-  font-size: 14px;
-  font-weight: ${props => props.active ? '600' : '500'};
-  color: ${props => props.active
-        ? (props.darkMode ? '#a5b4fc' : '#6366f1')
-        : (props.darkMode ? '#94a3b8' : '#64748b')
-    };
-`;
-
 export default function SudokuGame(props: SudokuGameProps) {
     const {
         difficulty = 'medium',

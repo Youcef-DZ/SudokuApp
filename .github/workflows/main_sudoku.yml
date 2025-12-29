@@ -23,11 +23,19 @@ jobs:
         with:
           node-version: '24.x'
 
-      - name: npm install, build, and test
-        run: |
-          npm install --legacy-peer-deps
-          npx expo export --platform web
-          npx vitest run test/hooks
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: TypeScript type checking
+        run: npx tsc --noEmit || echo "⚠️ TypeScript errors found (non-blocking for legacy code)"
+        continue-on-error: true
+
+      - name: Run tests
+        run: npx vitest run test/hooks
+        continue-on-error: false
+
+      - name: Build and export
+        run: npx expo export --platform web
 
       - name: Copy server files to dist
         run: |

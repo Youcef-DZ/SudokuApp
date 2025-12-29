@@ -69,8 +69,15 @@ export const fetchPuzzlesFromNotion = async (): Promise<PuzzleData[]> => {
 
 export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): Promise<PuzzleData | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/puzzles/random?difficulty=${difficulty}`);
+    const url = `${API_BASE_URL}/api/puzzles/random?difficulty=${difficulty}`;
+    console.log('[Database] Fetching random puzzle:', url);
+
+    const response = await fetch(url);
+    console.log('[Database] Response status:', response.status);
+
     if (!response.ok) {
+      const text = await response.text();
+      console.error('[Database] Fetch error body:', text);
       throw new Error(`Failed to fetch puzzle: ${response.statusText}`);
     }
 

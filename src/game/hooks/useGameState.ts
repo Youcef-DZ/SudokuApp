@@ -52,13 +52,21 @@ export function useGameState(initialDifficulty: string): UseGameStateReturn {
 
     const initializeGame = useCallback(async (difficulty: Difficulty) => {
         try {
+            console.log(`[useGameState] Initializing game for difficulty: ${difficulty}`);
             setLoading(true);
             setInitializationError(null);
             setCurrentDifficulty(difficulty);
+
             const result = await generatePuzzle(difficulty);
+            console.log('[useGameState] generatePuzzle result:', result ? 'Received data' : 'NULL');
+
+            if (!result || !result.puzzle || !Array.isArray(result.puzzle)) {
+                throw new Error('Received invalid puzzle data from server');
+            }
+
             handleGameInit(result);
         } catch (error: any) {
-            console.error('Failed to initialize game:', error);
+            console.error('[useGameState] Failed to initialize game:', error);
             setInitializationError(error.message || 'Failed to load puzzle');
             setLoading(false);
         }

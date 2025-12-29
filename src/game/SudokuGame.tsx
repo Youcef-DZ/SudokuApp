@@ -5,6 +5,8 @@ import styled from 'styled-components/native';
 import type { SudokuGameProps } from '../shared/types.ts';
 import NumberPad from '../components/NumberPad';
 import Header from '../components/Header';
+import Leaderboard from '../components/Leaderboard';
+
 import { useGameState } from './hooks/useGameState.ts';
 import { useCellSelection } from './hooks/useCellSelection.ts';
 import { useTimer } from './hooks/useTimer.ts';
@@ -244,7 +246,7 @@ export default function SudokuGame(props: SudokuGameProps) {
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [scores, setScores] = useState<ScoreData[]>([]);
     const [loadingScores, setLoadingScores] = useState(false);
-    const [scoreFilter, setScoreFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
+    const [scoreFilter, setScoreFilter] = useState<'easy' | 'medium' | 'hard'>(difficulty);
     const [responsiveCellSize, setResponsiveCellSize] = useState(cellSize);
     const scoreSavedRef = useRef(false);
 
@@ -467,96 +469,19 @@ export default function SudokuGame(props: SudokuGameProps) {
             >
                 <WinContainer darkMode={darkMode}>
                     <WinContent darkMode={darkMode}>
-                        <WinTitle>🏆 Leaderboard</WinTitle>
+                        <WinTitle key="title">🏆 Leaderboard</WinTitle>
 
-                        {/* Difficulty Filter */}
-                        <FilterRow>
-                            <FilterButton
-                                active={scoreFilter === 'all'}
-                                darkMode={darkMode}
-                                onPress={() => setScoreFilter('all')}
-                            >
-                                <FilterText active={scoreFilter === 'all'} darkMode={darkMode}>
-                                    All
-                                </FilterText>
-                            </FilterButton>
-                            <FilterButton
-                                active={scoreFilter === 'easy'}
-                                darkMode={darkMode}
-                                onPress={() => setScoreFilter('easy')}
-                            >
-                                <FilterText active={scoreFilter === 'easy'} darkMode={darkMode}>
-                                    Easy
-                                </FilterText>
-                            </FilterButton>
-                            <FilterButton
-                                active={scoreFilter === 'medium'}
-                                darkMode={darkMode}
-                                onPress={() => setScoreFilter('medium')}
-                            >
-                                <FilterText active={scoreFilter === 'medium'} darkMode={darkMode}>
-                                    Medium
-                                </FilterText>
-                            </FilterButton>
-                            <FilterButton
-                                active={scoreFilter === 'hard'}
-                                darkMode={darkMode}
-                                onPress={() => setScoreFilter('hard')}
-                            >
-                                <FilterText active={scoreFilter === 'hard'} darkMode={darkMode}>
-                                    Hard
-                                </FilterText>
-                            </FilterButton>
-                        </FilterRow>
-
-                        {loadingScores ? (
-                            <WinText darkMode={darkMode} style={{ marginTop: 20, marginBottom: 20 }}>
-                                Loading scores...
-                            </WinText>
-                        ) : (
-                            <>
-                                {/* Header Row */}
-                                <ScoreRow darkMode={darkMode} isHeader>
-                                    <ScoreText darkMode={darkMode} bold flex={0.8}>#</ScoreText>
-                                    <ScoreText darkMode={darkMode} bold flex={2}>Player</ScoreText>
-                                    <ScoreText darkMode={darkMode} bold flex={1.5}>Time</ScoreText>
-                                    <ScoreText darkMode={darkMode} bold flex={1.2}>Level</ScoreText>
-                                </ScoreRow>
-
-                                <LeaderboardScroll darkMode={darkMode}>
-                                    {scores
-                                        .filter(score => scoreFilter === 'all' || score.difficulty === scoreFilter)
-                                        .sort((a, b) => a.time - b.time)
-                                        .slice(0, 20)
-                                        .map((score, index) => {
-                                            const minutes = Math.floor(score.time / 60);
-                                            const seconds = score.time % 60;
-                                            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-
-                                            return (
-                                                <ScoreRow key={score.id} darkMode={darkMode}>
-                                                    <ScoreText darkMode={darkMode} flex={0.8}>{index + 1}</ScoreText>
-                                                    <ScoreText darkMode={darkMode} flex={2}>{score.userName}</ScoreText>
-                                                    <ScoreText darkMode={darkMode} flex={1.5}>{timeStr}</ScoreText>
-                                                    <ScoreText darkMode={darkMode} flex={1.2}>
-                                                        {score.difficulty.charAt(0).toUpperCase() + score.difficulty.slice(1)}
-                                                    </ScoreText>
-                                                </ScoreRow>
-                                            );
-                                        })}
-
-                                    {scores.filter(score => scoreFilter === 'all' || score.difficulty === scoreFilter).length === 0 && (
-                                        <View key="empty-state">
-                                            <WinText darkMode={darkMode} style={{ textAlign: 'center', marginTop: 20 }}>
-                                                No scores yet. Be the first!
-                                            </WinText>
-                                        </View>
-                                    )}
-                                </LeaderboardScroll>
-                            </>
-                        )}
+                        <Leaderboard
+                            key="leaderboard"
+                            scores={scores}
+                            loading={loadingScores}
+                            difficulty={scoreFilter}
+                            onDifficultyChange={setScoreFilter}
+                            darkMode={darkMode}
+                        />
 
                         <WinButton
+                            key="close-btn"
                             primary
                             darkMode={darkMode}
                             onPress={() => setShowLeaderboard(false)}

@@ -82,12 +82,27 @@ export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): P
     }
 
     const data = await response.json();
+    console.log('[Database] Puzzle data received. Puzzle length:', data.puzzle?.length);
+
+    // Helper to ensure 9x9 grid
+    const toGrid = (arr: any[]) => {
+      if (!Array.isArray(arr)) return [];
+      if (arr.length === 81 && !Array.isArray(arr[0])) {
+        console.log('[Database] Converting flat array to 9x9 grid');
+        const grid = [];
+        for (let i = 0; i < 9; i++) {
+          grid.push(arr.slice(i * 9, (i + 1) * 9));
+        }
+        return grid;
+      }
+      return arr; // Assume already 2D
+    };
 
     return {
       id: data.puzzleId,
       difficulty: data.difficulty,
-      puzzle: data.puzzle,
-      solution: data.solution
+      puzzle: toGrid(data.puzzle),
+      solution: toGrid(data.solution)
     };
   } catch (error) {
     console.error('Failed to fetch random puzzle:', error);

@@ -303,6 +303,9 @@ export default function SudokuGame(props: SudokuGameProps) {
                 }}
                 showsVerticalScrollIndicator={false}
             >
+                <Text style={{ position: 'absolute', top: 0, right: 0, fontSize: 10, color: 'gray', opacity: 0.5 }}>
+                    Status: {gameState.loading ? 'Loading' : (gameState.initializationError ? 'Error' : 'Playing')}
+                </Text>
                 <View key="header-section" style={{ width: '100%', alignItems: 'center' }}>
                     <Header
                         onNewGame={onNewGame}

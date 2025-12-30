@@ -4,7 +4,11 @@ const fs = require('fs');
 const { CosmosClient } = require('@azure/cosmos');
 const { DefaultAzureCredential } = require('@azure/identity');
 const cors = require('cors');
-require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
+try {
+  require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
+} catch (e) {
+  // Silent fail: In Production (Azure), variables are set in App Settings
+}
 
 const app = express();
 

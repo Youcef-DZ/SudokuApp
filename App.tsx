@@ -46,9 +46,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
 }
 
 // Set active account on page load
-if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
-    msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
-}
+
 
 msalInstance.addEventCallback((event) => {
     if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
@@ -91,6 +89,10 @@ export default function App() {
 
     useEffect(() => {
         msalInstance.initialize().then(() => {
+            // Set active account on page load
+            if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
+                msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
+            }
             setIsMsalInitialized(true);
         }).catch(e => {
             console.error("MSAL Initialization Error:", e);

@@ -4,7 +4,7 @@ const fs = require('fs');
 const { CosmosClient } = require('@azure/cosmos');
 const { DefaultAzureCredential } = require('@azure/identity');
 const cors = require('cors');
-require('dotenv').config({ path: '.env.local' });
+require('dotenv').config({ path: path.join(__dirname, '../.env.local') });
 
 const app = express();
 
@@ -50,13 +50,19 @@ const database = cosmosClient.database('SudokuDB');
 const container = database.container('Scores');
 
 // Determine the correct static directory
-const distPath = path.join(__dirname, 'dist');
+const distPath = path.join(__dirname, '../dist');
 const publicPath = path.join(__dirname, 'public');
 
 let staticDir;
 
 // Priority 1: Current directory (Azure Production - where all files are flat)
-if (fs.existsSync(path.join(__dirname, 'index.html'))) {
+// Note: In new structure, this might need adjustment if deploying flattened,
+// but for now we assume standard node deployment.
+if (fs.existsSync(path.join(__dirname, '../index.html'))) {
+  // If index.html is in root (parent of backend)
+  staticDir = path.join(__dirname, '..');
+}
+else if (fs.existsSync(path.join(__dirname, 'index.html'))) {
   staticDir = __dirname;
 }
 // Priority 2: dist/ directory (Local Development - Post Build)
@@ -113,7 +119,7 @@ app.post('/api/scores', async (req, res) => {
     }
 
     const newScore = {
-      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `${Date.now()} -${Math.random().toString(36).substr(2, 9)} `,
       userName,
       time,
       difficulty,
@@ -217,7 +223,7 @@ const port = process.env.PORT || 8080;
 // Only listen if running directly (not required as a module)
 if (require.main === module) {
   app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`Server running on port ${port} `);
     console.log(`Visit http://localhost:${port}`);
   });
 }

@@ -4,12 +4,12 @@
   "description": "Sudoku game compatible with local development",
   "proxy": "http://localhost:8080",
   "scripts": {
-    "start": "node server.js",
+    "start": "node backend/server.js",
     "dev:expo": "expo start",
     "ios": "expo start --ios",
     "android": "expo start --android",
     "web": "expo start --web",
-    "server": "node server.js",
+    "server": "node backend/server.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -42,8 +42,8 @@
     "expo-status-bar": "^3.0.9",
     "express": "^4.18.2",
     "fast-text-encoding": "^1.0.6",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
     "react-native": "^0.81.5",
     "react-native-gesture-handler": "~2.28.0",
     "react-native-safe-area-context": "^5.6.2",
@@ -64,7 +64,8 @@
     "@types/react-dom": "~19.1.7",
     "jest": "^29.7.0",
     "jsdom": "^27.3.0",
-    "react-test-renderer": "^19.2.3",
+    "react-refresh": "^0.18.0",
+    "react-test-renderer": "19.1.0",
     "typescript": "~5.9.2"
   }
 }

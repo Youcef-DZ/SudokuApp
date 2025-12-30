@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Pressable, Modal } from 'react-native';
 import styled from 'styled-components/native';
-// Descope not compatible with React Native web yet - removed
+import { useMSALAuth } from '../hooks/useMSALAuth';
 import SudokuGame from './SudokuGame';
 import type { Difficulty } from '../shared/types.ts';
 
@@ -74,10 +74,7 @@ const SkipButtonText = styled.Text<{ darkMode: boolean }>`
 export default function GameWrapper(props: GameWrapperProps) {
     const { onLoginOverride, onLogoutOverride, startWithDifficulty, darkMode: darkModeProp = false } = props;
 
-    // Descope not supported on React Native web yet
-    const isAuthenticated = false;
-    const userName = undefined;
-    const userEmail = undefined;
+    const { isAuthenticated, user, login, logout } = useMSALAuth();
 
     const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(startWithDifficulty || null);
     const [showDifficultyPopup, setShowDifficultyPopup] = useState(!startWithDifficulty);
@@ -104,16 +101,13 @@ export default function GameWrapper(props: GameWrapperProps) {
                     key={selectedDifficulty} // Force remount when difficulty changes
                     difficulty={selectedDifficulty}
                     isAuthenticated={isAuthenticated}
-                    userName={userName}
-                    userEmail={userEmail}
+                    userName={user?.name || user?.email}
+                    userEmail={user?.email}
                     darkMode={darkMode}
                     onToggleTheme={toggleTheme}
-                    onLogin={onLoginOverride}
+                    onLogin={onLoginOverride || login}
                     onNewGame={handleNewGame} // Pass the handleNewGame that shows popup
-                    onLogout={onLogoutOverride || (() => {
-                        setSelectedDifficulty(null);
-                        setShowDifficultyPopup(true);
-                    })}
+                    onLogout={onLogoutOverride || logout}
                 />
             )}
 

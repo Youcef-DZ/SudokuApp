@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, ScrollView, Pressable, Modal, Dimensions, Text } from 'react-native';
+import { View, ScrollView, Pressable, Modal, Dimensions } from 'react-native';
 import styled from 'styled-components/native';
 // import * as Haptics from 'expo-haptics'; // Breaks React Native Web
 import type { SudokuGameProps } from '../shared/types.ts';

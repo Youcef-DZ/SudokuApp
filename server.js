@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const { CosmosClient } = require('@azure/cosmos');
+const { DefaultAzureCredential } = require('@azure/identity');
 const cors = require('cors');
 require('dotenv').config({ path: '.env.local' });
 
@@ -26,13 +27,25 @@ console.log('[Server] Cosmos Endpoint set:', !!process.env.COSMOS_ENDPOINT);
 console.log('[Server] Cosmos Key set:', !!process.env.COSMOS_KEY);
 
 // Initialize Cosmos DB client
-if (!process.env.COSMOS_ENDPOINT || !process.env.COSMOS_KEY) {
-  console.error('[Server] CRITICAL: Missing Cosmos DB credentials!');
+const endpoint = process.env.COSMOS_ENDPOINT;
+const key = process.env.COSMOS_KEY;
+
+if (!endpoint) {
+  console.error('[Server] CRITICAL: Missing COSMOS_ENDPOINT!');
 }
-const cosmosClient = new CosmosClient({
-  endpoint: process.env.COSMOS_ENDPOINT,
-  key: process.env.COSMOS_KEY
-});
+
+let cosmosClient;
+
+if (key) {
+  console.log('[Server] Authentication: Using COSMOS_KEY (Local/Key Authentication)');
+  cosmosClient = new CosmosClient({ endpoint, key });
+} else {
+  console.log('[Server] Authentication: Using Managed Identity (Azure Production)');
+  cosmosClient = new CosmosClient({
+    endpoint,
+    aadCredentials: new DefaultAzureCredential()
+  });
+}
 const database = cosmosClient.database('SudokuDB');
 const container = database.container('Scores');
 

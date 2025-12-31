@@ -77,7 +77,7 @@ export default function App() {
     return (
         <MsalProvider instance={msalInstance}>
             <ThemeProvider theme={theme}>
-                <View style={{ flex: 1, height: '100%', width: '100%', overflow: 'hidden', backgroundColor: 'red' }}>
+                <View style={{ flex: 1, height: '100%', width: '100%', overflow: 'hidden' }}>
                     <ErrorBoundary>
                         <GameWrapper />
                     </ErrorBoundary>

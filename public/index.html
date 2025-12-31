@@ -1,36 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>Sudoku Framer</title>
-    
+
+    <style id="expo-reset">
+        /* These styles make the body full-height */
+        html,
+        body {
+            height: 100%;
+        }
+
+        /* These styles disable body scrolling if you are using <ScrollView> */
+        body {
+            overflow: hidden;
+            margin: 0;
+        }
+
+        /* These styles make the root element full-height */
+        #root {
+            display: flex;
+            height: 100%;
+            flex: 1;
+        }
+    </style>
+
     <!-- CRITICAL FIX: Restore Native URL before any bundle loads -->
     <script>
-      (function() {
-        if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-            try {
-                if (window.URL.toString().indexOf('[native code]') === -1) {
-                    console.warn('[Fix-HTML] Detected broken URL polyfill. Restoring native URL via iframe...');
-                    var iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    document.body.appendChild(iframe);
-                    if (iframe.contentWindow) {
-                        window.URL = iframe.contentWindow.URL;
-                        window.URLSearchParams = iframe.contentWindow.URLSearchParams;
-                        console.log('[Fix-HTML] Native URL restored successfully.');
+        (function () {
+            if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+                try {
+                    if (window.URL.toString().indexOf('[native code]') === -1) {
+                        console.warn('[Fix-HTML] Detected broken URL polyfill. Restoring native URL via iframe...');
+                        var iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        document.body.appendChild(iframe);
+                        if (iframe.contentWindow) {
+                            window.URL = iframe.contentWindow.URL;
+                            window.URLSearchParams = iframe.contentWindow.URLSearchParams;
+                            console.log('[Fix-HTML] Native URL restored successfully.');
+                        }
+                        document.body.removeChild(iframe);
                     }
-                    document.body.removeChild(iframe);
+                } catch (e) {
+                    console.error('[Fix-HTML] Failed to restore native URL:', e);
                 }
-            } catch (e) {
-                console.error('[Fix-HTML] Failed to restore native URL:', e);
             }
-        }
-      })();
+        })();
     </script>
 </head>
+
 <body>
     <div id="root"></div>
 </body>
+
 </html>

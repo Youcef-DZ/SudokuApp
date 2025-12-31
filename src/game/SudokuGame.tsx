@@ -14,7 +14,7 @@ import type { ScoreData } from '../data/Database.tsx';
 
 const Container = styled.View<{ darkMode: boolean }>`
   flex: 1;
-  background-color: ${props => props.darkMode ? '#1e293b' : 'green'};
+  background-color: ${props => props.darkMode ? '#1e293b' : '#f3f4f6'};
   align-items: center;
   padding: 20px;
 `;

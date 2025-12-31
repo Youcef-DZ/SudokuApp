@@ -14,7 +14,7 @@ interface GameWrapperProps {
 
 const Container = styled.View<{ darkMode: boolean }>`
   flex: 1;
-  background-color: ${props => props.darkMode ? '#1e293b' : 'blue'};
+  background-color: ${props => props.darkMode ? '#1e293b' : '#f3f4f6'};
 `;
 
 const DifficultyModal = styled(Modal)``;

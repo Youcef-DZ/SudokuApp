@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Determine the correct static directory EARLY to set isProduction
 const distPath = path.join(__dirname, '../dist');
-const publicPath = path.join(__dirname, 'public');
+const webPath = path.join(__dirname, '../web');
 
 let staticDir;
 
@@ -33,9 +33,9 @@ else if (fs.existsSync(path.join(__dirname, 'index.html'))) {
 else if (fs.existsSync(path.join(distPath, 'index.html'))) {
   staticDir = distPath;
 }
-// Priority 3: public/ directory (Local Development - Pre Build / Fallback)
+// Priority 3: web/ directory (Local Development - Pre Build / Fallback)
 else {
-  staticDir = publicPath;
+  staticDir = webPath;
 }
 
 const isProduction = staticDir === __dirname;

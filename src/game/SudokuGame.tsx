@@ -269,6 +269,14 @@ export default function SudokuGame(props: SudokuGameProps) {
 
     const boardSize = responsiveCellSize * 9;
 
+    console.log('[SudokuGame] Render Debug:', {
+        loading: gameState.loading,
+        boardSize,
+        responsiveCellSize,
+        boardLength: gameState.currentBoard?.length,
+        hasError: !!gameState.initializationError
+    });
+
     if (gameState.loading) {
         return (
             <LoadingContainer darkMode={darkMode}>

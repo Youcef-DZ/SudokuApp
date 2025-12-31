@@ -305,9 +305,11 @@ export default function SudokuGame(props: SudokuGameProps) {
     return (
         <Container darkMode={darkMode}>
             <ScrollView
+                style={{ flex: 1, width: '100%' }}
                 contentContainerStyle={{
                     alignItems: 'center',
                     paddingVertical: 20,
+                    minHeight: '100%',
                 }}
                 showsVerticalScrollIndicator={false}
             >

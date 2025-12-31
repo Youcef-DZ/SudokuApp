@@ -15,13 +15,10 @@ const getApiBaseUrl = () => {
   // For development on mobile/web, use environment variable or localhost
   const MOBILE_API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
 
-  console.log('[Database] API Base URL:', MOBILE_API_URL);
-
   return MOBILE_API_URL;
 };
 
 const API_BASE_URL = getApiBaseUrl();
-console.log('[Database] Using API_BASE_URL:', API_BASE_URL);
 
 export interface PuzzleData {
   id: number;
@@ -70,10 +67,17 @@ export const fetchPuzzlesFromNotion = async (): Promise<PuzzleData[]> => {
 export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): Promise<PuzzleData | null> => {
   try {
     const url = `${API_BASE_URL}/api/puzzles/random?difficulty=${difficulty}`;
-    console.log('[Database] Fetching random puzzle:', url);
+
+    // Log only in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[Database] Fetching random puzzle:', url);
+    }
 
     const response = await fetch(url);
-    console.log('[Database] Response status:', response.status);
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[Database] Response status:', response.status);
+    }
 
     if (!response.ok) {
       const text = await response.text();
@@ -87,7 +91,6 @@ export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): P
     const toGrid = (arr: any[]) => {
       if (!Array.isArray(arr)) return [];
       if (arr.length === 81 && !Array.isArray(arr[0])) {
-        console.log('[Database] Converting flat array to 9x9 grid');
         const grid = [];
         for (let i = 0; i < 9; i++) {
           grid.push(arr.slice(i * 9, (i + 1) * 9));

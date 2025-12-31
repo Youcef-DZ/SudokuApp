@@ -23,8 +23,6 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
                 (window as any).URLSearchParams = NativeURLSearchParams;
                 (global as any).URL = NativeURL;
                 (global as any).URLSearchParams = NativeURLSearchParams;
-
-                console.log('[Fix] Native URL restored successfully.');
             }
 
             document.body.removeChild(iframe);

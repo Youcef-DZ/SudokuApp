@@ -16,55 +16,7 @@ const app = express();
 app.use(cors()); // Enable CORS for React Native
 app.use(express.json());
 
-// Request logging middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`[Server] ${req.method} ${req.path} ${res.statusCode} (${duration}ms)`);
-  });
-  next();
-});
-
-// Debug Environment (Masked)
-console.log('[Server] Cosmos Endpoint set:', !!process.env.COSMOS_ENDPOINT);
-console.log('[Server] Cosmos Key set:', !!process.env.COSMOS_KEY);
-
-// Initialize Cosmos DB client
-let cosmosClient;
-let container;
-let database;
-let initializationError = null;
-
-try {
-  const endpoint = process.env.COSMOS_ENDPOINT;
-  const key = process.env.COSMOS_KEY;
-
-  if (!endpoint) {
-    throw new Error('CRITICAL: Missing COSMOS_ENDPOINT environment variable.');
-  }
-
-  if (key) {
-    console.log('[Server] Authentication: Using COSMOS_KEY (Local/Key Authentication)');
-    cosmosClient = new CosmosClient({ endpoint, key });
-  } else {
-    console.log('[Server] Authentication: Using Managed Identity (Azure Production)');
-    cosmosClient = new CosmosClient({
-      endpoint,
-      aadCredentials: new DefaultAzureCredential()
-    });
-  }
-
-  database = cosmosClient.database('SudokuDB');
-  container = database.container('Scores');
-  console.log('[Server] Database initialized successfully.');
-} catch (error) {
-  console.error('[Server] CRITICAL INITIALIZATION ERROR:', error);
-  initializationError = error;
-  // DO NOT EXIT PROCESS - entering Safe Mode to prevent Azure restart loop
-}
-
-// Determine the correct static directory
+// Determine the correct static directory EARLY to set isProduction
 const distPath = path.join(__dirname, '../dist');
 const publicPath = path.join(__dirname, 'public');
 
@@ -88,9 +40,69 @@ else {
 
 const isProduction = staticDir === __dirname;
 
-console.log('Starting server...');
-console.log('Environment:', isProduction ? 'Production' : 'Development');
-console.log('Serving static files from:', staticDir);
+// Request logging middleware (Only in Development)
+app.use((req, res, next) => {
+  if (!isProduction) {
+    const start = Date.now();
+    res.on('finish', () => {
+      const duration = Date.now() - start;
+      console.log(`[Server] ${req.method} ${req.path} ${res.statusCode} (${duration}ms)`);
+    });
+  }
+  next();
+});
+
+// Debug Environment (Only in Development)
+if (!isProduction) {
+  console.log('[Server] Cosmos Endpoint set:', !!process.env.COSMOS_ENDPOINT);
+  console.log('[Server] Cosmos Key set:', !!process.env.COSMOS_KEY);
+}
+
+// Initialize Cosmos DB client
+let cosmosClient;
+let container;
+let database;
+let initializationError = null;
+
+try {
+  const endpoint = process.env.COSMOS_ENDPOINT;
+  const key = process.env.COSMOS_KEY;
+
+  if (!endpoint) {
+    throw new Error('CRITICAL: Missing COSMOS_ENDPOINT environment variable.');
+  }
+
+  if (key) {
+    if (!isProduction) {
+      console.log('[Server] Authentication: Using COSMOS_KEY (Local/Key Authentication)');
+    }
+    cosmosClient = new CosmosClient({ endpoint, key });
+  } else {
+    if (!isProduction) {
+      console.log('[Server] Authentication: Using Managed Identity (Azure Production)');
+    }
+    cosmosClient = new CosmosClient({
+      endpoint,
+      aadCredentials: new DefaultAzureCredential()
+    });
+  }
+
+  database = cosmosClient.database('SudokuDB');
+  container = database.container('Scores');
+  if (!isProduction) {
+    console.log('[Server] Database initialized successfully.');
+  }
+} catch (error) {
+  console.error('[Server] CRITICAL INITIALIZATION ERROR:', error);
+  initializationError = error;
+  // DO NOT EXIT PROCESS - entering Safe Mode to prevent Azure restart loop
+}
+
+if (!isProduction) {
+  console.log('Starting server...');
+  console.log('Environment: Development');
+  console.log('Serving static files from:', staticDir);
+}
 
 // SAFE MODE MIDDLEWARE
 app.use((req, res, next) => {

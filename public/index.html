@@ -41,7 +41,6 @@
                         if (iframe.contentWindow) {
                             window.URL = iframe.contentWindow.URL;
                             window.URLSearchParams = iframe.contentWindow.URLSearchParams;
-                            console.log('[Fix-HTML] Native URL restored successfully.');
                         }
                         document.body.removeChild(iframe);
                     }

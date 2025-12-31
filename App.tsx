@@ -26,12 +26,12 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
             document.body.appendChild(iframe);
 
             if (iframe.contentWindow) {
-                const NativeURL = iframe.contentWindow.URL;
-                const NativeURLSearchParams = iframe.contentWindow.URLSearchParams;
+                const NativeURL = (iframe.contentWindow as any).URL;
+                const NativeURLSearchParams = (iframe.contentWindow as any).URLSearchParams;
 
                 // Restore to window and global
                 window.URL = NativeURL;
-                window.URLSearchParams = NativeURLSearchParams;
+                (window as any).URLSearchParams = NativeURLSearchParams;
                 (global as any).URL = NativeURL;
                 (global as any).URLSearchParams = NativeURLSearchParams;
 

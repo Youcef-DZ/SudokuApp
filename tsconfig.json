@@ -21,7 +21,8 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": [
-    "src"
+    "src",
+    "App.tsx"
   ],
   "extends": "expo/tsconfig.base"
 }

@@ -105,6 +105,7 @@ export const getRandomPuzzle = async (difficulty: 'easy' | 'medium' | 'hard'): P
     };
   } catch (error) {
     console.error('Failed to fetch random puzzle:', error);
+    console.warn('HINT: Is the backend server running? Try "npm run dev" to run both frontend and backend.');
     return null;
   }
 };

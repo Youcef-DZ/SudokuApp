@@ -31,27 +31,38 @@ console.log('[Server] Cosmos Endpoint set:', !!process.env.COSMOS_ENDPOINT);
 console.log('[Server] Cosmos Key set:', !!process.env.COSMOS_KEY);
 
 // Initialize Cosmos DB client
-const endpoint = process.env.COSMOS_ENDPOINT;
-const key = process.env.COSMOS_KEY;
-
-if (!endpoint) {
-  console.error('[Server] CRITICAL: Missing COSMOS_ENDPOINT!');
-}
-
 let cosmosClient;
+let container;
+let database;
+let initializationError = null;
 
-if (key) {
-  console.log('[Server] Authentication: Using COSMOS_KEY (Local/Key Authentication)');
-  cosmosClient = new CosmosClient({ endpoint, key });
-} else {
-  console.log('[Server] Authentication: Using Managed Identity (Azure Production)');
-  cosmosClient = new CosmosClient({
-    endpoint,
-    aadCredentials: new DefaultAzureCredential()
-  });
+try {
+  const endpoint = process.env.COSMOS_ENDPOINT;
+  const key = process.env.COSMOS_KEY;
+
+  if (!endpoint) {
+    throw new Error('CRITICAL: Missing COSMOS_ENDPOINT environment variable.');
+  }
+
+  if (key) {
+    console.log('[Server] Authentication: Using COSMOS_KEY (Local/Key Authentication)');
+    cosmosClient = new CosmosClient({ endpoint, key });
+  } else {
+    console.log('[Server] Authentication: Using Managed Identity (Azure Production)');
+    cosmosClient = new CosmosClient({
+      endpoint,
+      aadCredentials: new DefaultAzureCredential()
+    });
+  }
+
+  database = cosmosClient.database('SudokuDB');
+  container = database.container('Scores');
+  console.log('[Server] Database initialized successfully.');
+} catch (error) {
+  console.error('[Server] CRITICAL INITIALIZATION ERROR:', error);
+  initializationError = error;
+  // DO NOT EXIT PROCESS - entering Safe Mode to prevent Azure restart loop
 }
-const database = cosmosClient.database('SudokuDB');
-const container = database.container('Scores');
 
 // Determine the correct static directory
 const distPath = path.join(__dirname, '../dist');
@@ -60,10 +71,7 @@ const publicPath = path.join(__dirname, 'public');
 let staticDir;
 
 // Priority 1: Current directory (Azure Production - where all files are flat)
-// Note: In new structure, this might need adjustment if deploying flattened,
-// but for now we assume standard node deployment.
 if (fs.existsSync(path.join(__dirname, '../index.html'))) {
-  // If index.html is in root (parent of backend)
   staticDir = path.join(__dirname, '..');
 }
 else if (fs.existsSync(path.join(__dirname, 'index.html'))) {
@@ -83,13 +91,28 @@ const isProduction = staticDir === __dirname;
 console.log('Starting server...');
 console.log('Environment:', isProduction ? 'Production' : 'Development');
 console.log('Serving static files from:', staticDir);
-console.log('Files in directory:', fs.readdirSync(staticDir).filter(f => !f.startsWith('node_modules')).slice(0, 10));
+
+// SAFE MODE MIDDLEWARE
+app.use((req, res, next) => {
+  if (initializationError && req.path.startsWith('/api')) {
+    console.warn('[Server] Blocked API request due to initialization error.');
+    return res.status(503).json({
+      error: 'Service Unavailable',
+      message: 'The server failed to initialize correctly.',
+      details: initializationError.message
+    });
+  }
+  next();
+});
 
 // API Routes
 // GET /api/scores - Fetch scores (optionally filtered by difficulty)
 app.get('/api/scores', async (req, res) => {
   try {
     const { difficulty, limit } = req.query;
+
+    // Add default limit to prevent huge payload
+    const queryLimit = limit ? parseInt(limit) : 100;
 
     let query = 'SELECT * FROM c';
     const parameters = [];
@@ -101,8 +124,11 @@ app.get('/api/scores', async (req, res) => {
 
     query += ' ORDER BY c.time ASC';
 
-    if (limit) {
-      query = `SELECT TOP ${parseInt(limit)} * FROM c` + query.substring(14); // Replace SELECT *
+    // Safety Limit: Always enforce a TOP limit if not getting a single item
+    // We modify the query to include TOP
+    const selectIndex = query.indexOf('SELECT *');
+    if (selectIndex !== -1) {
+      query = `SELECT TOP ${queryLimit} *` + query.substring(selectIndex + 8);
     }
 
     const { resources } = await container.items.query({ query, parameters }).fetchAll();
@@ -210,13 +236,18 @@ app.get('*', (req, res) => {
   const indexPath = path.join(staticDir, 'index.html');
 
   if (fs.existsSync(indexPath)) {
-    console.log('Serving index.html for route:', req.path);
+    // console.log('Serving index.html for route:', req.path);
     // Explicitly set headers for the catch-all route too
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.sendFile(indexPath);
   } else {
+    // If index.html is missing but we are in Safe Mode, show a text error
+    if (initializationError) {
+      return res.status(503).send(`<h1>Service Unavailable</h1><p>Application failed to start correctly.</p><p>Error: ${initializationError.message}</p>`);
+    }
+
     console.error('index.html not found at:', indexPath);
     res.status(500).send('Application files not found. Please check deployment.');
   }

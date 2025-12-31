@@ -61,15 +61,27 @@ COSMOS_KEY=your-primary-key-here
 
 ### 4. Run Locally
 
-#### Development Mode (Hot Reload)
-```bash
-# Start Expo dev server
-npx expo start
+#### Development Mode (Recommended)
+This runs both the backend server (API) and the frontend (Expo) simultaneously.
 
-# Then press:
-# - 'w' for web
-# - 'i' for iOS simulator  
-# - 'a' for Android emulator
+```bash
+# Start both Backend (port 8080) and Frontend (port 8081)
+npm run dev
+
+# Press 'w' in the Metro Bundler terminal to open Web
+```
+
+#### Alternative: Manual (Two Terminals)
+If you prefer running them separately:
+
+**Terminal 1 (Backend):**
+```bash
+npm start
+```
+
+**Terminal 2 (Frontend):**
+```bash
+npx expo start
 ```
 
 Opens at http://localhost:8081

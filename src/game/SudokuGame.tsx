@@ -309,7 +309,7 @@ export default function SudokuGame(props: SudokuGameProps) {
                 contentContainerStyle={{
                     alignItems: 'center',
                     paddingVertical: 20,
-                    minHeight: '100%',
+                    flexGrow: 1,
                 }}
                 showsVerticalScrollIndicator={false}
             >

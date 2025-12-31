@@ -2,6 +2,7 @@ import './src/shared/fixUrlPolyfill';
 import './src/shared/polyfills';
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { ThemeProvider } from 'styled-components/native';
 import { PublicClientApplication, EventType, AuthenticationResult } from "@azure/msal-browser";
@@ -75,12 +76,16 @@ export default function App() {
     }
 
     return (
-        <MsalProvider instance={msalInstance}>
-            <ThemeProvider theme={theme}>
-                <ErrorBoundary>
-                    <GameWrapper />
-                </ErrorBoundary>
-            </ThemeProvider>
-        </MsalProvider>
+        <SafeAreaProvider style={{ flex: 1, width: '100%', height: '100%' }}>
+            <MsalProvider instance={msalInstance}>
+                <ThemeProvider theme={theme}>
+                    <ErrorBoundary>
+                        <View style={{ flex: 1, width: '100%', height: '100%' }}>
+                            <GameWrapper />
+                        </View>
+                    </ErrorBoundary>
+                </ThemeProvider>
+            </MsalProvider>
+        </SafeAreaProvider>
     );
 }

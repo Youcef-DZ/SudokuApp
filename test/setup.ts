@@ -26,7 +26,20 @@ jest.mock('styled-components/native', () => {
     // The default export is a function styled(Component)
     const mockStyled = (Component: any) => {
         // It returns a function that parses the template literal
-        return () => Component;
+        return () => {
+            const MockComponent = ({ children, ...props }: any) => {
+                const React = require('react');
+                // Check if Component is Pressable/View mock and map if needed, or just wrap
+                // For simplicity, just render the Component but inject data-testid
+                const newProps = { ...props, 'data-testid': props.testID };
+                // Force div if testID is present to ensure it appears in DOM despite RN mock stripping
+                const finalComponent = props.testID ? 'div' : Component;
+                return React.createElement(finalComponent, newProps, children);
+            };
+            // Try to set a useful name
+            MockComponent.displayName = `Styled(${Component.displayName || Component.name || 'Component'})`;
+            return MockComponent;
+        }
     };
 
     // Add properties for styled.View, styled.Text, etc.
@@ -34,8 +47,16 @@ jest.mock('styled-components/native', () => {
     aliases.forEach((alias) => {
         // @ts-ignore
         mockStyled[alias] = () => {
-            // Return a simple component
-            const MockComponent = ({ children }: any) => children;
+            // Return a component that renders a primitive with the same name
+            // utilizing React.createElement to mimic the native component
+            const MockComponent = ({ children, ...props }: any) => {
+                const React = require('react');
+                // Map Pressable/View to div to ensure props like data-testid are preserved in JSDOM output
+                const componentName = alias === 'Pressable' || alias === 'TouchableOpacity' || alias === 'View' ? 'div' : alias;
+                // Explicitly pass data-testid for RNTL web-like environments
+                const newProps = { ...props, 'data-testid': props.testID };
+                return React.createElement(componentName, newProps, children);
+            };
             MockComponent.displayName = alias;
             return MockComponent;
         };

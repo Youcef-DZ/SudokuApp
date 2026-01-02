@@ -15,6 +15,41 @@ jest.mock('expo-haptics', () => ({
     },
 }));
 
+// Mock @expo/vector-icons
+jest.mock('@expo/vector-icons', () => ({
+    Ionicons: 'Ionicons',
+    FontAwesome: 'FontAwesome',
+}));
+
+// Mock styled-components/native
+jest.mock('styled-components/native', () => {
+    // The default export is a function styled(Component)
+    const mockStyled = (Component: any) => {
+        // It returns a function that parses the template literal
+        return () => Component;
+    };
+
+    // Add properties for styled.View, styled.Text, etc.
+    const aliases = ['View', 'Text', 'Pressable', 'TouchableOpacity', 'Image', 'SafeAreaView', 'ScrollView', 'TextInput'];
+    aliases.forEach((alias) => {
+        // @ts-ignore
+        mockStyled[alias] = () => {
+            // Return a simple component
+            const MockComponent = ({ children }: any) => children;
+            MockComponent.displayName = alias;
+            return MockComponent;
+        };
+    });
+
+    return {
+        __esModule: true,
+        default: mockStyled,
+        ThemeProvider: ({ children }: any) => children,
+        useTheme: () => ({ gradients: { primary: ['#000', '#fff'] } }),
+        css: () => { },
+    };
+});
+
 // Mock Descope
 jest.mock('@descope/react-sdk', () => ({
     useDescope: () => ({

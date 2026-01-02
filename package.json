@@ -17,7 +17,7 @@
     "test:hooks": "jest test/hooks",
     "type-check": "tsc --noEmit",
     "type-check:warn": "tsc --noEmit || echo '⚠️  TypeScript errors found (non-blocking for legacy code)'",
-    "validate": "npm run type-check:warn && npm run test:hooks",
+    "validate": "npm run type-check:warn && npm test",
     "pre-deploy": "npm run validate && npx expo export --platform web",
     "prepare": "husky"
   },

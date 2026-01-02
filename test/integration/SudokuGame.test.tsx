@@ -49,9 +49,10 @@ describe('SudokuGame Integration', () => {
             />
         );
 
-        // Wait for loading to finish
+        // Wait for loading to finish and board to render
         await waitFor(() => {
-            expect(getByText('New Game')).toBeTruthy();
+            expect(getByText(/New Game/i)).toBeTruthy();
+            expect(getByTestId('cell-0-0')).toBeTruthy();
         });
 
         // 1. Verify board loaded
@@ -83,7 +84,15 @@ describe('SudokuGame Integration', () => {
             />
         );
 
-        await waitFor(() => expect(getByText('New Game')).toBeTruthy());
+
+
+        await waitFor(() => {
+            expect(getByText(/New Game/i)).toBeTruthy();
+        });
+
+        await waitFor(() => {
+            expect(getByTestId('cell-0-0')).toBeTruthy();
+        });
 
         // Select a cell and "win"
         const cell = getByTestId('cell-0-1');

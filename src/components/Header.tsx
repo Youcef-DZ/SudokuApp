@@ -1,14 +1,16 @@
+import React, { useState } from 'react';
 import { Pressable } from 'react-native';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 // import * as Haptics from 'expo-haptics'; // Breaks React Native Web
 import { getTheme } from '../shared/theme';
-import ThemeToggle from './ThemeToggle';
 import GameTimer from './GameTimer';
+import SettingsModal from './SettingsModal';
 
 interface GameHeaderProps {
     onNewGame?: (difficulty?: string) => void;
-    onLogin?: () => void;
+    onLogin?: (domainHint?: string) => void;
     onLogout?: () => void;
     primaryColor?: string;
     responsiveCellSize?: number;
@@ -59,7 +61,7 @@ const RightSection = styled.View`
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 8px;
 `;
 
 const TitleContainer = styled.View`
@@ -116,28 +118,15 @@ const ButtonEmoji = styled.Text<{ cellSize: number }>`
   font-size: ${props => Math.max(16, props.cellSize * 0.36)}px;
 `;
 
-
-const LoginButton = styled(Pressable) <{ cellSize: number; darkMode: boolean }>`
-  padding: 0px 12px;
+const SettingsButton = styled(Pressable) <{ cellSize: number; darkMode: boolean }>`
+  width: 44px;
   height: 44px;
   border-radius: 12px;
-  background-color: ${props => props.darkMode ? 'rgba(59, 130, 246, 0.15)' : 'rgba(37, 99, 235, 0.15)'};
-  border-width: 2px;
-  border-color: ${props => props.darkMode ? 'rgba(59, 130, 246, 0.4)' : 'rgba(37, 99, 235, 0.3)'};
+  background-color: ${props => props.darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)'};
+  border-width: 1px;
+  border-color: ${props => props.darkMode ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'};
   align-items: center;
   justify-content: center;
-`;
-
-const LoginText = styled.Text<{ cellSize: number; darkMode: boolean }>`
-  font-size: ${props => Math.max(14, props.cellSize * 0.32)}px;
-  font-weight: 600;
-  color: ${props => props.darkMode ? '#60a5fa' : '#2563eb'};
-`;
-
-const UserText = styled.Text<{ cellSize: number; darkMode: boolean }>`  
-  font-size: ${props => Math.max(14, props.cellSize * 0.32)}px;
-  font-weight: 600;
-  color: ${props => props.darkMode ? '#a5f3fc' : '#0891b2'};
 `;
 
 export default function GameHeader({
@@ -158,6 +147,7 @@ export default function GameHeader({
     difficulty,
     onShowLeaderboard
 }: GameHeaderProps) {
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const theme = getTheme(darkMode);
 
     // Simple layout for pages without game controls
@@ -175,32 +165,25 @@ export default function GameHeader({
                     <VersionText darkMode={darkMode}>v1.1</VersionText>
                 </TitleContainer>
                 <RightSection>
-                    {onToggleTheme && (
-                        <ThemeToggle
-                            darkMode={darkMode}
-                            onToggle={onToggleTheme}
-                            responsiveCellSize={responsiveCellSize}
-                        />
-                    )}
-                    {isAuthenticated ? (
-                        <Pressable onPress={onLogout}>
-                            <UserText cellSize={responsiveCellSize} darkMode={darkMode}>
-                                {userName || userEmail}
-                            </UserText>
-                        </Pressable>
-                    ) : (
-                        <LoginButton
-                            cellSize={responsiveCellSize}
-                            darkMode={darkMode}
-                            onPress={() => {
-                                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                onLogin?.();
-                            }}
-                        >
-                            <LoginText cellSize={responsiveCellSize} darkMode={darkMode}>Login</LoginText>
-                        </LoginButton>
-                    )}
+                    <SettingsButton
+                        cellSize={responsiveCellSize}
+                        darkMode={darkMode}
+                        onPress={() => setIsSettingsOpen(true)}
+                    >
+                        <Ionicons name="settings-sharp" size={24} color={darkMode ? '#ffffff' : '#0f172a'} />
+                    </SettingsButton>
                 </RightSection>
+
+                <SettingsModal
+                    visible={isSettingsOpen}
+                    onClose={() => setIsSettingsOpen(false)}
+                    darkMode={darkMode}
+                    onToggleTheme={onToggleTheme}
+                    isAuthenticated={isAuthenticated}
+                    userName={userName || userEmail}
+                    onLogin={onLogin}
+                    onLogout={onLogout}
+                />
             </Container>
         );
     }
@@ -250,34 +233,25 @@ export default function GameHeader({
                         <ButtonEmoji cellSize={responsiveCellSize}>🏆</ButtonEmoji>
                     </LeaderboardButton>
                 )}
-                {onToggleTheme && (
-                    <ThemeToggle
-                        darkMode={darkMode}
-                        onToggle={onToggleTheme}
-                        responsiveCellSize={responsiveCellSize}
-                    />
-                )}
-                {isAuthenticated ? (
-                    <Pressable onPress={onLogout}>
-                        <UserText cellSize={responsiveCellSize} darkMode={darkMode}>
-                            {userName || 'User'}
-                        </UserText>
-                    </Pressable>
-                ) : (
-                    onLogin && (
-                        <LoginButton
-                            cellSize={responsiveCellSize}
-                            darkMode={darkMode}
-                            onPress={() => {
-                                // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                                onLogin();
-                            }}
-                        >
-                            <LoginText cellSize={responsiveCellSize} darkMode={darkMode}>Login</LoginText>
-                        </LoginButton>
-                    )
-                )}
+                <SettingsButton
+                    cellSize={responsiveCellSize}
+                    darkMode={darkMode}
+                    onPress={() => setIsSettingsOpen(true)}
+                >
+                    <Ionicons name="settings-sharp" size={24} color={darkMode ? '#ffffff' : '#0f172a'} />
+                </SettingsButton>
             </RightSection>
+
+            <SettingsModal
+                visible={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                darkMode={darkMode}
+                onToggleTheme={onToggleTheme}
+                isAuthenticated={isAuthenticated}
+                userName={userName || userEmail}
+                onLogin={onLogin}
+                onLogout={onLogout}
+            />
         </GameContainer>
     );
 }

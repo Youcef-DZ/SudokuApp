@@ -19,12 +19,14 @@ export const useMSALAuth = () => {
         }
     }, [isAuthenticated, accounts]);
 
-    const login = async () => {
+    const login = async (domainHint?: string) => {
         try {
-            await instance.loginPopup({
+            const loginRequest = {
                 scopes: ["User.Read"],
-                prompt: "select_account"
-            });
+                prompt: "select_account",
+                extraQueryParameters: domainHint ? { domain_hint: domainHint } : undefined
+            };
+            await instance.loginPopup(loginRequest);
         } catch (error) {
             console.error("Login failed:", error);
         }

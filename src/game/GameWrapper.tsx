@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
-import { Pressable, Modal } from 'react-native';
+import { Pressable } from 'react-native';
 import styled from 'styled-components/native';
 import { useMSALAuth } from '../hooks/useMSALAuth';
 import SudokuGame from './SudokuGame';
 import type { Difficulty } from '../shared/types.ts';
 
 interface GameWrapperProps {
-    onLoginOverride?: () => void;
+    onLoginOverride?: (domainHint?: string) => void;
     onLogoutOverride?: () => void;
     startWithDifficulty?: Difficulty;
     darkMode?: boolean;
@@ -17,7 +17,15 @@ const Container = styled.View<{ darkMode: boolean }>`
   background-color: ${props => props.darkMode ? '#1e293b' : '#f3f4f6'};
 `;
 
-const DifficultyModal = styled(Modal)``;
+const DifficultyModal = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  elevation: 10;
+`;
 
 const ModalOverlay = styled.View`
   flex: 1;
@@ -72,7 +80,7 @@ const SkipButtonText = styled.Text<{ darkMode: boolean }>`
 `;
 
 export default function GameWrapper(props: GameWrapperProps) {
-    const { onLoginOverride, onLogoutOverride, startWithDifficulty, darkMode: darkModeProp = false } = props;
+    const { onLoginOverride, onLogoutOverride, startWithDifficulty, darkMode: darkModeProp = true } = props;
 
     const { isAuthenticated, user, login, logout } = useMSALAuth();
 
@@ -112,60 +120,55 @@ export default function GameWrapper(props: GameWrapperProps) {
             )}
 
             {/* Difficulty Selection Modal */}
-            <DifficultyModal
-                visible={showDifficultyPopup}
-                transparent
-                animationType="fade"
-                onRequestClose={() => {
-                    if (selectedDifficulty) {
-                        setShowDifficultyPopup(false);
-                    }
-                }}
-            >
-                <ModalOverlay>
-                    <ModalContent darkMode={darkMode}>
-                        <ModalTitle darkMode={darkMode}>Choose Difficulty</ModalTitle>
+            {showDifficultyPopup && (
+                <DifficultyModal
+                // Removed Modal-specific props
+                >
+                    <ModalOverlay>
+                        <ModalContent darkMode={darkMode}>
+                            <ModalTitle darkMode={darkMode}>Choose Difficulty</ModalTitle>
 
-                        <DifficultyButton
-                            darkMode={darkMode}
-                            onPress={() => handleDifficultySelect('easy')}
-                        >
-                            <DifficultyButtonText darkMode={darkMode}>
-                                Easy
-                            </DifficultyButtonText>
-                        </DifficultyButton>
-
-                        <DifficultyButton
-                            darkMode={darkMode}
-                            onPress={() => handleDifficultySelect('medium')}
-                        >
-                            <DifficultyButtonText darkMode={darkMode}>
-                                Medium
-                            </DifficultyButtonText>
-                        </DifficultyButton>
-
-                        <DifficultyButton
-                            darkMode={darkMode}
-                            onPress={() => handleDifficultySelect('hard')}
-                        >
-                            <DifficultyButtonText darkMode={darkMode}>
-                                Hard
-                            </DifficultyButtonText>
-                        </DifficultyButton>
-
-                        {selectedDifficulty && (
-                            <SkipButton
+                            <DifficultyButton
                                 darkMode={darkMode}
-                                onPress={() => setShowDifficultyPopup(false)}
+                                onPress={() => handleDifficultySelect('easy')}
                             >
-                                <SkipButtonText darkMode={darkMode}>
-                                    Cancel
-                                </SkipButtonText>
-                            </SkipButton>
-                        )}
-                    </ModalContent>
-                </ModalOverlay>
-            </DifficultyModal>
+                                <DifficultyButtonText darkMode={darkMode}>
+                                    Easy
+                                </DifficultyButtonText>
+                            </DifficultyButton>
+
+                            <DifficultyButton
+                                darkMode={darkMode}
+                                onPress={() => handleDifficultySelect('medium')}
+                            >
+                                <DifficultyButtonText darkMode={darkMode}>
+                                    Medium
+                                </DifficultyButtonText>
+                            </DifficultyButton>
+
+                            <DifficultyButton
+                                darkMode={darkMode}
+                                onPress={() => handleDifficultySelect('hard')}
+                            >
+                                <DifficultyButtonText darkMode={darkMode}>
+                                    Hard
+                                </DifficultyButtonText>
+                            </DifficultyButton>
+
+                            {selectedDifficulty && (
+                                <SkipButton
+                                    darkMode={darkMode}
+                                    onPress={() => setShowDifficultyPopup(false)}
+                                >
+                                    <SkipButtonText darkMode={darkMode}>
+                                        Cancel
+                                    </SkipButtonText>
+                                </SkipButton>
+                            )}
+                        </ModalContent>
+                    </ModalOverlay>
+                </DifficultyModal>
+            )}
         </Container>
     );
 }

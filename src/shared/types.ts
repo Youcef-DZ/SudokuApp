@@ -33,7 +33,7 @@ export interface SudokuGameProps {
   errorColor?: string;
   successColor?: string;
   cellSize?: number;
-  onLogin?: () => void;
+  onLogin?: (domainHint?: string) => void;
   onLogout?: () => void;
   onNewGame?: () => void;
   isAuthenticated?: boolean;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, ScrollView, Pressable, Modal, Dimensions } from 'react-native';
+import { View, ScrollView, Pressable, Dimensions } from 'react-native';
 import styled from 'styled-components/native';
 // import * as Haptics from 'expo-haptics'; // Breaks React Native Web
 import type { SudokuGameProps } from '../shared/types.ts';
@@ -92,7 +92,15 @@ const CellText = styled.Text<{
     };
 `;
 
-const WinModal = styled(Modal)``;
+const WinModal = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  elevation: 10;
+`;
 
 const WinContainer = styled.View<{ darkMode: boolean }>`
   flex: 1;
@@ -395,83 +403,79 @@ export default function SudokuGame(props: SudokuGameProps) {
             </ScrollView>
 
             {/* Win Modal */}
-            <WinModal
-                visible={gameState.gameWon}
-                transparent
-                animationType="fade"
-                onRequestClose={() => gameState.setGameWon(false)}
-            >
-                <WinContainer darkMode={darkMode}>
-                    <WinContent darkMode={darkMode}>
-                        <WinTitle>🎉 Puzzle Solved!</WinTitle>
-                        <WinText darkMode={darkMode}>
-                            Time: {Math.floor(timer.elapsedTime / 60)}:{(timer.elapsedTime % 60).toString().padStart(2, '0')}
-                        </WinText>
-                        <WinText darkMode={darkMode}>
-                            Difficulty: {gameState.currentDifficulty}
-                        </WinText>
+            {gameState.gameWon && (
+                <WinModal
+                >
+                    <WinContainer darkMode={darkMode}>
+                        <WinContent darkMode={darkMode}>
+                            <WinTitle>🎉 Puzzle Solved!</WinTitle>
+                            <WinText darkMode={darkMode}>
+                                Time: {Math.floor(timer.elapsedTime / 60)}:{(timer.elapsedTime % 60).toString().padStart(2, '0')}
+                            </WinText>
+                            <WinText darkMode={darkMode}>
+                                Difficulty: {gameState.currentDifficulty}
+                            </WinText>
 
-                        <WinButton
-                            primary
-                            darkMode={darkMode}
-                            onPress={() => {
-                                gameState.setGameWon(false);
-                                onNewGame?.();
-                            }}
-                        >
-                            <WinButtonText primary darkMode={darkMode}>
-                                Play Again
-                            </WinButtonText>
-                        </WinButton>
+                            <WinButton
+                                primary
+                                darkMode={darkMode}
+                                onPress={() => {
+                                    gameState.setGameWon(false);
+                                    onNewGame?.();
+                                }}
+                            >
+                                <WinButtonText primary darkMode={darkMode}>
+                                    Play Again
+                                </WinButtonText>
+                            </WinButton>
 
-                        <WinButton
-                            darkMode={darkMode}
-                            onPress={() => {
-                                gameState.setGameWon(false);
-                                setShowLeaderboard(true);
-                            }}
-                        >
-                            <WinButtonText darkMode={darkMode}>
-                                View Leaderboard 🏆
-                            </WinButtonText>
-                        </WinButton>
-                    </WinContent>
-                </WinContainer>
-            </WinModal>
+                            <WinButton
+                                darkMode={darkMode}
+                                onPress={() => {
+                                    gameState.setGameWon(false);
+                                    setShowLeaderboard(true);
+                                }}
+                            >
+                                <WinButtonText darkMode={darkMode}>
+                                    View Leaderboard 🏆
+                                </WinButtonText>
+                            </WinButton>
+                        </WinContent>
+                    </WinContainer>
+                </WinModal>
+            )}
 
             {/* Leaderboard Modal */}
-            <WinModal
-                visible={showLeaderboard}
-                transparent
-                animationType="fade"
-                onRequestClose={() => setShowLeaderboard(false)}
-            >
-                <WinContainer darkMode={darkMode}>
-                    <WinContent darkMode={darkMode}>
-                        <WinTitle key="title">🏆 Leaderboard</WinTitle>
+            {showLeaderboard && (
+                <WinModal
+                >
+                    <WinContainer darkMode={darkMode}>
+                        <WinContent darkMode={darkMode}>
+                            <WinTitle key="title">🏆 Leaderboard</WinTitle>
 
-                        <Leaderboard
-                            key="leaderboard"
-                            scores={scores}
-                            loading={loadingScores}
-                            difficulty={scoreFilter}
-                            onDifficultyChange={setScoreFilter}
-                            darkMode={darkMode}
-                        />
+                            <Leaderboard
+                                key="leaderboard"
+                                scores={scores}
+                                loading={loadingScores}
+                                difficulty={scoreFilter}
+                                onDifficultyChange={setScoreFilter}
+                                darkMode={darkMode}
+                            />
 
-                        <WinButton
-                            key="close-btn"
-                            primary
-                            darkMode={darkMode}
-                            onPress={() => setShowLeaderboard(false)}
-                        >
-                            <WinButtonText primary darkMode={darkMode}>
-                                Close
-                            </WinButtonText>
-                        </WinButton>
-                    </WinContent>
-                </WinContainer>
-            </WinModal>
+                            <WinButton
+                                key="close-btn"
+                                primary
+                                darkMode={darkMode}
+                                onPress={() => setShowLeaderboard(false)}
+                            >
+                                <WinButtonText primary darkMode={darkMode}>
+                                    Close
+                                </WinButtonText>
+                            </WinButton>
+                        </WinContent>
+                    </WinContainer>
+                </WinModal>
+            )}
         </Container>
     );
 }

@@ -5,6 +5,14 @@ module.exports = function (api) {
         plugins: [
             // Temporarily disabled - causing bundling issues
             // 'react-native-reanimated/plugin',
+            [
+                'module-resolver',
+                {
+                    alias: {
+                        'react-native': 'react-native-web',
+                    },
+                },
+            ],
         ],
     };
 };

@@ -81,13 +81,9 @@ export default function SettingsModal({
               </>
             ) : (
               <>
-                <Pressable style={[styles.button, styles.buttonOutline]} onPress={() => onLogin?.('google')}>
-                  <Text style={styles.socialIcon}>G</Text>
-                  <Text style={styles.buttonText}>Continue with Google</Text>
-                </Pressable>
-                <Pressable style={[styles.button, styles.buttonOutline]} onPress={() => onLogin?.('microsoft')}>
-                  <Text style={styles.socialIcon}>M</Text>
-                  <Text style={styles.buttonText}>Continue with Microsoft</Text>
+                <Pressable style={[styles.button, styles.buttonOutline]} onPress={() => onLogin?.()}>
+                  <Ionicons name="log-in-outline" size={20} color={darkMode ? '#e2e8f0' : '#334155'} style={{ marginRight: 8 }} />
+                  <Text style={styles.buttonText}>Sign In / Register</Text>
                 </Pressable>
               </>
             )}

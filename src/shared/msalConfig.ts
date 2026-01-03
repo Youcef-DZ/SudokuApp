@@ -5,7 +5,7 @@ export const msalConfig: Configuration = {
   auth: {
     clientId: process.env.EXPO_PUBLIC_MSAL_CLIENT_ID || '',
     authority: process.env.EXPO_PUBLIC_MSAL_AUTHORITY || '',
-    redirectUri: typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin.includes('localhost')
+    redirectUri: typeof window !== 'undefined' && window.location && window.location.origin
       ? window.location.origin
       : process.env.EXPO_PUBLIC_MSAL_REDIRECT_URI || '',
   },

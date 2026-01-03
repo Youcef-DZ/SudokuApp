@@ -231,4 +231,4 @@ if (typeof self !== 'undefined' && Platform.OS !== 'web') {
 
 
 
-console.log('[Polyfills] Applied. global.crypto:', !!global.crypto, 'window.crypto:', !!(typeof window !== 'undefined' && window.crypto));
+

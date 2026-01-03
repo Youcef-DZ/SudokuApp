@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { View, ScrollView, Pressable, Dimensions } from 'react-native';
+import { View, ScrollView, Pressable, Dimensions, Platform, Modal } from 'react-native';
 import styled from 'styled-components/native';
-// import * as Haptics from 'expo-haptics'; // Breaks React Native Web
+import * as Haptics from 'expo-haptics';
 import type { SudokuGameProps } from '../shared/types.ts';
 import NumberPad from '../components/NumberPad';
 import Header from '../components/Header';
@@ -92,37 +92,26 @@ const CellText = styled.Text<{
     };
 `;
 
-const WinModal = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  elevation: 10;
-`;
-
 const WinContainer = styled.View<{ darkMode: boolean }>`
   flex: 1;
-  background-color: ${props => props.darkMode ? 'rgba(15, 23, 42, 0.8)' : 'rgba(255, 255, 255, 0.8)'};
+  background-color: ${props => props.darkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)'};
   align-items: center;
   justify-content: center;
+    padding: 20px;
 `;
 
 const WinContent = styled.View<{ darkMode: boolean }>`
-  background-color: ${props => props.darkMode ? 'rgba(15, 23, 42, 0.95)' : 'rgba(255, 255, 255, 0.95)'};
-  padding: 40px;
-  border-radius: 24px;
   width: 90%;
   max-width: 400px;
   align-items: center;
 `;
 
-const WinTitle = styled.Text`
+const WinTitle = styled.Text<{ darkMode: boolean }> `
   font-size: 32px;
   font-weight: 800;
   margin-bottom: 16px;
   text-align: center;
+    color: ${props => props.darkMode ? '#f1f5f9' : '#0f172a'};
 `;
 
 const WinText = styled.Text<{ darkMode: boolean }>`
@@ -234,6 +223,10 @@ export default function SudokuGame(props: SudokuGameProps) {
     useEffect(() => {
         if (gameState.gameCompleted) {
             timer.stopTimer();
+            // Trigger native success haptic
+            if (Platform.OS !== 'web') {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            }
         }
     }, [gameState.gameCompleted]);
 
@@ -244,7 +237,8 @@ export default function SudokuGame(props: SudokuGameProps) {
                 return '';
             }
         }
-        return process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
+        const defaultUrl = Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
+        return process.env.EXPO_PUBLIC_API_URL || defaultUrl;
     };
     const API_BASE_URL = getApiBaseUrl();
 
@@ -266,18 +260,20 @@ export default function SudokuGame(props: SudokuGameProps) {
     }, [showLeaderboard]);
 
     const handleNumberInput = (num: number) => {
-        // Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        if (Platform.OS !== 'web') {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
         gameState.handleNumberInput(num, cellSelection.selectedCell);
     };
 
     const handleCellPress = (row: number, col: number) => {
-        // Haptics.selectionAsync();
+        if (Platform.OS !== 'web') {
+            Haptics.selectionAsync();
+        }
         cellSelection.handleCellClick(row, col);
     };
 
     const boardSize = responsiveCellSize * 9;
-
-
 
     if (gameState.loading) {
         return (
@@ -403,79 +399,87 @@ export default function SudokuGame(props: SudokuGameProps) {
             </ScrollView>
 
             {/* Win Modal */}
-            {gameState.gameWon && (
-                <WinModal
-                >
-                    <WinContainer darkMode={darkMode}>
-                        <WinContent darkMode={darkMode}>
-                            <WinTitle>🎉 Puzzle Solved!</WinTitle>
-                            <WinText darkMode={darkMode}>
-                                Time: {Math.floor(timer.elapsedTime / 60)}:{(timer.elapsedTime % 60).toString().padStart(2, '0')}
-                            </WinText>
-                            <WinText darkMode={darkMode}>
-                                Difficulty: {gameState.currentDifficulty}
-                            </WinText>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={gameState.gameWon}
+                onRequestClose={() => {
+                    gameState.setGameWon(false);
+                }}
+            >
+                <WinContainer darkMode={darkMode}>
+                    <WinContent darkMode={darkMode}>
+                        <WinTitle darkMode={darkMode}>🎉 Puzzle Solved!</WinTitle>
+                        <WinText darkMode={darkMode}>
+                            Time: {Math.floor(timer.elapsedTime / 60)}:{(timer.elapsedTime % 60).toString().padStart(2, '0')}
+                        </WinText>
+                        <WinText darkMode={darkMode}>
+                            Difficulty: {gameState.currentDifficulty}
+                        </WinText>
 
-                            <WinButton
-                                primary
-                                darkMode={darkMode}
-                                onPress={() => {
-                                    gameState.setGameWon(false);
-                                    onNewGame?.();
-                                }}
-                            >
-                                <WinButtonText primary darkMode={darkMode}>
-                                    Play Again
-                                </WinButtonText>
-                            </WinButton>
+                        <WinButton
+                            primary
+                            darkMode={darkMode}
+                            onPress={() => {
+                                gameState.setGameWon(false);
+                                onNewGame?.();
+                            }}
+                        >
+                            <WinButtonText primary darkMode={darkMode}>
+                                Play Again
+                            </WinButtonText>
+                        </WinButton>
 
-                            <WinButton
-                                darkMode={darkMode}
-                                onPress={() => {
-                                    gameState.setGameWon(false);
-                                    setShowLeaderboard(true);
-                                }}
-                            >
-                                <WinButtonText darkMode={darkMode}>
-                                    View Leaderboard 🏆
-                                </WinButtonText>
-                            </WinButton>
-                        </WinContent>
-                    </WinContainer>
-                </WinModal>
-            )}
+                        <WinButton
+                            darkMode={darkMode}
+                            onPress={() => {
+                                gameState.setGameWon(false);
+                                setShowLeaderboard(true);
+                            }}
+                        >
+                            <WinButtonText darkMode={darkMode}>
+                                View Leaderboard 🏆
+                            </WinButtonText>
+                        </WinButton>
+                    </WinContent>
+                </WinContainer>
+            </Modal>
 
             {/* Leaderboard Modal */}
-            {showLeaderboard && (
-                <WinModal
-                >
-                    <WinContainer darkMode={darkMode}>
-                        <WinContent darkMode={darkMode}>
-                            <WinTitle key="title">🏆 Leaderboard</WinTitle>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showLeaderboard}
+                onRequestClose={() => {
+                    setShowLeaderboard(false);
+                }}
+            >
+                <WinContainer darkMode={darkMode}>
+                    <WinContent darkMode={darkMode}>
+                        <WinTitle darkMode={darkMode} key="title">🏆 Leaderboard</WinTitle>
 
-                            <Leaderboard
-                                key="leaderboard"
-                                scores={scores}
-                                loading={loadingScores}
-                                difficulty={scoreFilter}
-                                onDifficultyChange={setScoreFilter}
-                                darkMode={darkMode}
-                            />
+                        <Leaderboard
+                            key="leaderboard"
+                            scores={scores}
+                            loading={loadingScores}
+                            difficulty={scoreFilter}
+                            onDifficultyChange={setScoreFilter}
+                            darkMode={darkMode}
+                        />
 
-                            <WinButton
-                                key="close-btn"
-                                primary
-                                darkMode={darkMode}
-                                onPress={() => setShowLeaderboard(false)}
-                            >
-                                <WinButtonText primary darkMode={darkMode}>
-                                    Close
-                                </WinButtonText>
-                            </WinButton>
-                        </WinContent>
-                    </WinContainer>
-                </WinModal>
-            )}
+                        <WinButton
+                            key="close-btn"
+                            primary
+                            darkMode={darkMode}
+                            onPress={() => setShowLeaderboard(false)}
+                        >
+                            <WinButtonText primary darkMode={darkMode}>
+                                Close
+                            </WinButtonText>
+                        </WinButton>
+                    </WinContent>
+                </WinContainer>
+            </Modal>
         </Container>
     );
 }

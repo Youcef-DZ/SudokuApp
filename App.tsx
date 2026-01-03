@@ -1,5 +1,5 @@
-import './src/shared/fixUrlPolyfill';
 import './src/shared/polyfills';
+import './src/shared/fixUrlPolyfill';
 import React, { useState, useEffect } from 'react';
 import { View, Text } from 'react-native';
 
@@ -10,17 +10,9 @@ import { theme } from './src/shared/theme';
 import { msalConfig } from './src/shared/msalConfig';
 import GameWrapper from './src/game/GameWrapper';
 
-const msalInstance = new PublicClientApplication(msalConfig);
-
-// Set active account on page load
 
 
-msalInstance.addEventCallback((event) => {
-    if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
-        const payload = event.payload as AuthenticationResult;
-        msalInstance.setActiveAccount(payload.account);
-    }
-});
+
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: Error | null }> {
     constructor(props: { children: React.ReactNode }) {
@@ -52,21 +44,60 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 }
 
 export default function App() {
-    const [isMsalInitialized, setIsMsalInitialized] = useState(false);
+    const [msalInstance, setMsalInstance] = useState<PublicClientApplication | null>(null);
+
 
     useEffect(() => {
-        msalInstance.initialize().then(() => {
-            // Set active account on page load
-            if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
-                msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
+        const initMsal = async () => {
+            try {
+                // Verify Polyfill Functionality
+                if (window.crypto && window.crypto.getRandomValues) {
+                    try {
+                        const testArr = new Uint8Array(4);
+                        window.crypto.getRandomValues(testArr);
+
+                    } catch (e) {
+                        console.error('[App.tsx] Crypto Functionality Test FAILED:', e);
+                    }
+                } else {
+                    console.error('[App.tsx] window.crypto.getRandomValues is MISSING inside useEffect');
+                }
+
+
+                const pca = new PublicClientApplication(msalConfig);
+
+                // Add event callback
+                pca.addEventCallback((event) => {
+                    if (event.eventType === EventType.LOGIN_SUCCESS && event.payload) {
+                        const payload = event.payload as AuthenticationResult;
+                        pca.setActiveAccount(payload.account);
+                    }
+                });
+
+                // Initialize
+                await pca.initialize();
+
+                // Set active account on page load
+                if (!pca.getActiveAccount() && pca.getAllAccounts().length > 0) {
+                    pca.setActiveAccount(pca.getAllAccounts()[0]);
+                }
+
+                setMsalInstance(pca);
+            } catch (error) {
+                console.error("MSAL Initialization Failed (Stack Trace):", error);
+                // @ts-ignore
+                if (error.errorCode) console.error("Error Code:", error.errorCode);
+                // @ts-ignore
+                if (error.errorMessage) console.error("Error Message:", error.errorMessage);
+                // @ts-ignore
+                if (error.stack) console.error("Stack:", error.stack);
             }
-            setIsMsalInitialized(true);
-        }).catch(e => {
-            console.error("MSAL Initialization Error:", e);
-        });
+        };
+
+        initMsal();
     }, []);
 
-    if (!isMsalInitialized) {
+    if (!msalInstance) {
         return (
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f3f4f6' }}>
                 <Text>Initializing Authentication...</Text>

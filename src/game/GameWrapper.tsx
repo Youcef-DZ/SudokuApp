@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, Modal } from 'react-native';
 import styled from 'styled-components/native';
 import { useMSALAuth } from '../hooks/useMSALAuth';
 import SudokuGame from './SudokuGame';
@@ -17,15 +17,7 @@ const Container = styled.View<{ darkMode: boolean }>`
   background-color: ${props => props.darkMode ? '#1e293b' : '#f3f4f6'};
 `;
 
-const DifficultyModal = styled.View`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  elevation: 10;
-`;
+
 
 const ModalOverlay = styled.View`
   flex: 1;
@@ -120,55 +112,59 @@ export default function GameWrapper(props: GameWrapperProps) {
             )}
 
             {/* Difficulty Selection Modal */}
-            {showDifficultyPopup && (
-                <DifficultyModal
-                // Removed Modal-specific props
-                >
-                    <ModalOverlay>
-                        <ModalContent darkMode={darkMode}>
-                            <ModalTitle darkMode={darkMode}>Choose Difficulty</ModalTitle>
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={showDifficultyPopup}
+                onRequestClose={() => {
+                    // Start with medium if forced closed
+                    if (!selectedDifficulty) handleDifficultySelect('medium');
+                }}
+            >
+                <ModalOverlay>
+                    <ModalContent darkMode={darkMode}>
+                        <ModalTitle darkMode={darkMode}>Choose Difficulty</ModalTitle>
 
-                            <DifficultyButton
+                        <DifficultyButton
+                            darkMode={darkMode}
+                            onPress={() => handleDifficultySelect('easy')}
+                        >
+                            <DifficultyButtonText darkMode={darkMode}>
+                                Easy
+                            </DifficultyButtonText>
+                        </DifficultyButton>
+
+                        <DifficultyButton
+                            darkMode={darkMode}
+                            onPress={() => handleDifficultySelect('medium')}
+                        >
+                            <DifficultyButtonText darkMode={darkMode}>
+                                Medium
+                            </DifficultyButtonText>
+                        </DifficultyButton>
+
+                        <DifficultyButton
+                            darkMode={darkMode}
+                            onPress={() => handleDifficultySelect('hard')}
+                        >
+                            <DifficultyButtonText darkMode={darkMode}>
+                                Hard
+                            </DifficultyButtonText>
+                        </DifficultyButton>
+
+                        {selectedDifficulty && (
+                            <SkipButton
                                 darkMode={darkMode}
-                                onPress={() => handleDifficultySelect('easy')}
+                                onPress={() => setShowDifficultyPopup(false)}
                             >
-                                <DifficultyButtonText darkMode={darkMode}>
-                                    Easy
-                                </DifficultyButtonText>
-                            </DifficultyButton>
-
-                            <DifficultyButton
-                                darkMode={darkMode}
-                                onPress={() => handleDifficultySelect('medium')}
-                            >
-                                <DifficultyButtonText darkMode={darkMode}>
-                                    Medium
-                                </DifficultyButtonText>
-                            </DifficultyButton>
-
-                            <DifficultyButton
-                                darkMode={darkMode}
-                                onPress={() => handleDifficultySelect('hard')}
-                            >
-                                <DifficultyButtonText darkMode={darkMode}>
-                                    Hard
-                                </DifficultyButtonText>
-                            </DifficultyButton>
-
-                            {selectedDifficulty && (
-                                <SkipButton
-                                    darkMode={darkMode}
-                                    onPress={() => setShowDifficultyPopup(false)}
-                                >
-                                    <SkipButtonText darkMode={darkMode}>
-                                        Cancel
-                                    </SkipButtonText>
-                                </SkipButton>
-                            )}
-                        </ModalContent>
-                    </ModalOverlay>
-                </DifficultyModal>
-            )}
+                                <SkipButtonText darkMode={darkMode}>
+                                    Cancel
+                                </SkipButtonText>
+                            </SkipButton>
+                        )}
+                    </ModalContent>
+                </ModalOverlay>
+            </Modal>
         </Container>
     );
 }

@@ -3,6 +3,10 @@
 
 // API Base URL - works for both web and mobile
 // For mobile: Use your computer's IP address (find with: ipconfig getifaddr en0)
+import { Platform } from 'react-native';
+
+// API Base URL - works for both web and mobile
+// For mobile: Use your computer's IP address (find with: ipconfig getifaddr en0)
 const getApiBaseUrl = () => {
   // Check if we're in a browser environment
   if (typeof window !== 'undefined' && typeof window.location !== 'undefined') {
@@ -13,7 +17,9 @@ const getApiBaseUrl = () => {
   }
 
   // For development on mobile/web, use environment variable or localhost
-  const MOBILE_API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8080';
+  // Android Emulator requires 10.0.2.2 to access host machine's localhost
+  const defaultUrl = Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
+  const MOBILE_API_URL = process.env.EXPO_PUBLIC_API_URL || defaultUrl;
 
   return MOBILE_API_URL;
 };

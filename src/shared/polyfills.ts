@@ -96,7 +96,7 @@ if (typeof window !== 'undefined' && Platform.OS !== 'web') {
     if (!window.document) {
         // @ts-ignore
         window.document = {
-            createElement: (tag: string) => ({
+            createElement: () => ({
                 style: {},
                 setAttribute: () => { },
                 getElementsByTagName: () => [],

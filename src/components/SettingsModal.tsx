@@ -1,4 +1,3 @@
-import React from 'react';
 import { Pressable, View, Text, StyleSheet, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 

@@ -101,8 +101,8 @@ const WinContainer = styled.View<{ darkMode: boolean }>`
 `;
 
 const WinContent = styled.View<{ darkMode: boolean }>`
-  width: 90%;
-  max-width: 400px;
+  width: 95%;
+  max-width: 600px;
   align-items: center;
 `;
 

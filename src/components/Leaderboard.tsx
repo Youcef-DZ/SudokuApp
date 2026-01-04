@@ -75,7 +75,7 @@ export default function Leaderboard({ scores, loading, difficulty, onDifficultyC
         .slice(0, 20);
 
     return (
-        <View>
+        <View style={{ width: '90%' }}>
             <FilterRow>
                 {(['easy', 'medium', 'hard'] as const).map(diff => (
                     <FilterButton
@@ -96,13 +96,13 @@ export default function Leaderboard({ scores, loading, difficulty, onDifficultyC
             ) : (
                 <>
                     <ScoreRow darkMode={darkMode} isHeader>
-                        <ScoreText darkMode={darkMode} bold flex={0.8}>#</ScoreText>
-                        <ScoreText darkMode={darkMode} bold flex={2}>Player</ScoreText>
-                        <ScoreText darkMode={darkMode} bold flex={1.5}>Time</ScoreText>
-                        <ScoreText darkMode={darkMode} bold flex={1.2}>Level</ScoreText>
+                        <ScoreText darkMode={darkMode} bold flex={0.7}>#</ScoreText>
+                        <ScoreText darkMode={darkMode} bold flex={2.3}>Player</ScoreText>
+                        <ScoreText darkMode={darkMode} bold flex={1.3}>Time</ScoreText>
+                        <ScoreText darkMode={darkMode} bold flex={1.7}>Date</ScoreText>
                     </ScoreRow>
 
-                    <ScrollContainer>
+                    <ScrollContainer key="scroll-container">
                         {filteredScores.length === 0 ? (
                             <EmptyText darkMode={darkMode}>
                                 No scores yet. Be the first!
@@ -114,15 +114,18 @@ export default function Leaderboard({ scores, loading, difficulty, onDifficultyC
                                     const minutes = Math.floor(score.time / 60);
                                     const seconds = score.time % 60;
                                     const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                                    const dateStr = score.date ? new Date(score.date).toLocaleDateString(undefined, {
+                                        year: 'numeric',
+                                        month: 'short',
+                                        day: 'numeric'
+                                    }) : '-';
 
                                     return (
                                         <ScoreRow key={key} darkMode={darkMode}>
-                                            <ScoreText darkMode={darkMode} flex={0.8}>{index + 1}</ScoreText>
-                                            <ScoreText darkMode={darkMode} flex={2}>{score.userName}</ScoreText>
-                                            <ScoreText darkMode={darkMode} flex={1.5}>{timeStr}</ScoreText>
-                                            <ScoreText darkMode={darkMode} flex={1.2}>
-                                                {score.difficulty.charAt(0).toUpperCase() + score.difficulty.slice(1)}
-                                            </ScoreText>
+                                            <ScoreText darkMode={darkMode} flex={0.7}>{index + 1}</ScoreText>
+                                            <ScoreText darkMode={darkMode} flex={2.3} numberOfLines={1} ellipsizeMode="tail">{score.userName}</ScoreText>
+                                            <ScoreText darkMode={darkMode} flex={1.3}>{timeStr}</ScoreText>
+                                            <ScoreText darkMode={darkMode} flex={1.7}>{dateStr}</ScoreText>
                                         </ScoreRow>
                                     );
                                 })}

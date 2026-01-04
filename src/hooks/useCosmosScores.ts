@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import type { ScoreData } from '../data/Database';
+import { API_BASE_URL } from '../data/Database';
 
 interface UseCosmosScoresReturn {
     scores: ScoreData[];
@@ -26,8 +27,8 @@ export function useCosmosScores(difficulty?: 'easy' | 'medium' | 'hard'): UseCos
             setError(null);
 
             const endpoint = difficulty
-                ? `/api/scores?difficulty=${difficulty}`
-                : '/api/scores';
+                ? `${API_BASE_URL}/api/scores?difficulty=${difficulty}`
+                : `${API_BASE_URL}/api/scores`;
 
             const response = await fetch(endpoint);
 
@@ -47,7 +48,7 @@ export function useCosmosScores(difficulty?: 'easy' | 'medium' | 'hard'): UseCos
 
     const saveScore = async (score: Omit<ScoreData, 'id' | 'date'>) => {
         try {
-            const response = await fetch('/api/scores', {
+            const response = await fetch(`${API_BASE_URL}/api/scores`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(score)

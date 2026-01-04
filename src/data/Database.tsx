@@ -20,16 +20,16 @@ const getApiBaseUrl = () => {
   // Android Emulator requires 10.0.2.2 to access host machine's localhost
   const defaultUrl = Platform.OS === 'android' ? 'http://10.0.2.2:8080' : 'http://localhost:8080';
 
-  console.log('debug env var:', process.env.EXPO_PUBLIC_API_URL);
+
 
   const MOBILE_API_URL = process.env.EXPO_PUBLIC_API_URL || defaultUrl;
 
-  console.log('Final API URL being used:', MOBILE_API_URL);
+
 
   return MOBILE_API_URL;
 };
 
-const API_BASE_URL = getApiBaseUrl();
+export const API_BASE_URL = getApiBaseUrl();
 
 export interface PuzzleData {
   id: number;

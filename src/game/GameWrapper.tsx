@@ -79,6 +79,7 @@ export default function GameWrapper(props: GameWrapperProps) {
     const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | null>(startWithDifficulty || null);
     const [showDifficultyPopup, setShowDifficultyPopup] = useState(!startWithDifficulty);
     const [darkMode, setDarkMode] = useState(darkModeProp);
+    const [gameId, setGameId] = useState(0);
 
     const toggleTheme = useCallback(() => {
         setDarkMode(prev => !prev);
@@ -86,6 +87,7 @@ export default function GameWrapper(props: GameWrapperProps) {
 
     const handleDifficultySelect = useCallback((difficulty: Difficulty) => {
         setSelectedDifficulty(difficulty);
+        setGameId(prev => prev + 1); // Force remount even if difficulty is same
         setShowDifficultyPopup(false);
     }, []);
 
@@ -98,7 +100,7 @@ export default function GameWrapper(props: GameWrapperProps) {
         <Container darkMode={darkMode}>
             {selectedDifficulty && (
                 <SudokuGame
-                    key={selectedDifficulty} // Force remount when difficulty changes
+                    key={`${selectedDifficulty}-${gameId}`} // Force remount when difficulty changes or new game started
                     difficulty={selectedDifficulty}
                     isAuthenticated={isAuthenticated}
                     userName={user?.name || user?.email}

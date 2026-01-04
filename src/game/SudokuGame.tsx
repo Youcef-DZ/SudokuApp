@@ -10,6 +10,7 @@ import Leaderboard from '../components/Leaderboard';
 import { useGameState } from './hooks/useGameState.ts';
 import { useCellSelection } from './hooks/useCellSelection.ts';
 import { useTimer } from './hooks/useTimer.ts';
+import { useCosmosScores } from '../hooks/useCosmosScores.ts';
 import type { ScoreData } from '../data/Database.tsx';
 
 const Container = styled.View<{ darkMode: boolean }>`
@@ -184,6 +185,7 @@ export default function SudokuGame(props: SudokuGameProps) {
     const gameState = useGameState(difficulty);
     const cellSelection = useCellSelection();
     const timer = useTimer();
+    const { saveScore } = useCosmosScores();
 
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [scores, setScores] = useState<ScoreData[]>([]);
@@ -227,8 +229,21 @@ export default function SudokuGame(props: SudokuGameProps) {
             if (Platform.OS !== 'web') {
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
             }
+
+            // Save score if authenticated and not already saved
+            if (isAuthenticated && userName && !scoreSavedRef.current) {
+                saveScore({
+                    userName: userName,
+                    time: timer.elapsedTime,
+                    difficulty: difficulty as 'easy' | 'medium' | 'hard'
+                }).then(() => {
+                    scoreSavedRef.current = true;
+                }).catch(err => {
+                    console.error('Failed to save score:', err);
+                });
+            }
         }
-    }, [gameState.gameCompleted]);
+    }, [gameState.gameCompleted, isAuthenticated, userName, difficulty]);
 
     // API Base URL for mobile development
     const getApiBaseUrl = () => {

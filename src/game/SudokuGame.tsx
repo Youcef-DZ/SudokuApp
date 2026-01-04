@@ -281,6 +281,35 @@ export default function SudokuGame(props: SudokuGameProps) {
         gameState.handleNumberInput(num, cellSelection.selectedCell);
     };
 
+    // Keyboard support for Web
+    useEffect(() => {
+        if (Platform.OS === 'web') {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                // Prevent default scrolling for arrow keys
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+                    e.preventDefault();
+                }
+
+                if (e.key >= '1' && e.key <= '9') {
+                    handleNumberInput(parseInt(e.key));
+                } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+                    handleNumberInput(0);
+                } else if (e.key === 'ArrowUp') {
+                    cellSelection.moveSelection('up');
+                } else if (e.key === 'ArrowDown') {
+                    cellSelection.moveSelection('down');
+                } else if (e.key === 'ArrowLeft') {
+                    cellSelection.moveSelection('left');
+                } else if (e.key === 'ArrowRight') {
+                    cellSelection.moveSelection('right');
+                }
+            };
+
+            window.addEventListener('keydown', handleKeyDown);
+            return () => window.removeEventListener('keydown', handleKeyDown);
+        }
+    }, [cellSelection.selectedCell, gameState.currentBoard]); // Re-bind when selection changes to capture latest state logic if needed, but mostly for closure safety
+
     const handleCellPress = (row: number, col: number) => {
         if (Platform.OS !== 'web') {
             Haptics.selectionAsync();

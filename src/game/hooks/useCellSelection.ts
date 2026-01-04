@@ -5,6 +5,7 @@ interface UseCellSelectionReturn {
     selectedCell: CellPosition | null;
     handleCellClick: (row: number, col: number) => void;
     handleKeyPress: (e: KeyboardEvent, onNumberInput: (num: number) => void) => void;
+    moveSelection: (direction: 'up' | 'down' | 'left' | 'right') => void;
 }
 
 /**
@@ -15,6 +16,25 @@ export function useCellSelection(): UseCellSelectionReturn {
 
     const handleCellClick = useCallback((row: number, col: number) => {
         setSelectedCell({ row, col });
+    }, []);
+
+    const moveSelection = useCallback((direction: 'up' | 'down' | 'left' | 'right') => {
+        setSelectedCell(current => {
+            if (!current) return { row: 0, col: 0 }; // Start at top-left if nothing selected
+
+            const { row, col } = current;
+            let newRow = row;
+            let newCol = col;
+
+            switch (direction) {
+                case 'up': newRow = Math.max(0, row - 1); break;
+                case 'down': newRow = Math.min(8, row + 1); break;
+                case 'left': newCol = Math.max(0, col - 1); break;
+                case 'right': newCol = Math.min(8, col + 1); break;
+            }
+
+            return { row: newRow, col: newCol };
+        });
     }, []);
 
     const handleKeyPress = useCallback((e: KeyboardEvent, onNumberInput: (num: number) => void) => {
@@ -29,6 +49,7 @@ export function useCellSelection(): UseCellSelectionReturn {
     return {
         selectedCell,
         handleCellClick,
-        handleKeyPress
+        handleKeyPress,
+        moveSelection
     };
 }

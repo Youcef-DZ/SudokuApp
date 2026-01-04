@@ -114,6 +114,3 @@ src/
 - **Auth**: If login fails on the simulator, run `git clean -ffdx` to clear the native browser cache (WARNING: this deletes all untracked files).
 
 ---
-
-**Built by [Your Name]**  
-*Full Stack Mobile Engineer*

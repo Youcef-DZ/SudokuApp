@@ -12,7 +12,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: Production
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -24,40 +23,17 @@ jobs:
         with:
           node-version: '24.x'
 
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: TypeScript type checking
-        run: npx tsc --noEmit || echo "⚠️ TypeScript errors found (non-blocking for legacy code)"
-        continue-on-error: true
-
-      - name: Run tests
-        run: npm test
-        continue-on-error: false
-
-      - name: Build and export
-        run: npx expo export --platform web
-        env:
-          EXPO_PUBLIC_MSAL_CLIENT_ID: ${{ secrets.EXPO_PUBLIC_MSAL_CLIENT_ID }}
-          EXPO_PUBLIC_MSAL_AUTHORITY: ${{ secrets.EXPO_PUBLIC_MSAL_AUTHORITY }}
-          EXPO_PUBLIC_MSAL_REDIRECT_URI: ${{ secrets.EXPO_PUBLIC_MSAL_REDIRECT_URI }}
-
-      - name: Copy server files to dist
+      - name: npm install, build, and test
         run: |
-          cp backend/server.js dist/
-          cp package.production.json dist/package.json
-          cp web.config dist/
-
-      - name: Install production dependencies in dist
-        run: |
-          cd dist
-          npm install --omit=dev
+          npm install
+          npm run build --if-present
+          npm run test --if-present
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: dist
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
@@ -75,9 +51,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_6E10408A7A794415A823490D149EBAC9 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_310934BDA3A9471687936EAAA99E31D7 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5CC9E935F3F34718A802AB72A1C2E196 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_E1044B631B554164ACB85191C27E07BD }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C84F674D8B2D477D8A625289FDDC776E }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_D2373CD259CA40FBAA404B0E34811F02 }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp

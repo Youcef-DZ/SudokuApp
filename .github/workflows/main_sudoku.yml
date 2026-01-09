@@ -12,6 +12,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: Production
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -23,17 +24,40 @@ jobs:
         with:
           node-version: '24.x'
 
-      - name: npm install, build, and test
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: TypeScript type checking
+        run: npx tsc --noEmit || echo "⚠️ TypeScript errors found (non-blocking for legacy code)"
+        continue-on-error: true
+
+      - name: Run tests
+        run: npm test
+        continue-on-error: false
+
+      - name: Build and export
+        run: npx expo export --platform web
+        env:
+          EXPO_PUBLIC_MSAL_CLIENT_ID: ${{ secrets.EXPO_PUBLIC_MSAL_CLIENT_ID }}
+          EXPO_PUBLIC_MSAL_AUTHORITY: ${{ secrets.EXPO_PUBLIC_MSAL_AUTHORITY }}
+          EXPO_PUBLIC_MSAL_REDIRECT_URI: ${{ secrets.EXPO_PUBLIC_MSAL_REDIRECT_URI }}
+
+      - name: Copy server files to dist
         run: |
-          npm install
-          npm run build --if-present
-          npm run test --if-present
+          cp backend/server.js dist/
+          cp package.production.json dist/package.json
+          cp web.config dist/
+
+      - name: Install production dependencies in dist
+        run: |
+          cd dist
+          npm install --omit=dev
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: dist
 
   deploy:
     runs-on: ubuntu-latest

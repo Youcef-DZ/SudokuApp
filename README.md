@@ -1,4 +1,4 @@
-# Sudoku Framer
+# Sudoku App
 
 > **A production-ready, cross-platform mobile application built to demonstrate advanced React Native & Expo capabilities.**
 
@@ -54,8 +54,8 @@ Recruiters and engineers can run this locally to test the cross-platform capabil
 
 ### 1. Setup & Install
 ```bash
-git clone https://github.com/yourusername/sudoku-framer.git
-cd sudoku-framer
+git clone https://github.com/Youcef-DZ/SudokuApp.git
+cd SudokuApp
 npm install
 ```
 

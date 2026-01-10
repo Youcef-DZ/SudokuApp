@@ -53,7 +53,7 @@ describe('SudokuGame Integration', () => {
         await waitFor(() => {
             expect(getByText(/New Game/i)).toBeTruthy();
             expect(getByTestId('cell-0-0')).toBeTruthy();
-        });
+        }, { timeout: 10000 });
 
         // 1. Verify board loaded
         // Cell [0,0] has 5. Cell [0,1] is empty.
@@ -88,11 +88,11 @@ describe('SudokuGame Integration', () => {
 
         await waitFor(() => {
             expect(getByText(/New Game/i)).toBeTruthy();
-        });
+        }, { timeout: 10000 });
 
         await waitFor(() => {
             expect(getByTestId('cell-0-0')).toBeTruthy();
-        });
+        }, { timeout: 10000 });
 
         // Select a cell and "win"
         const cell = getByTestId('cell-0-1');

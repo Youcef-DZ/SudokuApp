@@ -100,7 +100,7 @@ jest.mock('@descope/react-sdk', () => ({
 // Mock KeyboardEvent for React Native (doesn't exist in RN)
 global.KeyboardEvent = class KeyboardEvent {
     key: string;
-    constructor(type: string, init: { key: string }) {
+    constructor(_type: string, init: { key: string }) {
         this.key = init.key;
     }
 } as any;
